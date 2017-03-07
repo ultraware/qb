@@ -17,9 +17,9 @@ var temp = struct {
 	C qb.TableField
 	qb.Table
 }{
-	qb.TableField{Parent: &tempTable, Name: `a`},
-	qb.TableField{Parent: &tempTable, Name: `b`},
-	qb.TableField{Parent: &tempTable, Name: `c`},
+	qb.TableField{Parent: &tempTable, Name: `a`, Type: `int`},
+	qb.TableField{Parent: &tempTable, Name: `b`, Type: `string`},
+	qb.TableField{Parent: &tempTable, Name: `c`, Type: `string`},
 	tempTable,
 }
 
@@ -28,7 +28,7 @@ var tbltwo = struct {
 	C qb.TableField
 	qb.Table
 }{
-	qb.TableField{Parent: &tbltwoTable, Name: `c`},
+	qb.TableField{Parent: &tbltwoTable, Name: `c`, Type: `string`},
 	tbltwoTable,
 }
 
@@ -38,8 +38,8 @@ var tblthree = struct {
 	E qb.TableField
 	qb.Table
 }{
-	qb.TableField{Parent: &tblthreeTable, Name: `d`},
-	qb.TableField{Parent: &tblthreeTable, Name: `e`},
+	qb.TableField{Parent: &tblthreeTable, Name: `d`, Type: `int`},
+	qb.TableField{Parent: &tblthreeTable, Name: `e`, Type: `string`},
 	tblthreeTable,
 }
 
@@ -47,17 +47,17 @@ func TestSelect(t *testing.T) {
 	assert := assert.New(t)
 
 	q := temp.Select(qf.Min(temp.A), qf.Max(temp.A), qf.Average(tbltwo.C), qf.Count(tblthree.E)).
-		LeftJoin(temp.B, tbltwo.C).
-		InnerJoin(tblthree.D, tbltwo.C).
-		Where(qc.GreaterEqual(temp.A, qb.Value(2))).
-		Where(qc.Equal(qb.Value(1), qb.Value(1))).
+		LeftJoin(temp.C, tbltwo.C).
+		InnerJoin(tblthree.E, tbltwo.C).
+		Where(qc.Gte(temp.A, qb.Value(2))).
+		Where(qc.Eq(qb.Value(1), qb.Value(1))).
 		OrderBy(tblthree.E).
 		GroupBy(tblthree.E)
 
 	s, v := q.SQL()
 	t.Log(s, v)
 
-	assert.Equal(`SELECT min(a1.a), max(a1.a), avg(a2.c), count(a3.e) FROM temp a1 LEFT JOIN tbltwo a2 ON (a1.b = a2.c) INNER JOIN tbl3 a3 ON (a3.d = a2.c) WHERE a1.a >= ? AND ? = ? GROUP BY a3.e ORDER BY a3.e`, s, `Incorrect query`)
+	assert.Equal(`SELECT min(a1.a), max(a1.a), avg(a2.c), count(a3.e) FROM temp a1 LEFT JOIN tbltwo a2 ON (a1.c = a2.c) INNER JOIN tbl3 a3 ON (a3.e = a2.c) WHERE a1.a >= ? AND ? = ? GROUP BY a3.e ORDER BY a3.e`, s, `Incorrect query`)
 	assert.Equal(v, []interface{}{2, 1, 1})
 }
 
@@ -77,16 +77,14 @@ func BenchmarkSimpleSelectSQL(b *testing.B) {
 }
 
 func BenchmarkCommonSelectSQL(b *testing.B) {
-	q := temp.Select(qf.Min(temp.A), qf.Max(temp.A), qf.Average(tbltwo.C), qf.Count(tblthree.E)).
-		LeftJoin(temp.B, tbltwo.C).
-		InnerJoin(tblthree.D, tbltwo.C).
-		Where(qc.GreaterEqual(temp.A, qb.Value(2))).
-		Where(qc.Equal(qb.Value(1), qb.Value(1))).
-		OrderBy(tblthree.E).
-		GroupBy(tblthree.E)
-
-	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
+		q := temp.Select(qf.Min(temp.A), qf.Max(temp.A), qf.Average(tbltwo.C), qf.Count(tblthree.E)).
+			LeftJoin(temp.C, tbltwo.C).
+			InnerJoin(tblthree.E, tbltwo.C).
+			Where(qc.Gte(temp.A, qb.Value(2))).
+			Where(qc.Eq(qb.Value(1), qb.Value(1))).
+			OrderBy(tblthree.E).
+			GroupBy(tblthree.E)
 		_, _ = q.SQL()
 	}
 }
