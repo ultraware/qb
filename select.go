@@ -87,7 +87,7 @@ func (q SelectQuery) OrderBy(o ...FieldOrder) SelectQuery {
 // SQL ...
 func (q SelectQuery) SQL() (string, []interface{}) {
 
-	b := selectBuilder{[]Field{}, newGenerator()}
+	b := selectBuilder{newGenerator(), ValueList{}}
 
 	s := b.selectSQL(q.fields)
 	s += b.fromSQL(q.source)
@@ -96,28 +96,21 @@ func (q SelectQuery) SQL() (string, []interface{}) {
 	s += b.groupSQL(q.group)
 	s += b.orderSQL(q.order)
 
-	for _, v := range b.usage {
-		if f, ok := v.(ValueField); ok {
-			q.values = append(q.values, f.Value)
-		}
-	}
-
-	return s, q.values
+	return s, []interface{}(b.list)
 }
 
 type selectBuilder struct {
-	usage []Field
-	alias aliasGenerator
+	alias AliasGenerator
+	list  ValueList
 }
 
 func (b *selectBuilder) listFields(f []Field) string {
 	s := ``
 	for k, v := range f {
-		b.usage = append(b.usage, v)
 		if k > 0 {
 			s += `, `
 		}
-		s += v.QueryString(b.alias.Get(v.Source()))
+		s += v.QueryString(&b.alias, &b.list)
 	}
 	return s
 }
@@ -134,8 +127,8 @@ func (b *selectBuilder) joinSQL(src Source, j []Join) string {
 	s := ``
 
 	for _, v := range j {
-		f1 := v.Fields[0].QueryString(b.alias.Get(v.Fields[0].Source()))
-		f2 := v.Fields[1].QueryString(b.alias.Get(v.Fields[1].Source()))
+		f1 := v.Fields[0].QueryString(&b.alias, &b.list)
+		f2 := v.Fields[1].QueryString(&b.alias, &b.list)
 
 		s += v.Type + ` JOIN ` + v.New.QueryString() + ` ` + b.alias.Get(v.New) + ` ON (` + f1 + ` = ` + f2 + `) `
 	}
@@ -146,19 +139,13 @@ func (b *selectBuilder) joinSQL(src Source, j []Join) string {
 func (b *selectBuilder) whereSQL(c []Condition) string {
 	s := ``
 	for k, v := range c {
-		b.usage = append(b.usage, v.Fields...)
-
 		if k == 0 {
 			s += `WHERE `
 		} else {
 			s += ` AND `
 		}
 
-		fieldStrs := []string{}
-		for _, v := range v.Fields {
-			fieldStrs = append(fieldStrs, v.QueryString(b.alias.Get(v.Source())))
-		}
-		s += v.Action(fieldStrs...)
+		s += v.Action(v.Fields, &b.alias, &b.list)
 	}
 
 	return s
@@ -171,11 +158,10 @@ func (b *selectBuilder) orderSQL(o []FieldOrder) string {
 
 	s := ` ORDER BY `
 	for k, v := range o {
-		b.usage = append(b.usage, v.Field)
 		if k > 0 {
 			s += `, `
 		}
-		s += v.Field.QueryString(b.alias.Get(v.Field.Source())) + ` ` + v.Order
+		s += v.Field.QueryString(&b.alias, &b.list) + ` ` + v.Order
 	}
 	return s
 }

@@ -35,7 +35,7 @@ func (t *Table) Select(f ...Field) SelectQuery {
 
 // Field represents a field in a query
 type Field interface {
-	QueryString(string) string
+	QueryString(*AliasGenerator, *ValueList) string
 	Source() Source
 	DataType() string
 }
@@ -48,8 +48,8 @@ type TableField struct {
 }
 
 // QueryString ...
-func (f TableField) QueryString(alias string) string {
-	return alias + `.` + f.Name
+func (f TableField) QueryString(ag *AliasGenerator, _ *ValueList) string {
+	return ag.Get(f.Parent) + `.` + f.Name
 }
 
 // Source ...
@@ -70,8 +70,8 @@ type CalculatedField struct {
 }
 
 // QueryString ...
-func (f CalculatedField) QueryString(alias string) string {
-	return f.Action(f.Field.QueryString(alias))
+func (f CalculatedField) QueryString(ag *AliasGenerator, vl *ValueList) string {
+	return f.Action(f.Field.QueryString(ag, vl))
 }
 
 // Source ...
@@ -90,14 +90,17 @@ type ValueField struct {
 	Type  string
 }
 
-func getType(v interface{}) string {
+func getValue(v interface{}) interface{} {
 	if val, ok := v.(driver.Valuer); ok {
 		new, err := val.Value()
 		if err == nil {
 			v = new
 		}
 	}
+	return v
+}
 
+func getType(v interface{}) string {
 	switch v.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		return `int`
@@ -116,11 +119,13 @@ func getType(v interface{}) string {
 
 // Value ...
 func Value(v interface{}) ValueField {
+	v = getValue(v)
 	return ValueField{v, getType(v)}
 }
 
 // QueryString ...
-func (f ValueField) QueryString(alias string) string {
+func (f ValueField) QueryString(_ *AliasGenerator, vl *ValueList) string {
+	vl.Append(f.Value)
 	return `?`
 }
 
@@ -141,7 +146,7 @@ func (f ValueField) DataType() string {
 // Condition is used in the Where function
 type Condition struct {
 	Fields []Field
-	Action func(...string) string
+	Action func([]Field, *AliasGenerator, *ValueList) string
 }
 
 // Join are used for joins on tables

@@ -49,15 +49,15 @@ func TestSelect(t *testing.T) {
 	q := temp.Select(qf.Min(temp.A), qf.Max(temp.A), qf.Average(tbltwo.C), qf.Count(tblthree.E)).
 		LeftJoin(temp.C, tbltwo.C).
 		InnerJoin(tblthree.E, tbltwo.C).
-		Where(qc.Gte(temp.A, qb.Value(2))).
-		Where(qc.Eq(qb.Value(1), qb.Value(1))).
-		OrderBy(tblthree.E).
+		Where(qc.Gte(temp.A, 2)).
+		Where(qc.Eq(1, 1)).
+		OrderBy(qb.Asc(tblthree.E)).
 		GroupBy(tblthree.E)
 
 	s, v := q.SQL()
 	t.Log(s, v)
 
-	assert.Equal(`SELECT min(a1.a), max(a1.a), avg(a2.c), count(a3.e) FROM temp a1 LEFT JOIN tbltwo a2 ON (a1.c = a2.c) INNER JOIN tbl3 a3 ON (a3.e = a2.c) WHERE a1.a >= ? AND ? = ? GROUP BY a3.e ORDER BY a3.e`, s, `Incorrect query`)
+	assert.Equal(`SELECT min(a1.a), max(a1.a), avg(a2.c), count(a3.e) FROM temp a1 LEFT JOIN tbltwo a2 ON (a1.c = a2.c) INNER JOIN tbl3 a3 ON (a3.e = a2.c) WHERE a1.a >= ? AND ? = ? GROUP BY a3.e ORDER BY a3.e ASC`, s, `Incorrect query`)
 	assert.Equal(v, []interface{}{2, 1, 1})
 }
 
@@ -81,9 +81,9 @@ func BenchmarkCommonSelectSQL(b *testing.B) {
 		q := temp.Select(qf.Min(temp.A), qf.Max(temp.A), qf.Average(tbltwo.C), qf.Count(tblthree.E)).
 			LeftJoin(temp.C, tbltwo.C).
 			InnerJoin(tblthree.E, tbltwo.C).
-			Where(qc.Gte(temp.A, qb.Value(2))).
-			Where(qc.Eq(qb.Value(1), qb.Value(1))).
-			OrderBy(tblthree.E).
+			Where(qc.Gte(temp.A, 2)).
+			Where(qc.Eq(1, 1)).
+			OrderBy(qb.Asc(tblthree.E)).
 			GroupBy(tblthree.E)
 		_, _ = q.SQL()
 	}
