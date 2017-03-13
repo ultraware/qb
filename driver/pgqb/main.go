@@ -4,9 +4,27 @@ import (
 	"database/sql"
 	"strconv"
 	"strings"
+	"time"
 
 	"git.ultraware.nl/NiseVoid/qb"
 )
+
+func getType(v interface{}) string {
+	switch v.(type) {
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+		return `::int`
+	case float32, float64:
+		return `::float`
+	case string:
+		return `::text`
+	case bool:
+		return `::bool`
+	case time.Time:
+		return `::timestamp`
+	default:
+		return ``
+	}
+}
 
 func prepareQuery(q qb.SelectQuery) (string, []interface{}) {
 	s, v := q.SQL()
@@ -18,7 +36,7 @@ func prepareQuery(q qb.SelectQuery) (string, []interface{}) {
 			break
 		}
 		c++
-		s = s[:i] + `$` + strconv.Itoa(c) + s[i+1:]
+		s = s[:i] + `$` + strconv.Itoa(c) + getType(v[c-1]) + s[i+1:]
 	}
 
 	return s, v
