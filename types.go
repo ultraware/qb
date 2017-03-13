@@ -105,6 +105,8 @@ func getType(v interface{}) string {
 		return `float`
 	case string:
 		return `string`
+	case bool:
+		return `bool`
 	case time.Time:
 		return `time`
 	default:
