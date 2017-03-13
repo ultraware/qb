@@ -150,3 +150,19 @@ type Join struct {
 	Fields [2]Field
 	New    Source
 }
+
+// FieldOrder specifies the order in which fields should be sorted
+type FieldOrder struct {
+	Field Field
+	Order string
+}
+
+// Asc is used to sort in ascending order
+func Asc(f Field) FieldOrder {
+	return FieldOrder{Field: f, Order: `ASC`}
+}
+
+// Desc is used to sort in descending order
+func Desc(f Field) FieldOrder {
+	return FieldOrder{Field: f, Order: `DESC`}
+}

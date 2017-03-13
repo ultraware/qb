@@ -9,7 +9,7 @@ type SelectQuery struct {
 	where  []Condition
 	values []interface{}
 	joins  []Join
-	order  []Field
+	order  []FieldOrder
 	group  []Field
 	tables []Source
 }
@@ -79,8 +79,8 @@ func (q SelectQuery) GroupBy(f ...Field) SelectQuery {
 }
 
 // OrderBy ...
-func (q SelectQuery) OrderBy(f ...Field) SelectQuery {
-	q.order = f
+func (q SelectQuery) OrderBy(o ...FieldOrder) SelectQuery {
+	q.order = o
 	return q
 }
 
@@ -164,11 +164,20 @@ func (b *selectBuilder) whereSQL(c []Condition) string {
 	return s
 }
 
-func (b *selectBuilder) orderSQL(f []Field) string {
-	if len(f) == 0 {
+func (b *selectBuilder) orderSQL(o []FieldOrder) string {
+	if len(o) == 0 {
 		return ``
 	}
-	return ` ORDER BY ` + b.listFields(f)
+
+	s := ` ORDER BY `
+	for k, v := range o {
+		b.usage = append(b.usage, v.Field)
+		if k > 0 {
+			s += `, `
+		}
+		s += v.Field.QueryString(b.alias.Get(v.Field.Source())) + ` ` + v.Order
+	}
+	return s
 }
 
 func (b *selectBuilder) groupSQL(f []Field) string {
