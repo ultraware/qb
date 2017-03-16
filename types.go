@@ -62,28 +62,6 @@ func (f TableField) DataType() string {
 	return f.Type
 }
 
-// CalculatedField is a field created by running functions on a TableField
-type CalculatedField struct {
-	Action func(string) string
-	Field  Field
-	Type   string
-}
-
-// QueryString ...
-func (f CalculatedField) QueryString(ag *AliasGenerator, vl *ValueList) string {
-	return f.Action(f.Field.QueryString(ag, vl))
-}
-
-// Source ...
-func (f CalculatedField) Source() Source {
-	return f.Field.Source()
-}
-
-// DataType ...
-func (f CalculatedField) DataType() string {
-	return f.Type
-}
-
 // ValueField contains values supplied by the program
 type ValueField struct {
 	Value interface{}

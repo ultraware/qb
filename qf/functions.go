@@ -4,30 +4,125 @@ import "git.ultraware.nl/NiseVoid/qb"
 
 // Distinct ...
 func Distinct(f qb.Field) qb.Field {
-	return qb.CalculatedField{Action: func(s string) string { return `DISTINCT ` + s }, Field: f, Type: f.DataType()}
+	return CalculatedField{
+		Action: func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
+			return `DISTINCT ` + f.QueryString(ag, vl)
+		},
+		S:    f.Source(),
+		Type: f.DataType(),
+	}
+}
+
+// CountAll ...
+func CountAll() qb.Field {
+	return CalculatedField{
+		Action: func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
+			return `count(1)`
+		},
+		S:    nil,
+		Type: `int`,
+	}
 }
 
 // Count ...
 func Count(f qb.Field) qb.Field {
-	return qb.CalculatedField{Action: func(s string) string { return `count(` + s + `)` }, Field: f, Type: `int`}
+	return CalculatedField{
+		Action: func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
+			return `count(` + f.QueryString(ag, vl) + `)`
+		},
+		S:    f.Source(),
+		Type: `int`,
+	}
 }
 
 // Sum ...
 func Sum(f qb.Field) qb.Field {
-	return qb.CalculatedField{Action: func(s string) string { return `sum(` + s + `)` }, Field: f, Type: f.DataType()}
+	return CalculatedField{
+		Action: func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
+			return `sum(` + f.QueryString(ag, vl) + `)`
+		},
+		S:    f.Source(),
+		Type: f.DataType(),
+	}
 }
 
 // Average ...
 func Average(f qb.Field) qb.Field {
-	return qb.CalculatedField{Action: func(s string) string { return `avg(` + s + `)` }, Field: f, Type: `float`}
+	return CalculatedField{
+		Action: func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
+			return `avg(` + f.QueryString(ag, vl) + `)`
+		},
+		S:    f.Source(),
+		Type: `float`,
+	}
 }
 
 // Min ...
 func Min(f qb.Field) qb.Field {
-	return qb.CalculatedField{Action: func(s string) string { return `min(` + s + `)` }, Field: f, Type: f.DataType()}
+	return CalculatedField{
+		Action: func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
+			return `min(` + f.QueryString(ag, vl) + `)`
+		},
+		S:    f.Source(),
+		Type: f.DataType(),
+	}
 }
 
 // Max ...
 func Max(f qb.Field) qb.Field {
-	return qb.CalculatedField{Action: func(s string) string { return `max(` + s + `)` }, Field: f, Type: f.DataType()}
+	return CalculatedField{
+		Action: func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
+			return `max(` + f.QueryString(ag, vl) + `)`
+		},
+		S:    f.Source(),
+		Type: f.DataType(),
+	}
+}
+
+// Add ...
+func Add(f1 qb.Field, i interface{}) qb.Field {
+	f2 := makeField(i)
+	return CalculatedField{
+		Action: func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
+			return f2.QueryString(ag, vl) + ` + ` + f2.QueryString(ag, vl)
+		},
+		S:    f1.Source(),
+		Type: f1.DataType(),
+	}
+}
+
+// Sub ...
+func Sub(f1 qb.Field, i interface{}) qb.Field {
+	f2 := makeField(i)
+	return CalculatedField{
+		Action: func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
+			return f2.QueryString(ag, vl) + ` - ` + f2.QueryString(ag, vl)
+		},
+		S:    f1.Source(),
+		Type: f1.DataType(),
+	}
+}
+
+// Mult ...
+func Mult(f1 qb.Field, i interface{}) qb.Field {
+	f2 := makeField(i)
+	return CalculatedField{
+		Action: func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
+			return f2.QueryString(ag, vl) + ` * ` + f2.QueryString(ag, vl)
+		},
+		S:    f1.Source(),
+		Type: f1.DataType(),
+	}
+}
+
+// Div ...
+func Div(f1 qb.Field, i interface{}) qb.Field {
+	f2 := makeField(i)
+	return CalculatedField{
+		Action: func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
+			return f2.QueryString(ag, vl) + ` / ` + f2.QueryString(ag, vl)
+		},
+		S:    f1.Source(),
+		Type: f1.DataType(),
+	}
 }
