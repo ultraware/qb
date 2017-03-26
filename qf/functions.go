@@ -84,7 +84,7 @@ func Add(f1 qb.Field, i interface{}) qb.Field {
 	f2 := makeField(i)
 	return CalculatedField{
 		Action: func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
-			return f2.QueryString(ag, vl) + ` + ` + f2.QueryString(ag, vl)
+			return f1.QueryString(ag, vl) + ` + ` + f2.QueryString(ag, vl)
 		},
 		S:    f1.Source(),
 		Type: f1.DataType(),
@@ -96,7 +96,7 @@ func Sub(f1 qb.Field, i interface{}) qb.Field {
 	f2 := makeField(i)
 	return CalculatedField{
 		Action: func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
-			return f2.QueryString(ag, vl) + ` - ` + f2.QueryString(ag, vl)
+			return f1.QueryString(ag, vl) + ` - ` + f2.QueryString(ag, vl)
 		},
 		S:    f1.Source(),
 		Type: f1.DataType(),
@@ -108,7 +108,7 @@ func Mult(f1 qb.Field, i interface{}) qb.Field {
 	f2 := makeField(i)
 	return CalculatedField{
 		Action: func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
-			return f2.QueryString(ag, vl) + ` * ` + f2.QueryString(ag, vl)
+			return f1.QueryString(ag, vl) + ` * ` + f2.QueryString(ag, vl)
 		},
 		S:    f1.Source(),
 		Type: f1.DataType(),
@@ -120,7 +120,7 @@ func Div(f1 qb.Field, i interface{}) qb.Field {
 	f2 := makeField(i)
 	return CalculatedField{
 		Action: func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
-			return f2.QueryString(ag, vl) + ` / ` + f2.QueryString(ag, vl)
+			return f1.QueryString(ag, vl) + ` / ` + f2.QueryString(ag, vl)
 		},
 		S:    f1.Source(),
 		Type: f1.DataType(),
