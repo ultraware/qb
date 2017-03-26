@@ -11,7 +11,8 @@ import (
 
 // Source ...
 type Source interface {
-	QueryString() string
+	QueryString(*AliasGenerator, *ValueList) string
+	AliasString() string
 }
 
 // Table ...
@@ -20,12 +21,40 @@ type Table struct {
 }
 
 // QueryString ...
-func (t *Table) QueryString() string {
-	return t.Name
+func (t *Table) QueryString(ag *AliasGenerator, _ *ValueList) string {
+	return t.Name + ` ` + ag.Get(t)
+}
+
+// AliasString ...
+func (t *Table) AliasString() string {
+	return `t`
 }
 
 // Select ...
 func (t *Table) Select(f ...Field) SelectQuery {
+	return SelectQuery{source: t, fields: f}
+}
+
+// SubQuery ...
+type SubQuery struct {
+	sql    string
+	values []interface{}
+	Fields []Field
+}
+
+// QueryString ...
+func (t *SubQuery) QueryString(ag *AliasGenerator, vl *ValueList) string {
+	vl.Append(t.values...)
+	return `(` + t.sql + `) ` + ag.Get(t)
+}
+
+// AliasString ...
+func (t *SubQuery) AliasString() string {
+	return `sq`
+}
+
+// Select ...
+func (t *SubQuery) Select(f ...Field) SelectQuery {
 	return SelectQuery{source: t, fields: f}
 }
 

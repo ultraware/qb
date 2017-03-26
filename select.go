@@ -103,10 +103,14 @@ func (q SelectQuery) Offset(i int) SelectQuery {
 
 // SQL ...
 func (q SelectQuery) SQL() (string, []interface{}) {
+	return q.getSQL(false)
+}
 
+// SQL ...
+func (q SelectQuery) getSQL(aliasFields bool) (string, []interface{}) {
 	b := selectBuilder{newGenerator(), ValueList{}}
 
-	s := b.selectSQL(q.fields)
+	s := b.selectSQL(q.fields, aliasFields)
 	s += b.fromSQL(q.source)
 	s += b.joinSQL(q.source, q.joins)
 	s += b.whereSQL(q.where)
@@ -127,23 +131,26 @@ type selectBuilder struct {
 	list  ValueList
 }
 
-func (b *selectBuilder) listFields(f []Field) string {
+func (b *selectBuilder) listFields(f []Field, aliasFields bool) string {
 	s := ``
 	for k, v := range f {
 		if k > 0 {
 			s += `, `
 		}
 		s += v.QueryString(&b.alias, &b.list)
+		if aliasFields {
+			s += ` f` + strconv.Itoa(k)
+		}
 	}
 	return s
 }
 
-func (b *selectBuilder) selectSQL(f []Field) string {
-	return `SELECT ` + b.listFields(f)
+func (b *selectBuilder) selectSQL(f []Field, aliasFields bool) string {
+	return `SELECT ` + b.listFields(f, aliasFields)
 }
 
 func (b *selectBuilder) fromSQL(s Source) string {
-	return ` FROM ` + s.QueryString() + ` ` + b.alias.Get(s) + ` `
+	return ` FROM ` + s.QueryString(&b.alias, &b.list)
 }
 
 func (b *selectBuilder) joinSQL(src Source, j []Join) string {
@@ -153,7 +160,7 @@ func (b *selectBuilder) joinSQL(src Source, j []Join) string {
 		f1 := v.Fields[0].QueryString(&b.alias, &b.list)
 		f2 := v.Fields[1].QueryString(&b.alias, &b.list)
 
-		s += v.Type + ` JOIN ` + v.New.QueryString() + ` ` + b.alias.Get(v.New) + ` ON (` + f1 + ` = ` + f2 + `) `
+		s += ` ` + v.Type + ` JOIN ` + v.New.QueryString(&b.alias, &b.list) + ` ON (` + f1 + ` = ` + f2 + `)`
 	}
 
 	return s
@@ -163,7 +170,7 @@ func (b *selectBuilder) whereSQL(c []Condition) string {
 	s := ``
 	for k, v := range c {
 		if k == 0 {
-			s += `WHERE `
+			s += ` WHERE `
 		} else {
 			s += ` AND `
 		}
@@ -193,5 +200,18 @@ func (b *selectBuilder) groupSQL(f []Field) string {
 	if len(f) == 0 {
 		return ``
 	}
-	return ` GROUP BY ` + b.listFields(f)
+	return ` GROUP BY ` + b.listFields(f, false)
+}
+
+// SubQuery converts the SelectQuery to a SubQuery for use in further queries
+func (q SelectQuery) SubQuery() *SubQuery {
+	s, v := q.getSQL(true)
+
+	sq := SubQuery{sql: s, values: v}
+
+	for k, v := range q.fields {
+		sq.Fields = append(sq.Fields, TableField{Name: `f` + strconv.Itoa(k), Parent: &sq, Type: v.DataType()})
+	}
+
+	return &sq
 }

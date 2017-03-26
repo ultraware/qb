@@ -5,11 +5,11 @@ import "strconv"
 // AliasGenerator makes aliasses for tables and keeps track of the previously given aliasses
 type AliasGenerator struct {
 	counter int
-	list    map[string]string
+	list    map[Source]string
 }
 
 func newGenerator() AliasGenerator {
-	return AliasGenerator{0, make(map[string]string)}
+	return AliasGenerator{0, make(map[Source]string)}
 }
 
 // Get returns the alias for the given source
@@ -18,13 +18,13 @@ func (g *AliasGenerator) Get(src Source) string {
 		return ``
 	}
 
-	if v, ok := g.list[src.QueryString()]; ok {
+	if v, ok := g.list[src]; ok {
 		return v
 	}
 
 	g.counter++
-	g.list[src.QueryString()] = `a` + strconv.Itoa(g.counter)
-	return g.list[src.QueryString()]
+	g.list[src] = src.AliasString() + strconv.Itoa(g.counter)
+	return g.list[src]
 }
 
 // ValueList is a list of static values used in a query
