@@ -79,6 +79,17 @@ func Max(f qb.Field) qb.Field {
 	}
 }
 
+// Lower ...
+func Lower(f1 qb.Field) qb.Field {
+	return CalculatedField{
+		Action: func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
+			return `lower(` + f1.QueryString(ag, vl) + `)`
+		},
+		S:    f1.Source(),
+		Type: `string`,
+	}
+}
+
 // Add ...
 func Add(f1 qb.Field, i interface{}) qb.Field {
 	f2 := makeField(i)
