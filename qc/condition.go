@@ -79,3 +79,10 @@ func Lte(f1, f2 interface{}) qb.Condition {
 		return concatQuery(ag, vl, f[0], ` <= `, f[1])
 	})
 }
+
+// Like ...
+func Like(f1 qb.Field, s string) qb.Condition {
+	return createCondition([]interface{}{f1, s}, func(f []qb.Field, ag *qb.AliasGenerator, vl *qb.ValueList) string {
+		return concatQuery(ag, vl, f[0], ` LIKE `, f[1])
+	})
+}
