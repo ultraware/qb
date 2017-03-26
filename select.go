@@ -1,6 +1,9 @@
 package qb
 
-import "reflect"
+import (
+	"reflect"
+	"strconv"
+)
 
 // SelectQuery ...
 type SelectQuery struct {
@@ -12,6 +15,8 @@ type SelectQuery struct {
 	order  []FieldOrder
 	group  []Field
 	tables []Source
+	limit  int
+	offset int
 }
 
 // Where ...
@@ -84,6 +89,18 @@ func (q SelectQuery) OrderBy(o ...FieldOrder) SelectQuery {
 	return q
 }
 
+// Limit ...
+func (q SelectQuery) Limit(i int) SelectQuery {
+	q.limit = i
+	return q
+}
+
+// Offset ...
+func (q SelectQuery) Offset(i int) SelectQuery {
+	q.offset = i
+	return q
+}
+
 // SQL ...
 func (q SelectQuery) SQL() (string, []interface{}) {
 
@@ -95,6 +112,12 @@ func (q SelectQuery) SQL() (string, []interface{}) {
 	s += b.whereSQL(q.where)
 	s += b.groupSQL(q.group)
 	s += b.orderSQL(q.order)
+	if q.limit > 0 {
+		s += ` LIMIT ` + strconv.Itoa(q.limit)
+	}
+	if q.offset > 0 {
+		s += ` OFFSET ` + strconv.Itoa(q.offset)
+	}
 
 	return s, []interface{}(b.list)
 }
