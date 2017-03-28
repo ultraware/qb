@@ -49,15 +49,15 @@ func TestSelect(t *testing.T) {
 	q := temp.Select(qf.Min(temp.A), qf.Max(temp.A), qf.Average(tbltwo.C), qf.Count(tblthree.E)).
 		LeftJoin(temp.C, tbltwo.C).
 		InnerJoin(tblthree.E, tbltwo.C).
-		Where(qc.Gte(temp.A, 2)).
-		Where(qc.Eq(1, 1)).
+		Where(qc.Or(qc.Gte(temp.A, 2), qc.Eq(1, 1))).
+		Where(qc.And(qc.Eq(1, 1), qc.Eq(1, 1))).
 		OrderBy(qb.Asc(tblthree.E)).
 		GroupBy(tblthree.E)
 
 	s, v := q.SQL()
 
-	assert.Equal(`SELECT min(t1.a), max(t1.a), avg(t2.c), count(t3.e) FROM temp t1 LEFT JOIN tbltwo t2 ON (t1.c = t2.c) INNER JOIN tbl3 t3 ON (t3.e = t2.c) WHERE t1.a >= ? AND ? = ? GROUP BY t3.e ORDER BY t3.e ASC`, s, `Incorrect query`)
-	assert.Equal(v, []interface{}{2, 1, 1})
+	assert.Equal(`SELECT min(t1.a), max(t1.a), avg(t2.c), count(t3.e) FROM temp t1 LEFT JOIN tbltwo t2 ON (t1.c = t2.c) INNER JOIN tbl3 t3 ON (t3.e = t2.c) WHERE (t1.a >= ? OR ? = ?) AND (? = ? AND ? = ?) GROUP BY t3.e ORDER BY t3.e ASC`, s, `Incorrect query`)
+	assert.Equal(v, []interface{}{2, 1, 1, 1, 1, 1, 1})
 }
 
 func TestSubQuery(t *testing.T) {

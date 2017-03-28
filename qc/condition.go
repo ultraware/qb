@@ -44,3 +44,28 @@ func Like(f1 qb.Field, s string) qb.Condition {
 		return concatQuery(ag, vl, f1, ` LIKE `, f2)
 	}
 }
+
+// createLogicalCondition ...
+func createLogicalCondition(operator string, conditions ...qb.Condition) qb.Condition {
+	return func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
+		s := `(`
+		for k, c := range conditions {
+			if k > 0 {
+				s += ` ` + operator + ` `
+			}
+			s += c(ag, vl)
+		}
+		s += `)`
+		return s
+	}
+}
+
+// And ...
+func And(c ...qb.Condition) qb.Condition {
+	return createLogicalCondition(`AND`, c...)
+}
+
+// Or ...
+func Or(c ...qb.Condition) qb.Condition {
+	return createLogicalCondition(`OR`, c...)
+}
