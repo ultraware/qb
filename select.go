@@ -175,7 +175,7 @@ func (b *selectBuilder) whereSQL(c []Condition) string {
 			s += ` AND `
 		}
 
-		s += v.Action(v.Fields, &b.alias, &b.list)
+		s += v(&b.alias, &b.list)
 	}
 
 	return s

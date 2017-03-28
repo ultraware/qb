@@ -151,10 +151,7 @@ func (f ValueField) DataType() string {
 ///
 
 // Condition is used in the Where function
-type Condition struct {
-	Fields []Field
-	Action func([]Field, *AliasGenerator, *ValueList) string
-}
+type Condition func(*AliasGenerator, *ValueList) string
 
 // Join are used for joins on tables
 type Join struct {

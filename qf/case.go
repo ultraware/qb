@@ -62,7 +62,7 @@ type CaseField struct {
 func (f CaseField) QueryString(ag *qb.AliasGenerator, vl *qb.ValueList) string {
 	s := `CASE `
 	for _, v := range f.When {
-		s += `WHEN ` + v.C.Action(v.C.Fields, ag, vl) + ` THEN ` + v.F.QueryString(ag, vl)
+		s += `WHEN ` + v.C(ag, vl) + ` THEN ` + v.F.QueryString(ag, vl)
 	}
 	s += ` ELSE ` + f.Else.QueryString(ag, vl) + ` END`
 	return s
