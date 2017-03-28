@@ -43,6 +43,21 @@ var tblthree = struct {
 	&tblthreeTable,
 }
 
+func TestUnion(t *testing.T) {
+	assert := assert.New(t)
+
+	q1 := temp.Select(temp.A, temp.B)
+	q2 := temp.Select(temp.A, temp.B)
+	q3 := temp.Select(temp.A, temp.B)
+
+	q := qb.Union(q1, q2, q3)
+
+	s, v := q.SQL()
+
+	assert.Equal(`(SELECT t1.a, t1.b FROM temp t1) UNION (SELECT t1.a, t1.b FROM temp t1) UNION (SELECT t1.a, t1.b FROM temp t1)`, s, `Incorrect query`)
+	assert.Equal(v, []interface{}{})
+}
+
 func TestSelect(t *testing.T) {
 	assert := assert.New(t)
 

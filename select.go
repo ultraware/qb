@@ -6,7 +6,15 @@ import (
 )
 
 // SelectQuery ...
-type SelectQuery struct {
+type SelectQuery interface {
+	SQL() (string, []interface{})
+	getSQL(aliasFields bool) (string, []interface{})
+	SubQuery() *SubQuery
+	Fields() []Field
+}
+
+// SelectBuilder ...
+type SelectBuilder struct {
 	source Source
 	fields []Field
 	where  []Condition
@@ -20,33 +28,33 @@ type SelectQuery struct {
 }
 
 // Where ...
-func (q SelectQuery) Where(c Condition) SelectQuery {
+func (q SelectBuilder) Where(c Condition) SelectBuilder {
 	q.where = append(q.where, c)
 	return q
 }
 
 // InnerJoin ...
-func (q SelectQuery) InnerJoin(f1, f2 Field) SelectQuery {
+func (q SelectBuilder) InnerJoin(f1, f2 Field) SelectBuilder {
 	return q.join(`INNER`, f1, f2)
 }
 
 // CrossJoin ...
-func (q SelectQuery) CrossJoin(f1, f2 Field) SelectQuery {
+func (q SelectBuilder) CrossJoin(f1, f2 Field) SelectBuilder {
 	return q.join(`CROSS`, f1, f2)
 }
 
 // LeftJoin ...
-func (q SelectQuery) LeftJoin(f1, f2 Field) SelectQuery {
+func (q SelectBuilder) LeftJoin(f1, f2 Field) SelectBuilder {
 	return q.join(`LEFT`, f1, f2)
 }
 
 // RightJoin ...
-func (q SelectQuery) RightJoin(f1, f2 Field) SelectQuery {
+func (q SelectBuilder) RightJoin(f1, f2 Field) SelectBuilder {
 	return q.join(`RIGHT`, f1, f2)
 }
 
 // join ...
-func (q SelectQuery) join(t string, f1, f2 Field) SelectQuery {
+func (q SelectBuilder) join(t string, f1, f2 Field) SelectBuilder {
 	if len(q.tables) == 0 {
 		q.tables = []Source{q.source}
 	}
@@ -78,36 +86,35 @@ func (q SelectQuery) join(t string, f1, f2 Field) SelectQuery {
 }
 
 // GroupBy ...
-func (q SelectQuery) GroupBy(f ...Field) SelectQuery {
+func (q SelectBuilder) GroupBy(f ...Field) SelectBuilder {
 	q.group = f
 	return q
 }
 
 // OrderBy ...
-func (q SelectQuery) OrderBy(o ...FieldOrder) SelectQuery {
+func (q SelectBuilder) OrderBy(o ...FieldOrder) SelectBuilder {
 	q.order = o
 	return q
 }
 
 // Limit ...
-func (q SelectQuery) Limit(i int) SelectQuery {
+func (q SelectBuilder) Limit(i int) SelectBuilder {
 	q.limit = i
 	return q
 }
 
 // Offset ...
-func (q SelectQuery) Offset(i int) SelectQuery {
+func (q SelectBuilder) Offset(i int) SelectBuilder {
 	q.offset = i
 	return q
 }
 
 // SQL ...
-func (q SelectQuery) SQL() (string, []interface{}) {
+func (q SelectBuilder) SQL() (string, []interface{}) {
 	return q.getSQL(false)
 }
 
-// SQL ...
-func (q SelectQuery) getSQL(aliasFields bool) (string, []interface{}) {
+func (q SelectBuilder) getSQL(aliasFields bool) (string, []interface{}) {
 	b := selectBuilder{newGenerator(), ValueList{}}
 
 	s := b.selectSQL(q.fields, aliasFields)
@@ -204,7 +211,7 @@ func (b *selectBuilder) groupSQL(f []Field) string {
 }
 
 // SubQuery converts the SelectQuery to a SubQuery for use in further queries
-func (q SelectQuery) SubQuery() *SubQuery {
+func (q SelectBuilder) SubQuery() *SubQuery {
 	s, v := q.getSQL(true)
 
 	sq := SubQuery{sql: s, values: v}
@@ -214,4 +221,91 @@ func (q SelectQuery) SubQuery() *SubQuery {
 	}
 
 	return &sq
+}
+
+// Fields ...
+func (q SelectBuilder) Fields() []Field {
+	return q.fields
+}
+
+////////////////////////////
+
+// CombinedQuery ...
+type CombinedQuery struct {
+	combineType string
+	queries     []SelectQuery
+}
+
+func (q CombinedQuery) getSQL(aliasFields bool) (string, []interface{}) {
+	s := ``
+	values := []interface{}{}
+	for k, v := range q.queries {
+		var sql string
+		var val []interface{}
+		if k == 0 {
+			sql, val = v.getSQL(aliasFields)
+		} else {
+			s += ` ` + q.combineType + ` `
+			sql, val = v.getSQL(false)
+		}
+		s += `(` + sql + `)`
+		values = append(values, val...)
+	}
+
+	return s, values
+}
+
+// SQL ...
+func (q CombinedQuery) SQL() (string, []interface{}) {
+	return q.getSQL(false)
+}
+
+// Fields ...
+func (q CombinedQuery) Fields() []Field {
+	return q.queries[0].Fields()
+}
+
+// SubQuery converts the SelectQuery to a SubQuery for use in further queries
+func (q CombinedQuery) SubQuery() *SubQuery {
+	s, v := q.getSQL(true)
+
+	sq := SubQuery{sql: s, values: v}
+
+	for k, v := range q.Fields() {
+		sq.Fields = append(sq.Fields, TableField{Name: `f` + strconv.Itoa(k), Parent: &sq, Type: v.DataType()})
+	}
+
+	return &sq
+}
+
+////////////////////////
+
+// UnionAll ...
+func UnionAll(q ...SelectQuery) CombinedQuery {
+	return CombinedQuery{combineType: `UNION ALL`, queries: q}
+}
+
+// Union ...
+func Union(q ...SelectQuery) CombinedQuery {
+	return CombinedQuery{combineType: `UNION`, queries: q}
+}
+
+// ExceptAll ...
+func ExceptAll(q1, q2 SelectQuery) CombinedQuery {
+	return CombinedQuery{combineType: `EXCEPT ALL`, queries: []SelectQuery{q1, q2}}
+}
+
+// Except ...
+func Except(q1, q2 SelectQuery) CombinedQuery {
+	return CombinedQuery{combineType: `EXCEPT`, queries: []SelectQuery{q1, q2}}
+}
+
+// IntersectAll ...
+func IntersectAll(q1, q2 SelectQuery) CombinedQuery {
+	return CombinedQuery{combineType: `INTERSECT ALL`, queries: []SelectQuery{q1, q2}}
+}
+
+// Intersect ...
+func Intersect(q1, q2 SelectQuery) CombinedQuery {
+	return CombinedQuery{combineType: `INTERSECT`, queries: []SelectQuery{q1, q2}}
 }

@@ -31,8 +31,8 @@ func (t *Table) AliasString() string {
 }
 
 // Select ...
-func (t *Table) Select(f ...Field) SelectQuery {
-	return SelectQuery{source: t, fields: f}
+func (t *Table) Select(f ...Field) SelectBuilder {
+	return SelectBuilder{source: t, fields: f}
 }
 
 // SubQuery ...
@@ -54,8 +54,8 @@ func (t *SubQuery) AliasString() string {
 }
 
 // Select ...
-func (t *SubQuery) Select(f ...Field) SelectQuery {
-	return SelectQuery{source: t, fields: f}
+func (t *SubQuery) Select(f ...Field) SelectBuilder {
+	return SelectBuilder{source: t, fields: f}
 }
 
 ///
