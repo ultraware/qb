@@ -1,6 +1,9 @@
 package qb
 
+//go:generate go run scripts/main.go
+
 import (
+	"database/sql"
 	"database/sql/driver"
 	"time"
 )
@@ -69,11 +72,19 @@ type Field interface {
 	DataType() string
 }
 
+// DataField is a Field that can store data
+type DataField interface {
+	Field
+	sql.Scanner
+	driver.Valuer
+}
+
 // TableField represents a real field in a table
 type TableField struct {
-	Parent Source
-	Name   string
-	Type   string
+	Parent   Source
+	Name     string
+	Type     string
+	ReadOnly bool
 }
 
 // QueryString ...

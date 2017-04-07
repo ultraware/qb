@@ -1,0 +1,32 @@
+// {{if .Nullable}}Null{{end}}{{.TypeName}}Field is a field that can store a {{.Type}}{{if .Nullable}}, can be nil{{end}}
+type {{if .Nullable}}Null{{end}}{{.TypeName}}Field struct {
+	Field
+	Data {{if .Nullable}}*{{end}}{{.Type}}
+}
+
+func New{{if .Nullable}}Null{{end}}{{.TypeName}}Field(f Field) {{if .Nullable}}Null{{end}}{{.TypeName}}Field {
+	tf := {{if .Nullable}}Null{{end}}{{.TypeName}}Field{}
+	tf.Field = f
+	return tf
+}
+
+// Scan implements sql.Scanner
+func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) Scan(src interface{}) error {
+	{{if .Nullable -}}
+	if src == nil {
+		f.Data = nil
+		return nil
+	}
+	{{- end}}
+	if v, ok := src.({{if .Nullable}}*{{end}}{{.Type}}); ok {
+		f.Data = v
+		return nil
+	}
+	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.Data)
+}
+
+// Value implements driver.Valuer
+func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) Value() (driver.Value, error) {
+	return f.Data, nil
+}
+
