@@ -10,21 +10,31 @@ type SelectQuery interface {
 	SQL() (string, []interface{})
 	getSQL(aliasFields bool) (string, []interface{})
 	SubQuery() *SubQuery
-	Fields() []Field
+	Fields() []DataField
 }
 
 // SelectBuilder ...
 type SelectBuilder struct {
-	source Source
-	fields []Field
-	where  []Condition
-	values []interface{}
-	joins  []Join
-	order  []FieldOrder
-	group  []Field
-	tables []Source
-	limit  int
-	offset int
+	source    Source
+	dstFields []DataField
+	fields    []Field
+	where     []Condition
+	values    []interface{}
+	joins     []Join
+	order     []FieldOrder
+	group     []Field
+	tables    []Source
+	limit     int
+	offset    int
+}
+
+// NewSelectBuilder ...
+func NewSelectBuilder(f []DataField, src Source) SelectBuilder {
+	fields := make([]Field, len(f))
+	for k, v := range f {
+		fields[k] = Field(v)
+	}
+	return SelectBuilder{dstFields: f, fields: fields, source: src}
 }
 
 // Where ...
@@ -217,15 +227,15 @@ func (q SelectBuilder) SubQuery() *SubQuery {
 	sq := SubQuery{sql: s, values: v}
 
 	for k, v := range q.fields {
-		sq.Fields = append(sq.Fields, TableField{Name: `f` + strconv.Itoa(k), Parent: &sq, Type: v.DataType()})
+		sq.fields = append(sq.fields, TableField{Name: `f` + strconv.Itoa(k), Parent: &sq, Type: v.DataType()})
 	}
 
 	return &sq
 }
 
 // Fields ...
-func (q SelectBuilder) Fields() []Field {
-	return q.fields
+func (q SelectBuilder) Fields() []DataField {
+	return q.dstFields
 }
 
 ////////////////////////////
@@ -261,7 +271,7 @@ func (q CombinedQuery) SQL() (string, []interface{}) {
 }
 
 // Fields ...
-func (q CombinedQuery) Fields() []Field {
+func (q CombinedQuery) Fields() []DataField {
 	return q.queries[0].Fields()
 }
 
@@ -272,7 +282,7 @@ func (q CombinedQuery) SubQuery() *SubQuery {
 	sq := SubQuery{sql: s, values: v}
 
 	for k, v := range q.Fields() {
-		sq.Fields = append(sq.Fields, TableField{Name: `f` + strconv.Itoa(k), Parent: &sq, Type: v.DataType()})
+		sq.fields = append(sq.fields, TableField{Name: `f` + strconv.Itoa(k), Parent: &sq, Type: v.DataType()})
 	}
 
 	return &sq

@@ -53,15 +53,24 @@ func New(db *sql.DB) *DB {
 }
 
 // Query executes the givven SelectQuery on the database
-func (db *DB) Query(q qb.SelectQuery) (*sql.Rows, error) {
+func (db *DB) Query(q qb.SelectQuery) (*qb.Cursor, error) {
 	s, v := prepareQuery(q)
-	return db.DB.Query(s, v...)
+
+	r, err := db.DB.Query(s, v...)
+	return qb.NewCursor(q.Fields(), r), err
 }
 
 // QueryRow executes the givven SelectQuery on the database, only returns one row
-func (db *DB) QueryRow(q qb.SelectQuery) *sql.Row {
+func (db *DB) QueryRow(q qb.SelectQuery) error {
 	s, v := prepareQuery(q)
-	return db.DB.QueryRow(s, v...)
+	r := db.DB.QueryRow(s, v...)
+
+	f := q.Fields()
+	dst := make([]interface{}, len(f))
+	for k, v := range f {
+		dst[k] = v
+	}
+	return r.Scan(dst...)
 }
 
 // RawExec executes the given SQL with the given params directly on the database

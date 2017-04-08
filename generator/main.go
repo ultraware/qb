@@ -42,19 +42,26 @@ type Field struct {
 }
 
 var fieldTypes = map[string]string{
-	`string`: `StringField`,
-	`int`:    `IntField`,
-	`float`:  `FloatField`,
-	`bool`:   `BoolField`,
-	`time`:   `TimeField`,
+	`string`:  `StringField`,
+	`int`:     `IntField`,
+	`int64`:   `Int64Field`,
+	`int32`:   `Int32Field`,
+	`float64`: `Float64Field`,
+	`float32`: `Float32Field`,
+	`float`:   `FloatField`,
+	`bool`:    `BoolField`,
+	`time`:    `TimeField`,
 }
 
 var defaultTypes = map[string]string{
-	`string`: "``",
-	`int`:    `0`,
-	`float`:  `0`,
-	`bool`:   `false`,
-	`time`:   `time.Time{}`,
+	`string`:  "``",
+	`int`:     `0`,
+	`int64`:   `0`,
+	`int32`:   `0`,
+	`float64`: `0`,
+	`float32`: `0`,
+	`bool`:    `false`,
+	`time`:    `time.Time{}`,
 }
 
 func newField(name string, t string, nullable bool, readOnly bool) Field {
@@ -133,7 +140,10 @@ func main() {
 	}
 
 	for _, v := range tables {
-		t.Execute(out, v)
+		err = t.Execute(out, v)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	out.Close()

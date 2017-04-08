@@ -34,15 +34,15 @@ func (t *Table) AliasString() string {
 }
 
 // Select ...
-func (t *Table) Select(f ...Field) SelectBuilder {
-	return SelectBuilder{source: t, fields: f}
+func (t *Table) Select(f ...DataField) SelectBuilder {
+	return NewSelectBuilder(f, t)
 }
 
 // SubQuery ...
 type SubQuery struct {
 	sql    string
 	values []interface{}
-	Fields []Field
+	fields []Field
 }
 
 // QueryString ...
@@ -57,8 +57,8 @@ func (t *SubQuery) AliasString() string {
 }
 
 // Select ...
-func (t *SubQuery) Select(f ...Field) SelectBuilder {
-	return SelectBuilder{source: t, fields: f}
+func (t *SubQuery) Select(f ...DataField) SelectBuilder {
+	return NewSelectBuilder(f, t)
 }
 
 ///
@@ -77,6 +77,48 @@ type DataField interface {
 	Field
 	sql.Scanner
 	driver.Valuer
+}
+
+// Cursor ...
+type Cursor struct {
+	dst  []interface{}
+	rows *sql.Rows
+	err  error
+}
+
+// NewCursor returns a new Cursor
+func NewCursor(f []DataField, r *sql.Rows) *Cursor {
+	dst := make([]interface{}, len(f))
+	for k, v := range f {
+		dst[k] = v
+	}
+	c := &Cursor{dst: dst, rows: r}
+	return c
+}
+
+// Next loads the next row into the fields
+func (c Cursor) Next() bool {
+	if !c.rows.Next() {
+		c.Close()
+		return false
+	}
+	err := c.rows.Scan(c.dst...)
+	if err != nil {
+		c.err = err
+		return false
+	}
+
+	return true
+}
+
+// Close the rows object
+func (c Cursor) Close() {
+	c.rows.Close()
+}
+
+// Error returns the last error
+func (c Cursor) Error() error {
+	return c.err
 }
 
 // TableField represents a real field in a table

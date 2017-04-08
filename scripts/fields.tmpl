@@ -1,32 +1,42 @@
 // {{if .Nullable}}Null{{end}}{{.TypeName}}Field is a field that can store a {{.Type}}{{if .Nullable}}, can be nil{{end}}
 type {{if .Nullable}}Null{{end}}{{.TypeName}}Field struct {
 	Field
-	Data {{if .Nullable}}*{{end}}{{.Type}}
+	data {{if .Nullable}}*{{end}}{{.Type}}
 }
 
-func New{{if .Nullable}}Null{{end}}{{.TypeName}}Field(f Field) {{if .Nullable}}Null{{end}}{{.TypeName}}Field {
+func New{{if .Nullable}}Null{{end}}{{.TypeName}}Field(f Field) *{{if .Nullable}}Null{{end}}{{.TypeName}}Field {
 	tf := {{if .Nullable}}Null{{end}}{{.TypeName}}Field{}
 	tf.Field = f
-	return tf
+	return &tf
 }
 
 // Scan implements sql.Scanner
 func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) Scan(src interface{}) error {
-	{{if .Nullable -}}
+	{{- if .Nullable}}
 	if src == nil {
-		f.Data = nil
+		f.data = nil
 		return nil
 	}
 	{{- end}}
-	if v, ok := src.({{if .Nullable}}*{{end}}{{.Type}}); ok {
-		f.Data = v
+	if v, ok := src.({{if .Base}}{{.Base}}{{else}}{{.Type}}{{end}}); ok {
+	data := {{if .Base}}{{.Type}}(v){{else}}v{{end}}
+	f.data = {{if .Nullable}}&{{end}}data
 		return nil
 	}
-	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.Data)
+	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
 }
 
 // Value implements driver.Valuer
 func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) Value() (driver.Value, error) {
-	return f.Data, nil
+	return f.data, nil
 }
 
+// Get returns the data
+func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) Get() {{if .Nullable}}*{{end}}{{.Type}} {
+	return f.data
+}
+
+// Set updates the data
+func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) Set(v {{if .Nullable}}*{{end}}{{.Type}}) {
+	f.data = v
+}

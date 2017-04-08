@@ -9,9 +9,17 @@ var qb{{.Table}}Table = qb.Table{Name: "{{.TableString}}"}
 
 type {{.Table}}Type struct {
 {{- range .Fields}}
-    {{.Name}} qb.{{.FieldType}}
+    {{.Name}} *qb.{{.FieldType}}
 {{- end}}
     *qb.Table
+}
+
+func (t *{{.Table}}Type) All() []qb.DataField {
+	return []qb.DataField{
+		{{- range .Fields -}}
+			t.{{.Name}},
+		{{- end -}}
+	}
 }
 
 func {{.Table}}() {{.Table}}Type {
@@ -21,4 +29,5 @@ func {{.Table}}() {{.Table}}Type {
     {{- end}}
         &qb{{$.Table}}Table,
     }
-}`
+}
+`

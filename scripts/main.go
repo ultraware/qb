@@ -11,6 +11,7 @@ import (
 type FieldType struct {
 	TypeName string
 	Type     string
+	Base     string
 	Nullable bool
 }
 
@@ -33,11 +34,26 @@ func main() {
 		},
 		FieldType{
 			TypeName: `Int`,
+			Type:     `int`,
+			Base:     `int64`,
+		},
+		FieldType{
+			TypeName: `Int64`,
 			Type:     `int64`,
 		},
 		FieldType{
-			TypeName: `Float`,
+			TypeName: `Int32`,
+			Type:     `int32`,
+			Base:     `int64`,
+		},
+		FieldType{
+			TypeName: `Float64`,
 			Type:     `float64`,
+		},
+		FieldType{
+			TypeName: `Float32`,
+			Type:     `float32`,
+			Base:     `float64`,
 		},
 		FieldType{
 			TypeName: `Bytes`,
@@ -50,7 +66,7 @@ func main() {
 	}
 
 	for _, v := range types {
-		types = append(types, FieldType{v.TypeName, v.Type, true})
+		types = append(types, FieldType{v.TypeName, v.Type, v.Base, true})
 	}
 
 	d, _ := os.Getwd()
