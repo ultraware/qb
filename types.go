@@ -97,7 +97,7 @@ func NewCursor(f []DataField, r *sql.Rows) *Cursor {
 }
 
 // Next loads the next row into the fields
-func (c Cursor) Next() bool {
+func (c *Cursor) Next() bool {
 	if !c.rows.Next() {
 		c.Close()
 		return false
