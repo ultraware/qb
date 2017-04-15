@@ -49,11 +49,12 @@ func main() {
 		FieldType{
 			TypeName: `Float64`,
 			Type:     `float64`,
+			Base:     `Float64`,
 		},
 		FieldType{
 			TypeName: `Float32`,
 			Type:     `float32`,
-			Base:     `float64`,
+			Base:     `Float64`,
 		},
 		FieldType{
 			TypeName: `Bytes`,

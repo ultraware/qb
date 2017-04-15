@@ -12,6 +12,23 @@ func New{{if .Nullable}}Null{{end}}{{.TypeName}}Field(f Field) *{{if .Nullable}}
 
 // Scan implements sql.Scanner
 func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) Scan(src interface{}) error {
+	{{- if eq .Base "Float64" }}
+	nf := sql.Null{{.Base}}{}
+	err := nf.Scan(src)
+	if err != nil {{ if eq .Nullable false }}|| !nf.Valid {{end}} {
+		return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
+	}
+	{{- if .Nullable }}
+	if !nf.Valid {
+		f.data = nil
+		return nil
+	}
+	{{- end}}
+
+	v := {{.Type}}(nf.{{.Base}})
+	f.data = {{if .Nullable}}&{{end}}v
+	return nil
+	{{- else }}
 	{{- if .Nullable}}
 	if src == nil {
 		f.data = nil
@@ -24,6 +41,7 @@ func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) Scan(src interface{}) er
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
+	{{- end }}
 }
 
 // Value implements driver.Valuer

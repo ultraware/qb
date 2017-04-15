@@ -1,6 +1,7 @@
 package qb
 
 import (
+	"database/sql"
 	"database/sql/driver"
 	"fmt"
 	"time"
@@ -205,12 +206,15 @@ func NewFloat64Field(f Field) *Float64Field {
 
 // Scan implements sql.Scanner
 func (f *Float64Field) Scan(src interface{}) error {
-	if v, ok := src.(float64); ok {
-		data := v
-		f.data = data
-		return nil
+	nf := sql.NullFloat64{}
+	err := nf.Scan(src)
+	if err != nil || !nf.Valid {
+		return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
 	}
-	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
+
+	v := float64(nf.Float64)
+	f.data = v
+	return nil
 }
 
 // Value implements driver.Valuer
@@ -242,12 +246,15 @@ func NewFloat32Field(f Field) *Float32Field {
 
 // Scan implements sql.Scanner
 func (f *Float32Field) Scan(src interface{}) error {
-	if v, ok := src.(float64); ok {
-		data := float32(v)
-		f.data = data
-		return nil
+	nf := sql.NullFloat64{}
+	err := nf.Scan(src)
+	if err != nil || !nf.Valid {
+		return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
 	}
-	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
+
+	v := float32(nf.Float64)
+	f.data = v
+	return nil
 }
 
 // Value implements driver.Valuer
@@ -558,16 +565,19 @@ func NewNullFloat64Field(f Field) *NullFloat64Field {
 
 // Scan implements sql.Scanner
 func (f *NullFloat64Field) Scan(src interface{}) error {
-	if src == nil {
+	nf := sql.NullFloat64{}
+	err := nf.Scan(src)
+	if err != nil {
+		return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
+	}
+	if !nf.Valid {
 		f.data = nil
 		return nil
 	}
-	if v, ok := src.(float64); ok {
-		data := v
-		f.data = &data
-		return nil
-	}
-	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
+
+	v := float64(nf.Float64)
+	f.data = &v
+	return nil
 }
 
 // Value implements driver.Valuer
@@ -599,16 +609,19 @@ func NewNullFloat32Field(f Field) *NullFloat32Field {
 
 // Scan implements sql.Scanner
 func (f *NullFloat32Field) Scan(src interface{}) error {
-	if src == nil {
+	nf := sql.NullFloat64{}
+	err := nf.Scan(src)
+	if err != nil {
+		return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
+	}
+	if !nf.Valid {
 		f.data = nil
 		return nil
 	}
-	if v, ok := src.(float64); ok {
-		data := float32(v)
-		f.data = &data
-		return nil
-	}
-	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
+
+	v := float32(nf.Float64)
+	f.data = &v
+	return nil
 }
 
 // Value implements driver.Valuer
