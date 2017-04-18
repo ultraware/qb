@@ -1,6 +1,8 @@
 package qc
 
 import (
+	"strings"
+
 	"git.ultraware.nl/NiseVoid/qb"
 )
 
@@ -15,6 +17,11 @@ func createOperatorCondition(i1, i2 interface{}, operator string) qb.Condition {
 // Eq ...
 func Eq(i1, i2 interface{}) qb.Condition {
 	return createOperatorCondition(i1, i2, `=`)
+}
+
+// Ne ...
+func Ne(i1, i2 interface{}) qb.Condition {
+	return createOperatorCondition(i1, i2, `!=`)
 }
 
 // Gt ...
@@ -42,6 +49,22 @@ func Like(f1 qb.Field, s string) qb.Condition {
 	f2 := makeField(s)
 	return func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
 		return concatQuery(ag, vl, f1, ` LIKE `, f2)
+	}
+}
+
+// In ...
+func In(f1 qb.Field, in ...interface{}) qb.Condition {
+	list := strings.TrimSuffix(strings.Repeat(`?, `, len(in)), `, `)
+	return func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
+		vl.Append(in...)
+		return concatQuery(ag, vl, f1, ` IN (`+list+`)`)
+	}
+}
+
+// Not ...
+func Not(c qb.Condition) qb.Condition {
+	return func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
+		return `NOT(` + c(ag, vl) + `)`
 	}
 }
 
