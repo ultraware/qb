@@ -51,6 +51,7 @@ var fieldTypes = map[string]string{
 	`float`:   `FloatField`,
 	`bool`:    `BoolField`,
 	`time`:    `TimeField`,
+	`bytes`:   `BytesField`,
 }
 
 var defaultTypes = map[string]string{
@@ -62,6 +63,8 @@ var defaultTypes = map[string]string{
 	`float32`: `0`,
 	`bool`:    `false`,
 	`time`:    `time.Time{}`,
+	`bytes`:   `nil`,
+}
 }
 
 func newField(name string, t string, nullable bool, readOnly bool) Field {
