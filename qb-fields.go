@@ -22,8 +22,7 @@ func NewStringField(f Field) *StringField {
 // Scan implements sql.Scanner
 func (f *StringField) Scan(src interface{}) error {
 	if v, ok := src.(string); ok {
-		data := v
-		f.data = data
+		f.data = v
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -59,8 +58,7 @@ func NewBoolField(f Field) *BoolField {
 // Scan implements sql.Scanner
 func (f *BoolField) Scan(src interface{}) error {
 	if v, ok := src.(bool); ok {
-		data := v
-		f.data = data
+		f.data = v
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -133,8 +131,7 @@ func NewInt64Field(f Field) *Int64Field {
 // Scan implements sql.Scanner
 func (f *Int64Field) Scan(src interface{}) error {
 	if v, ok := src.(int64); ok {
-		data := v
-		f.data = data
+		f.data = v
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -287,8 +284,7 @@ func NewBytesField(f Field) *BytesField {
 // Scan implements sql.Scanner
 func (f *BytesField) Scan(src interface{}) error {
 	if v, ok := src.([]byte); ok {
-		data := v
-		f.data = data
+		f.data = v
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -324,8 +320,7 @@ func NewTimeField(f Field) *TimeField {
 // Scan implements sql.Scanner
 func (f *TimeField) Scan(src interface{}) error {
 	if v, ok := src.(time.Time); ok {
-		data := v
-		f.data = data
+		f.data = v
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -365,8 +360,7 @@ func (f *NullStringField) Scan(src interface{}) error {
 		return nil
 	}
 	if v, ok := src.(string); ok {
-		data := v
-		f.data = &data
+		f.data = &v
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -406,8 +400,7 @@ func (f *NullBoolField) Scan(src interface{}) error {
 		return nil
 	}
 	if v, ok := src.(bool); ok {
-		data := v
-		f.data = &data
+		f.data = &v
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -488,8 +481,7 @@ func (f *NullInt64Field) Scan(src interface{}) error {
 		return nil
 	}
 	if v, ok := src.(int64); ok {
-		data := v
-		f.data = &data
+		f.data = &v
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -658,8 +650,7 @@ func (f *NullBytesField) Scan(src interface{}) error {
 		return nil
 	}
 	if v, ok := src.([]byte); ok {
-		data := v
-		f.data = &data
+		f.data = &v
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -699,8 +690,7 @@ func (f *NullTimeField) Scan(src interface{}) error {
 		return nil
 	}
 	if v, ok := src.(time.Time); ok {
-		data := v
-		f.data = &data
+		f.data = &v
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)

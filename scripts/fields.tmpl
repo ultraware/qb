@@ -36,8 +36,10 @@ func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) Scan(src interface{}) er
 	}
 	{{- end}}
 	if v, ok := src.({{if .Base}}{{.Base}}{{else}}{{.Type}}{{end}}); ok {
-	data := {{if .Base}}{{.Type}}(v){{else}}v{{end}}
-	f.data = {{if .Nullable}}&{{end}}data
+		{{- if .Base}}
+			data := {{.Type}}(v)
+		{{- end}}
+		f.data = {{if .Nullable}}&{{end}}{{if.Base}}data{{else}}v{{end}}
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
