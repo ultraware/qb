@@ -65,6 +65,46 @@ var defaultTypes = map[string]string{
 	`time`:    `time.Time{}`,
 	`bytes`:   `nil`,
 }
+
+var fullUpperList = []string{
+	`acl`,
+	`api`,
+	`ascii`,
+	`cpu`,
+	`css`,
+	`dns`,
+	`eof`,
+	`guid`,
+	`html`,
+	`http`,
+	`https`,
+	`id`,
+	`ip`,
+	`json`,
+	`lhs`,
+	`qps`,
+	`ram`,
+	`rhs`,
+	`rpc`,
+	`sla`,
+	`smtp`,
+	`sql`,
+	`ssh`,
+	`tcp`,
+	`tls`,
+	`ttl`,
+	`udp`,
+	`ui`,
+	`uid`,
+	`uuid`,
+	`uri`,
+	`url`,
+	`utf8`,
+	`vm`,
+	`xml`,
+	`xmpp`,
+	`xsrf`,
+	`xss`,
 }
 
 func newField(name string, t string, nullable bool, readOnly bool) Field {
@@ -74,13 +114,27 @@ func newField(name string, t string, nullable bool, readOnly bool) Field {
 		prefix = `Null`
 		def = `nil`
 	}
-	return Field{strings.Replace(name, `_`, ``, -1), name, t, prefix + fieldTypes[t], readOnly, def}
+
+	return Field{cleanName(name), name, t, prefix + fieldTypes[t], readOnly, def}
 }
 
 func cleanName(s string) string {
-	parts := strings.Split(s, `.`)
+	parts := strings.Split(strings.ToLower(s), `.`)
 	parts = strings.Split(parts[len(parts)-1], `_`)
 	for k := range parts {
+		upper := false
+		for _, v := range fullUpperList {
+			if v == parts[k] {
+				upper = true
+				break
+			}
+		}
+
+		if upper || len(parts[k]) == 0 {
+			parts[k] = strings.ToUpper(parts[k])
+			continue
+		}
+
 		parts[k] = strings.ToUpper(string(parts[k][0])) + parts[k][1:]
 	}
 	return strings.Join(parts, ``)
