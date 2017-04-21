@@ -119,7 +119,7 @@ func newField(name string, t string, nullable bool, readOnly bool) Field {
 }
 
 func cleanName(s string) string {
-	parts := strings.Split(strings.ToLower(s), `.`)
+	parts := strings.Split(s, `.`)
 	parts = strings.Split(parts[len(parts)-1], `_`)
 	for k := range parts {
 		upper := false
