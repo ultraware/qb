@@ -75,15 +75,19 @@ type Field interface {
 // DataField is a Field that can store data
 type DataField interface {
 	Field
+	getField() Field
 	sql.Scanner
 	driver.Valuer
+	hasChanged() bool
+	isSet() bool
 }
 
 // Cursor ...
 type Cursor struct {
-	dst  []interface{}
-	rows *sql.Rows
-	err  error
+	dst                []interface{}
+	rows               *sql.Rows
+	DisableExitOnError bool
+	err                error
 }
 
 // NewCursor returns a new Cursor
@@ -105,14 +109,17 @@ func (c *Cursor) Next() bool {
 	err := c.rows.Scan(c.dst...)
 	if err != nil {
 		c.err = err
+		if !c.DisableExitOnError {
+			c.Close()
+		}
 		return false
 	}
 
 	return true
 }
 
-// Close the rows object
-func (c Cursor) Close() {
+// Close the rows object, automatically called by Next when all rows have been read
+func (c *Cursor) Close() {
 	c.rows.Close()
 }
 
