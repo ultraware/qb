@@ -22,8 +22,8 @@ func (t *{{.Table}}Type) All() []qb.DataField {
 	}
 }
 
-func {{.Table}}() {{.Table}}Type {
-	return {{.Table}}Type{
+func {{.Table}}() *{{.Table}}Type {
+	return &{{.Table}}Type{
 	{{- range .Fields}}
 		qb.New{{.FieldType}}(&qb{{$.Table}}_{{.Name}}),
 	{{- end}}
