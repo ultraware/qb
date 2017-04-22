@@ -48,7 +48,7 @@ var fieldTypes = map[string]string{
 	`int32`:   `Int32Field`,
 	`float64`: `Float64Field`,
 	`float32`: `Float32Field`,
-	`float`:   `FloatField`,
+	`float`:   `Float64Field`,
 	`bool`:    `BoolField`,
 	`time`:    `TimeField`,
 	`bytes`:   `BytesField`,
