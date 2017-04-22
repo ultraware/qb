@@ -22,6 +22,8 @@ type InputField struct {
 	Type     string `json:"type"`
 	Nullable bool   `json:"null"`
 	ReadOnly bool   `json:"read_only"`
+	Default  bool   `json:"default"`
+	Primary  bool   `json:"primary"`
 }
 
 // Table ...
@@ -33,12 +35,14 @@ type Table struct {
 
 // Field ...
 type Field struct {
-	Name      string
-	String    string
-	Type      string
-	FieldType string
-	ReadOnly  bool
-	Default   string
+	Name       string
+	String     string
+	Type       string
+	FieldType  string
+	ReadOnly   bool
+	HasDefault bool
+	Default    string
+	Primary    bool
 }
 
 var fieldTypes = map[string]string{
@@ -107,7 +111,7 @@ var fullUpperList = []string{
 	`xss`,
 }
 
-func newField(name string, t string, nullable bool, readOnly bool) Field {
+func newField(name string, t string, nullable bool, readOnly bool, hasDefault bool, primary bool) Field {
 	var prefix string
 	def := defaultTypes[t]
 	if nullable {
@@ -115,7 +119,7 @@ func newField(name string, t string, nullable bool, readOnly bool) Field {
 		def = `nil`
 	}
 
-	return Field{cleanName(name), name, t, prefix + fieldTypes[t], readOnly, def}
+	return Field{cleanName(name), name, t, prefix + fieldTypes[t], readOnly, hasDefault, def, primary}
 }
 
 func cleanName(s string) string {
@@ -183,7 +187,7 @@ func main() {
 		}
 
 		for _, f := range v.Fields {
-			t.Fields = append(t.Fields, newField(f.String, f.Type, f.Nullable, f.ReadOnly))
+			t.Fields = append(t.Fields, newField(f.String, f.Type, f.Nullable, f.ReadOnly, f.Default, f.Primary))
 		}
 
 		tables = append(tables, t)

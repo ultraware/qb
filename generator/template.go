@@ -4,14 +4,14 @@ var codeTemplate = `// {{.Table}}
 var qb{{.Table}}Table = qb.Table{Name: "{{.TableString}}"}
 
 {{range .Fields -}}
-    var qb{{$.Table}}_{{.Name}} = qb.TableField{Parent: &qb{{$.Table}}Table, Name: "{{.String}}", Type: "{{.Type}}", ReadOnly: {{if .ReadOnly}}true{{else}}false{{end}}}
+var qb{{$.Table}}_{{.Name}} = qb.TableField{Parent: &qb{{$.Table}}Table, Name: "{{.String}}", Type: "{{.Type}}", ReadOnly: {{.ReadOnly}}, HasDefault: {{.HasDefault}}, Primary: {{.Primary}}}
 {{end}}
 
 type {{.Table}}Type struct {
 {{- range .Fields}}
-    {{.Name}} *qb.{{.FieldType}}
+	{{.Name}} *qb.{{.FieldType}}
 {{- end}}
-    *qb.Table
+	*qb.Table
 }
 
 func (t *{{.Table}}Type) All() []qb.DataField {
@@ -23,11 +23,11 @@ func (t *{{.Table}}Type) All() []qb.DataField {
 }
 
 func {{.Table}}() {{.Table}}Type {
-    return {{.Table}}Type{
-    {{- range .Fields}}
-        qb.New{{.FieldType}}(&qb{{$.Table}}_{{.Name}}),
-    {{- end}}
-        &qb{{$.Table}}Table,
-    }
+	return {{.Table}}Type{
+	{{- range .Fields}}
+		qb.New{{.FieldType}}(&qb{{$.Table}}_{{.Name}}),
+	{{- end}}
+		&qb{{$.Table}}Table,
+	}
 }
 `

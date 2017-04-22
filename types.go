@@ -12,9 +12,14 @@ import (
 /// Source
 ///
 
+// Alias ...
+type Alias interface {
+	Get(Source) string
+}
+
 // Source ...
 type Source interface {
-	QueryString(*AliasGenerator, *ValueList) string
+	QueryString(Alias, *ValueList) string
 	AliasString() string
 }
 
@@ -24,7 +29,7 @@ type Table struct {
 }
 
 // QueryString ...
-func (t *Table) QueryString(ag *AliasGenerator, _ *ValueList) string {
+func (t *Table) QueryString(ag Alias, _ *ValueList) string {
 	return t.Name + ` ` + ag.Get(t)
 }
 
@@ -38,6 +43,21 @@ func (t *Table) Select(f ...DataField) SelectBuilder {
 	return NewSelectBuilder(f, t)
 }
 
+// InsertHeader ...
+func (t *Table) InsertHeader(f []DataField) string {
+	return buildInsert(t, f)
+}
+
+// InsertValues ...
+func (t *Table) InsertValues(f []DataField) (string, []interface{}) {
+	return getInsertValue(t, f)
+}
+
+// UpdateRecord ...
+func (t *Table) UpdateRecord(f []DataField) (string, []interface{}) {
+	return buildUpdate(t, f)
+}
+
 // SubQuery ...
 type SubQuery struct {
 	sql    string
@@ -46,7 +66,7 @@ type SubQuery struct {
 }
 
 // QueryString ...
-func (t *SubQuery) QueryString(ag *AliasGenerator, vl *ValueList) string {
+func (t *SubQuery) QueryString(ag Alias, vl *ValueList) string {
 	vl.Append(t.values...)
 	return `(` + t.sql + `) ` + ag.Get(t)
 }
@@ -67,7 +87,7 @@ func (t *SubQuery) Select(f ...DataField) SelectBuilder {
 
 // Field represents a field in a query
 type Field interface {
-	QueryString(*AliasGenerator, *ValueList) string
+	QueryString(Alias, *ValueList) string
 	Source() Source
 	DataType() string
 }
@@ -130,15 +150,21 @@ func (c Cursor) Error() error {
 
 // TableField represents a real field in a table
 type TableField struct {
-	Parent   Source
-	Name     string
-	Type     string
-	ReadOnly bool
+	Parent     Source
+	Name       string
+	Type       string
+	ReadOnly   bool
+	HasDefault bool
+	Primary    bool
 }
 
 // QueryString ...
-func (f TableField) QueryString(ag *AliasGenerator, _ *ValueList) string {
-	return ag.Get(f.Parent) + `.` + f.Name
+func (f TableField) QueryString(ag Alias, _ *ValueList) string {
+	alias := ag.Get(f.Parent)
+	if alias != `` {
+		alias += `.`
+	}
+	return alias + f.Name
 }
 
 // Source ...
@@ -191,7 +217,7 @@ func Value(v interface{}) ValueField {
 }
 
 // QueryString ...
-func (f ValueField) QueryString(_ *AliasGenerator, vl *ValueList) string {
+func (f ValueField) QueryString(_ Alias, vl *ValueList) string {
 	vl.Append(f.Value)
 	return `?`
 }

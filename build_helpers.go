@@ -2,6 +2,14 @@ package qb
 
 import "strconv"
 
+// NoAlias returns no alias
+type NoAlias struct{}
+
+// Get implements the Alias interface
+func (n *NoAlias) Get(_ Source) string {
+	return ``
+}
+
 // AliasGenerator makes aliasses for tables and keeps track of the previously given aliasses
 type AliasGenerator struct {
 	counter int

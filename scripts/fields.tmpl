@@ -2,12 +2,17 @@
 type {{if .Nullable}}Null{{end}}{{.TypeName}}Field struct {
 	Field
 	data {{if .Nullable}}*{{end}}{{.Type}}
+	changed bool
+	set bool
 }
 
 func New{{if .Nullable}}Null{{end}}{{.TypeName}}Field(f Field) *{{if .Nullable}}Null{{end}}{{.TypeName}}Field {
-	tf := {{if .Nullable}}Null{{end}}{{.TypeName}}Field{}
-	tf.Field = f
+	tf := {{if .Nullable}}Null{{end}}{{.TypeName}}Field{Field: f}
 	return &tf
+}
+
+func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) getField() Field {
+	return f.Field
 }
 
 // Scan implements sql.Scanner
@@ -18,8 +23,13 @@ func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) Scan(src interface{}) er
 	if err != nil {{ if eq .Nullable false }}|| !nf.Valid {{end}} {
 		return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
 	}
+
+	f.changed = false
+	f.set = true
+
 	{{- if .Nullable }}
 	if !nf.Valid {
+
 		f.data = nil
 		return nil
 	}
@@ -32,6 +42,8 @@ func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) Scan(src interface{}) er
 	{{- if .Nullable}}
 	if src == nil {
 		f.data = nil
+		f.changed = false
+		f.set = true
 		return nil
 	}
 	{{- end}}
@@ -40,6 +52,8 @@ func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) Scan(src interface{}) er
 			data := {{.Type}}(v)
 		{{- end}}
 		f.data = {{if .Nullable}}&{{end}}{{if.Base}}data{{else}}v{{end}}
+		f.changed = false
+		f.set = true
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -58,5 +72,15 @@ func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) Get() {{if .Nullable}}*{
 
 // Set updates the data
 func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) Set(v {{if .Nullable}}*{{end}}{{.Type}}) {
+	f.changed = true
+	f.set = true
 	f.data = v
+}
+
+func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) hasChanged() bool {
+	return f.changed
+}
+
+func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) isSet() bool {
+	return f.set
 }
