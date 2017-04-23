@@ -4,25 +4,45 @@ import (
 	"database/sql"
 	"strconv"
 	"strings"
-	"time"
 
 	"git.ultraware.nl/NiseVoid/qb"
 )
 
-func getType(v interface{}) string {
-	switch v.(type) {
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
-		return `::int`
-	case float32, float64:
-		return `::float`
-	case string:
-		return `::text`
+func printType(v interface{}, c *int) (string, bool) {
+	switch t := v.(type) {
+	// signed integers
+	case int:
+		return strconv.FormatInt(int64(t), 10), false
+	case int8:
+		return strconv.FormatInt(int64(t), 10), false
+	case int16:
+		return strconv.FormatInt(int64(t), 10), false
+	case int32:
+		return strconv.FormatInt(int64(t), 10), false
+	case int64:
+		return strconv.FormatInt(t, 10), false
+	// unsigned integers
+	case uint:
+		return strconv.FormatUint(uint64(t), 10), false
+	case uint8:
+		return strconv.FormatUint(uint64(t), 10), false
+	case uint16:
+		return strconv.FormatUint(uint64(t), 10), false
+	case uint32:
+		return strconv.FormatUint(uint64(t), 10), false
+	case uint64:
+		return strconv.FormatUint(t, 10), false
+	// floats
+	case float32:
+		return strconv.FormatFloat(float64(t), 'g', -1, 64), false
+	case float64:
+		return strconv.FormatFloat(t, 'g', -1, 64), false
+	// other types
 	case bool:
-		return `::bool`
-	case time.Time:
-		return `::timestamp`
+		return strconv.FormatBool(bool(t)), false
 	default:
-		return ``
+		(*c)++
+		return `$` + strconv.Itoa(*c), true
 	}
 }
 
@@ -33,17 +53,24 @@ func prepareQuery(q qb.SelectQuery) (string, []interface{}) {
 }
 
 func prepareSQL(s string, v []interface{}) (string, []interface{}) {
+	vc := 0
 	c := 0
+
+	new := []interface{}{}
 	for {
 		i := strings.IndexRune(s, '?')
 		if i == -1 {
 			break
 		}
-		c++
-		s = s[:i] + `$` + strconv.Itoa(c) + getType(v[c-1]) + s[i+1:]
+		vc++
+		str, param := printType(v[vc-1], &c)
+		if param {
+			new = append(new, v[vc-1])
+		}
+		s = s[:i] + str + s[i+1:]
 	}
 
-	return s, v
+	return s, new
 }
 
 // DB ...
