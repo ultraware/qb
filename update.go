@@ -6,18 +6,13 @@ func buildUpdate(t *Table, f []DataField) (string, []interface{}) {
 	values := []interface{}{}
 
 	s := `UPDATE ` + t.QueryString(&ag, &vl) + ` SET `
-	comma := false
-	for _, v := range f {
-		if !updatable(v) {
-			continue
-		}
-		if comma {
+	for k, v := range GetUpdatableFields(f) {
+		if k > 0 {
 			s += `, `
 		}
 		s += v.QueryString(&ag, &vl) + ` = ?`
 		val, _ := v.Value()
 		values = append(values, val)
-		comma = true
 	}
 
 	c := []string{}
@@ -37,6 +32,45 @@ func buildUpdate(t *Table, f []DataField) (string, []interface{}) {
 
 	values = append(values, vl...)
 	return s, values
+}
+
+// GetUpdatableFields returns a list of all updatable fields
+func GetUpdatableFields(f []DataField) []DataField {
+	fields := []DataField{}
+	for _, v := range f {
+		if !updatable(v) {
+			continue
+		}
+		fields = append(fields, v)
+	}
+	return fields
+}
+
+// GetUpsertSQL ...
+func GetUpsertSQL(conflict []DataField, f []DataField) string {
+	sql := ``
+	for k, v := range conflict {
+		if k > 0 {
+			sql += `, `
+		}
+		sql += v.QueryString(&NoAlias{}, nil)
+	}
+	return ` ON CONFLICT (` + sql + `) DO ` + buildUpdateExcluded(f)
+}
+
+func buildUpdateExcluded(f []DataField) string {
+	ag := NoAlias{}
+	vl := ValueList{}
+
+	s := `UPDATE SET `
+	for k, v := range GetUpdatableFields(f) {
+		if k > 0 {
+			s += `, `
+		}
+		s += v.QueryString(&ag, &vl) + ` = EXCLUDED.` + v.QueryString(&ag, &vl)
+	}
+
+	return s
 }
 
 func updatable(f DataField) bool {

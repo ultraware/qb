@@ -135,19 +135,26 @@ func (db *DB) Insert(record savable) error {
 
 // BatchInsert is used to insert multiple records at once
 type BatchInsert struct {
-	count  int
-	SQL    string
-	Values []interface{}
+	count     int
+	SQL       string
+	Values    []interface{}
+	conflict  []qb.DataField
+	updatable []qb.DataField
 }
 
 // NewBatch returns a BatchInsert
-func (db *DB) NewBatch(record savable) *BatchInsert {
+func (db *DB) NewBatch(record savable, conflict ...qb.DataField) *BatchInsert {
 	s := record.InsertHeader(record.All())
-	return &BatchInsert{0, s, nil}
+	return &BatchInsert{0, s, nil, conflict, nil}
 }
 
 // Add adds the given record to the batch
 func (b *BatchInsert) Add(record savable) {
+	updatable := qb.GetUpdatableFields(record.All())
+	if len(updatable) > len(b.updatable) {
+		b.updatable = updatable
+	}
+
 	s, v := record.InsertValues(record.All())
 	if b.count > 0 {
 		s = `, ` + s
@@ -162,7 +169,22 @@ func (db *DB) ExecuteBatch(b *BatchInsert) error {
 	if b.count == 0 {
 		panic(`Cannot insert empty batch`)
 	}
-	s, v := prepareSQL(b.SQL, b.Values)
+	s, v := b.SQL, b.Values
+	if len(b.conflict) > 0 {
+		s += qb.GetUpsertSQL(b.conflict, b.updatable)
+	}
+	s, v = prepareSQL(s, v)
+
+	_, err := db.DB.Exec(s, v...)
+	return err
+}
+
+// Upsert tries to insert a record or update if a given field conflicts
+func (db *DB) Upsert(record savable, conflict ...qb.DataField) error {
+	s, v := record.InsertValues(record.All())
+	s = record.InsertHeader(record.All()) + s
+	s += qb.GetUpsertSQL(conflict, record.All())
+	s, v = prepareSQL(s, v)
 	_, err := db.DB.Exec(s, v...)
 	return err
 }
