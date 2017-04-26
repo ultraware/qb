@@ -10,40 +10,54 @@ import (
 
 func printType(v interface{}, c *int) (string, bool) {
 	switch t := v.(type) {
-	// signed integers
-	case int:
-		return strconv.FormatInt(int64(t), 10), false
-	case int8:
-		return strconv.FormatInt(int64(t), 10), false
-	case int16:
-		return strconv.FormatInt(int64(t), 10), false
-	case int32:
-		return strconv.FormatInt(int64(t), 10), false
-	case int64:
-		return strconv.FormatInt(t, 10), false
-	// unsigned integers
-	case uint:
-		return strconv.FormatUint(uint64(t), 10), false
-	case uint8:
-		return strconv.FormatUint(uint64(t), 10), false
-	case uint16:
-		return strconv.FormatUint(uint64(t), 10), false
-	case uint32:
-		return strconv.FormatUint(uint64(t), 10), false
-	case uint64:
-		return strconv.FormatUint(t, 10), false
-	// floats
+	case int, int8, int16, int32, int64:
+		return printInt(t), false
+	case uint, uint8, uint16, uint32, uint64:
+		return printUint(t), false
 	case float32:
 		return strconv.FormatFloat(float64(t), 'g', -1, 64), false
 	case float64:
 		return strconv.FormatFloat(t, 'g', -1, 64), false
-	// other types
 	case bool:
-		return strconv.FormatBool(bool(t)), false
+		return strconv.FormatBool(t), false
 	default:
 		(*c)++
 		return `$` + strconv.Itoa(*c), true
 	}
+}
+
+func printInt(i interface{}) string {
+	var v int64
+	switch t := i.(type) {
+	case int:
+		v = int64(t)
+	case int8:
+		v = int64(t)
+	case int16:
+		v = int64(t)
+	case int32:
+		v = int64(t)
+	case int64:
+		v = t
+	}
+	return strconv.FormatInt(v, 10)
+}
+
+func printUint(i interface{}) string {
+	var v uint64
+	switch t := i.(type) {
+	case uint:
+		v = uint64(t)
+	case uint8:
+		v = uint64(t)
+	case uint16:
+		v = uint64(t)
+	case uint32:
+		v = uint64(t)
+	case uint64:
+		v = t
+	}
+	return strconv.FormatUint(v, 10)
 }
 
 func prepareQuery(q qb.SelectQuery) (string, []interface{}) {

@@ -24,43 +24,43 @@ func main() {
 	}
 
 	types := []FieldType{
-		FieldType{
+		{
 			TypeName: `String`,
 			Type:     `string`,
 		},
-		FieldType{
+		{
 			TypeName: `Bool`,
 			Type:     `bool`,
 		},
-		FieldType{
+		{
 			TypeName: `Int`,
 			Type:     `int`,
 			Base:     `int64`,
 		},
-		FieldType{
+		{
 			TypeName: `Int64`,
 			Type:     `int64`,
 		},
-		FieldType{
+		{
 			TypeName: `Int32`,
 			Type:     `int32`,
 			Base:     `int64`,
 		},
-		FieldType{
+		{
 			TypeName: `Float64`,
 			Type:     `float64`,
 			Base:     `Float64`,
 		},
-		FieldType{
+		{
 			TypeName: `Float32`,
 			Type:     `float32`,
 			Base:     `Float64`,
 		},
-		FieldType{
+		{
 			TypeName: `Bytes`,
 			Type:     `[]byte`,
 		},
-		FieldType{
+		{
 			TypeName: `Time`,
 			Type:     `time.Time`,
 		},

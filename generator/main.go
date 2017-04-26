@@ -39,9 +39,9 @@ type Field struct {
 	String     string
 	Type       string
 	FieldType  string
+	Default    string
 	ReadOnly   bool
 	HasDefault bool
-	Default    string
 	Primary    bool
 }
 
@@ -119,7 +119,7 @@ func newField(name string, t string, nullable bool, readOnly bool, hasDefault bo
 		def = `nil`
 	}
 
-	return Field{cleanName(name), name, t, prefix + fieldTypes[t], readOnly, hasDefault, def, primary}
+	return Field{cleanName(name), name, t, prefix + fieldTypes[t], def, readOnly, hasDefault, primary}
 }
 
 func cleanName(s string) string {

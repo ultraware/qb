@@ -2,6 +2,12 @@ package qb
 
 import "strconv"
 
+// Constants used when building queries
+const (
+	COMMA = `, `
+	VALUE = `?`
+)
+
 // NoAlias returns no alias
 type NoAlias struct{}
 

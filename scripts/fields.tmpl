@@ -6,6 +6,7 @@ type {{if .Nullable}}Null{{end}}{{.TypeName}}Field struct {
 	set bool
 }
 
+// New{{if .Nullable}}Null{{end}}{{.TypeName}}Field creates a new {{if .Nullable}}Null{{end}}{{.TypeName}}Field
 func New{{if .Nullable}}Null{{end}}{{.TypeName}}Field(f Field) *{{if .Nullable}}Null{{end}}{{.TypeName}}Field {
 	tf := {{if .Nullable}}Null{{end}}{{.TypeName}}Field{Field: f}
 	return &tf
@@ -24,26 +25,21 @@ func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) Scan(src interface{}) er
 		return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
 	}
 
-	f.changed = false
-	f.set = true
-
 	{{- if .Nullable }}
 	if !nf.Valid {
-
-		f.data = nil
+		f.setData(nil, false)
 		return nil
 	}
 	{{- end}}
 
-	v := {{.Type}}(nf.{{.Base}})
-	f.data = {{if .Nullable}}&{{end}}v
+	v := {{if ne .Type "float64"}}{{.Type}}{{end}}(nf.{{.Base}})
+
+	f.setData({{if .Nullable}}&{{end}}v, false)
 	return nil
 	{{- else }}
 	{{- if .Nullable}}
 	if src == nil {
-		f.data = nil
-		f.changed = false
-		f.set = true
+		f.setData(nil, false)
 		return nil
 	}
 	{{- end}}
@@ -51,9 +47,7 @@ func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) Scan(src interface{}) er
 		{{- if .Base}}
 			data := {{.Type}}(v)
 		{{- end}}
-		f.data = {{if .Nullable}}&{{end}}{{if.Base}}data{{else}}v{{end}}
-		f.changed = false
-		f.set = true
+		f.setData({{if .Nullable}}&{{end}}{{if.Base}}data{{else}}v{{end}}, false)
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -72,7 +66,11 @@ func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) Get() {{if .Nullable}}*{
 
 // Set updates the data
 func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) Set(v {{if .Nullable}}*{{end}}{{.Type}}) {
-	f.changed = true
+	f.setData(v, true)
+}
+
+func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) setData(v {{if .Nullable}}*{{end}}{{.Type}}, changed bool) {
+	f.changed = changed
 	f.set = true
 	f.data = v
 }

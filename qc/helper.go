@@ -9,7 +9,7 @@ func makeField(i interface{}) qb.Field {
 	return qb.Value(i)
 }
 
-func concatQuery(ag *qb.AliasGenerator, vl *qb.ValueList, values ...interface{}) string {
+func concatQuery(ag qb.Alias, vl *qb.ValueList, values ...interface{}) string {
 	s := ``
 	for _, val := range values {
 		switch v := val.(type) {

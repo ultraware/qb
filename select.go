@@ -19,7 +19,6 @@ type SelectBuilder struct {
 	dstFields []DataField
 	fields    []Field
 	where     []Condition
-	values    []interface{}
 	joins     []Join
 	order     []FieldOrder
 	group     []Field
@@ -129,7 +128,7 @@ func (q SelectBuilder) getSQL(aliasFields bool) (string, []interface{}) {
 
 	s := b.selectSQL(q.fields, aliasFields)
 	s += b.fromSQL(q.source)
-	s += b.joinSQL(q.source, q.joins)
+	s += b.joinSQL(q.joins)
 	s += b.whereSQL(q.where)
 	s += b.groupSQL(q.group)
 	s += b.orderSQL(q.order)
@@ -152,7 +151,7 @@ func (b *selectBuilder) listFields(f []Field, aliasFields bool) string {
 	s := ``
 	for k, v := range f {
 		if k > 0 {
-			s += `, `
+			s += COMMA
 		}
 		s += v.QueryString(&b.alias, &b.list)
 		if aliasFields {
@@ -170,7 +169,7 @@ func (b *selectBuilder) fromSQL(s Source) string {
 	return ` FROM ` + s.QueryString(&b.alias, &b.list)
 }
 
-func (b *selectBuilder) joinSQL(src Source, j []Join) string {
+func (b *selectBuilder) joinSQL(j []Join) string {
 	s := ``
 
 	for _, v := range j {
@@ -206,7 +205,7 @@ func (b *selectBuilder) orderSQL(o []FieldOrder) string {
 	s := ` ORDER BY `
 	for k, v := range o {
 		if k > 0 {
-			s += `, `
+			s += COMMA
 		}
 		s += v.Field.QueryString(&b.alias, &b.list) + ` ` + v.Order
 	}

@@ -6,7 +6,7 @@ func buildInsert(t *Table, f []DataField) string {
 	s := `INSERT INTO ` + t.QueryString(&ag, &vl) + ` (`
 	for k, v := range f {
 		if k > 0 {
-			s += `, `
+			s += COMMA
 		}
 		s += v.QueryString(&ag, &vl)
 	}
@@ -14,7 +14,7 @@ func buildInsert(t *Table, f []DataField) string {
 	return s
 }
 
-func getInsertValue(t *Table, f []DataField) (string, []interface{}) {
+func getInsertValue(f []DataField) (string, []interface{}) {
 	s := `(`
 	values := []interface{}{}
 
@@ -24,12 +24,12 @@ func getInsertValue(t *Table, f []DataField) (string, []interface{}) {
 			panic(`Cannot use non-table field in insert`)
 		}
 		if k > 0 {
-			s += `, `
+			s += COMMA
 		}
 		if (!v.isSet() || field.ReadOnly) && field.HasDefault {
 			s += `DEFAULT`
 		} else {
-			s += `?`
+			s += VALUE
 			val, _ := v.Value()
 			values = append(values, val)
 		}

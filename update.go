@@ -8,9 +8,9 @@ func buildUpdate(t *Table, f []DataField) (string, []interface{}) {
 	s := `UPDATE ` + t.QueryString(&ag, &vl) + ` SET `
 	for k, v := range GetUpdatableFields(f) {
 		if k > 0 {
-			s += `, `
+			s += COMMA
 		}
-		s += v.QueryString(&ag, &vl) + ` = ?`
+		s += v.QueryString(&ag, &vl) + ` = ` + VALUE
 		val, _ := v.Value()
 		values = append(values, val)
 	}
@@ -51,7 +51,7 @@ func GetUpsertSQL(conflict []DataField, f []DataField) string {
 	sql := ``
 	for k, v := range conflict {
 		if k > 0 {
-			sql += `, `
+			sql += COMMA
 		}
 		sql += v.QueryString(&NoAlias{}, nil)
 	}
@@ -65,7 +65,7 @@ func buildUpdateExcluded(f []DataField) string {
 	s := `UPDATE SET `
 	for k, v := range GetUpdatableFields(f) {
 		if k > 0 {
-			s += `, `
+			s += COMMA
 		}
 		s += v.QueryString(&ag, &vl) + ` = EXCLUDED.` + v.QueryString(&ag, &vl)
 	}

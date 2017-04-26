@@ -50,7 +50,7 @@ func (t *Table) InsertHeader(f []DataField) string {
 
 // InsertValues ...
 func (t *Table) InsertValues(f []DataField) (string, []interface{}) {
-	return getInsertValue(t, f)
+	return getInsertValue(f)
 }
 
 // UpdateRecord ...
@@ -219,7 +219,7 @@ func Value(v interface{}) ValueField {
 // QueryString ...
 func (f ValueField) QueryString(_ Alias, vl *ValueList) string {
 	vl.Append(f.Value)
-	return `?`
+	return VALUE
 }
 
 // Source ...

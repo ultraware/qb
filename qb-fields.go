@@ -15,6 +15,7 @@ type StringField struct {
 	set     bool
 }
 
+// NewStringField creates a new StringField
 func NewStringField(f Field) *StringField {
 	tf := StringField{Field: f}
 	return &tf
@@ -27,9 +28,7 @@ func (f *StringField) getField() Field {
 // Scan implements sql.Scanner
 func (f *StringField) Scan(src interface{}) error {
 	if v, ok := src.(string); ok {
-		f.data = v
-		f.changed = false
-		f.set = true
+		f.setData(v, false)
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -47,7 +46,11 @@ func (f *StringField) Get() string {
 
 // Set updates the data
 func (f *StringField) Set(v string) {
-	f.changed = true
+	f.setData(v, true)
+}
+
+func (f *StringField) setData(v string, changed bool) {
+	f.changed = changed
 	f.set = true
 	f.data = v
 }
@@ -68,6 +71,7 @@ type BoolField struct {
 	set     bool
 }
 
+// NewBoolField creates a new BoolField
 func NewBoolField(f Field) *BoolField {
 	tf := BoolField{Field: f}
 	return &tf
@@ -80,9 +84,7 @@ func (f *BoolField) getField() Field {
 // Scan implements sql.Scanner
 func (f *BoolField) Scan(src interface{}) error {
 	if v, ok := src.(bool); ok {
-		f.data = v
-		f.changed = false
-		f.set = true
+		f.setData(v, false)
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -100,7 +102,11 @@ func (f *BoolField) Get() bool {
 
 // Set updates the data
 func (f *BoolField) Set(v bool) {
-	f.changed = true
+	f.setData(v, true)
+}
+
+func (f *BoolField) setData(v bool, changed bool) {
+	f.changed = changed
 	f.set = true
 	f.data = v
 }
@@ -121,6 +127,7 @@ type IntField struct {
 	set     bool
 }
 
+// NewIntField creates a new IntField
 func NewIntField(f Field) *IntField {
 	tf := IntField{Field: f}
 	return &tf
@@ -134,9 +141,7 @@ func (f *IntField) getField() Field {
 func (f *IntField) Scan(src interface{}) error {
 	if v, ok := src.(int64); ok {
 		data := int(v)
-		f.data = data
-		f.changed = false
-		f.set = true
+		f.setData(data, false)
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -154,7 +159,11 @@ func (f *IntField) Get() int {
 
 // Set updates the data
 func (f *IntField) Set(v int) {
-	f.changed = true
+	f.setData(v, true)
+}
+
+func (f *IntField) setData(v int, changed bool) {
+	f.changed = changed
 	f.set = true
 	f.data = v
 }
@@ -175,6 +184,7 @@ type Int64Field struct {
 	set     bool
 }
 
+// NewInt64Field creates a new Int64Field
 func NewInt64Field(f Field) *Int64Field {
 	tf := Int64Field{Field: f}
 	return &tf
@@ -187,9 +197,7 @@ func (f *Int64Field) getField() Field {
 // Scan implements sql.Scanner
 func (f *Int64Field) Scan(src interface{}) error {
 	if v, ok := src.(int64); ok {
-		f.data = v
-		f.changed = false
-		f.set = true
+		f.setData(v, false)
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -207,7 +215,11 @@ func (f *Int64Field) Get() int64 {
 
 // Set updates the data
 func (f *Int64Field) Set(v int64) {
-	f.changed = true
+	f.setData(v, true)
+}
+
+func (f *Int64Field) setData(v int64, changed bool) {
+	f.changed = changed
 	f.set = true
 	f.data = v
 }
@@ -228,6 +240,7 @@ type Int32Field struct {
 	set     bool
 }
 
+// NewInt32Field creates a new Int32Field
 func NewInt32Field(f Field) *Int32Field {
 	tf := Int32Field{Field: f}
 	return &tf
@@ -241,9 +254,7 @@ func (f *Int32Field) getField() Field {
 func (f *Int32Field) Scan(src interface{}) error {
 	if v, ok := src.(int64); ok {
 		data := int32(v)
-		f.data = data
-		f.changed = false
-		f.set = true
+		f.setData(data, false)
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -261,7 +272,11 @@ func (f *Int32Field) Get() int32 {
 
 // Set updates the data
 func (f *Int32Field) Set(v int32) {
-	f.changed = true
+	f.setData(v, true)
+}
+
+func (f *Int32Field) setData(v int32, changed bool) {
+	f.changed = changed
 	f.set = true
 	f.data = v
 }
@@ -282,6 +297,7 @@ type Float64Field struct {
 	set     bool
 }
 
+// NewFloat64Field creates a new Float64Field
 func NewFloat64Field(f Field) *Float64Field {
 	tf := Float64Field{Field: f}
 	return &tf
@@ -299,11 +315,9 @@ func (f *Float64Field) Scan(src interface{}) error {
 		return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
 	}
 
-	f.changed = false
-	f.set = true
+	v := (nf.Float64)
 
-	v := float64(nf.Float64)
-	f.data = v
+	f.setData(v, false)
 	return nil
 }
 
@@ -319,7 +333,11 @@ func (f *Float64Field) Get() float64 {
 
 // Set updates the data
 func (f *Float64Field) Set(v float64) {
-	f.changed = true
+	f.setData(v, true)
+}
+
+func (f *Float64Field) setData(v float64, changed bool) {
+	f.changed = changed
 	f.set = true
 	f.data = v
 }
@@ -340,6 +358,7 @@ type Float32Field struct {
 	set     bool
 }
 
+// NewFloat32Field creates a new Float32Field
 func NewFloat32Field(f Field) *Float32Field {
 	tf := Float32Field{Field: f}
 	return &tf
@@ -357,11 +376,9 @@ func (f *Float32Field) Scan(src interface{}) error {
 		return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
 	}
 
-	f.changed = false
-	f.set = true
-
 	v := float32(nf.Float64)
-	f.data = v
+
+	f.setData(v, false)
 	return nil
 }
 
@@ -377,7 +394,11 @@ func (f *Float32Field) Get() float32 {
 
 // Set updates the data
 func (f *Float32Field) Set(v float32) {
-	f.changed = true
+	f.setData(v, true)
+}
+
+func (f *Float32Field) setData(v float32, changed bool) {
+	f.changed = changed
 	f.set = true
 	f.data = v
 }
@@ -398,6 +419,7 @@ type BytesField struct {
 	set     bool
 }
 
+// NewBytesField creates a new BytesField
 func NewBytesField(f Field) *BytesField {
 	tf := BytesField{Field: f}
 	return &tf
@@ -410,9 +432,7 @@ func (f *BytesField) getField() Field {
 // Scan implements sql.Scanner
 func (f *BytesField) Scan(src interface{}) error {
 	if v, ok := src.([]byte); ok {
-		f.data = v
-		f.changed = false
-		f.set = true
+		f.setData(v, false)
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -430,7 +450,11 @@ func (f *BytesField) Get() []byte {
 
 // Set updates the data
 func (f *BytesField) Set(v []byte) {
-	f.changed = true
+	f.setData(v, true)
+}
+
+func (f *BytesField) setData(v []byte, changed bool) {
+	f.changed = changed
 	f.set = true
 	f.data = v
 }
@@ -451,6 +475,7 @@ type TimeField struct {
 	set     bool
 }
 
+// NewTimeField creates a new TimeField
 func NewTimeField(f Field) *TimeField {
 	tf := TimeField{Field: f}
 	return &tf
@@ -463,9 +488,7 @@ func (f *TimeField) getField() Field {
 // Scan implements sql.Scanner
 func (f *TimeField) Scan(src interface{}) error {
 	if v, ok := src.(time.Time); ok {
-		f.data = v
-		f.changed = false
-		f.set = true
+		f.setData(v, false)
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -483,7 +506,11 @@ func (f *TimeField) Get() time.Time {
 
 // Set updates the data
 func (f *TimeField) Set(v time.Time) {
-	f.changed = true
+	f.setData(v, true)
+}
+
+func (f *TimeField) setData(v time.Time, changed bool) {
+	f.changed = changed
 	f.set = true
 	f.data = v
 }
@@ -504,6 +531,7 @@ type NullStringField struct {
 	set     bool
 }
 
+// NewNullStringField creates a new NullStringField
 func NewNullStringField(f Field) *NullStringField {
 	tf := NullStringField{Field: f}
 	return &tf
@@ -516,15 +544,11 @@ func (f *NullStringField) getField() Field {
 // Scan implements sql.Scanner
 func (f *NullStringField) Scan(src interface{}) error {
 	if src == nil {
-		f.data = nil
-		f.changed = false
-		f.set = true
+		f.setData(nil, false)
 		return nil
 	}
 	if v, ok := src.(string); ok {
-		f.data = &v
-		f.changed = false
-		f.set = true
+		f.setData(&v, false)
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -542,7 +566,11 @@ func (f *NullStringField) Get() *string {
 
 // Set updates the data
 func (f *NullStringField) Set(v *string) {
-	f.changed = true
+	f.setData(v, true)
+}
+
+func (f *NullStringField) setData(v *string, changed bool) {
+	f.changed = changed
 	f.set = true
 	f.data = v
 }
@@ -563,6 +591,7 @@ type NullBoolField struct {
 	set     bool
 }
 
+// NewNullBoolField creates a new NullBoolField
 func NewNullBoolField(f Field) *NullBoolField {
 	tf := NullBoolField{Field: f}
 	return &tf
@@ -575,15 +604,11 @@ func (f *NullBoolField) getField() Field {
 // Scan implements sql.Scanner
 func (f *NullBoolField) Scan(src interface{}) error {
 	if src == nil {
-		f.data = nil
-		f.changed = false
-		f.set = true
+		f.setData(nil, false)
 		return nil
 	}
 	if v, ok := src.(bool); ok {
-		f.data = &v
-		f.changed = false
-		f.set = true
+		f.setData(&v, false)
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -601,7 +626,11 @@ func (f *NullBoolField) Get() *bool {
 
 // Set updates the data
 func (f *NullBoolField) Set(v *bool) {
-	f.changed = true
+	f.setData(v, true)
+}
+
+func (f *NullBoolField) setData(v *bool, changed bool) {
+	f.changed = changed
 	f.set = true
 	f.data = v
 }
@@ -622,6 +651,7 @@ type NullIntField struct {
 	set     bool
 }
 
+// NewNullIntField creates a new NullIntField
 func NewNullIntField(f Field) *NullIntField {
 	tf := NullIntField{Field: f}
 	return &tf
@@ -634,16 +664,12 @@ func (f *NullIntField) getField() Field {
 // Scan implements sql.Scanner
 func (f *NullIntField) Scan(src interface{}) error {
 	if src == nil {
-		f.data = nil
-		f.changed = false
-		f.set = true
+		f.setData(nil, false)
 		return nil
 	}
 	if v, ok := src.(int64); ok {
 		data := int(v)
-		f.data = &data
-		f.changed = false
-		f.set = true
+		f.setData(&data, false)
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -661,7 +687,11 @@ func (f *NullIntField) Get() *int {
 
 // Set updates the data
 func (f *NullIntField) Set(v *int) {
-	f.changed = true
+	f.setData(v, true)
+}
+
+func (f *NullIntField) setData(v *int, changed bool) {
+	f.changed = changed
 	f.set = true
 	f.data = v
 }
@@ -682,6 +712,7 @@ type NullInt64Field struct {
 	set     bool
 }
 
+// NewNullInt64Field creates a new NullInt64Field
 func NewNullInt64Field(f Field) *NullInt64Field {
 	tf := NullInt64Field{Field: f}
 	return &tf
@@ -694,15 +725,11 @@ func (f *NullInt64Field) getField() Field {
 // Scan implements sql.Scanner
 func (f *NullInt64Field) Scan(src interface{}) error {
 	if src == nil {
-		f.data = nil
-		f.changed = false
-		f.set = true
+		f.setData(nil, false)
 		return nil
 	}
 	if v, ok := src.(int64); ok {
-		f.data = &v
-		f.changed = false
-		f.set = true
+		f.setData(&v, false)
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -720,7 +747,11 @@ func (f *NullInt64Field) Get() *int64 {
 
 // Set updates the data
 func (f *NullInt64Field) Set(v *int64) {
-	f.changed = true
+	f.setData(v, true)
+}
+
+func (f *NullInt64Field) setData(v *int64, changed bool) {
+	f.changed = changed
 	f.set = true
 	f.data = v
 }
@@ -741,6 +772,7 @@ type NullInt32Field struct {
 	set     bool
 }
 
+// NewNullInt32Field creates a new NullInt32Field
 func NewNullInt32Field(f Field) *NullInt32Field {
 	tf := NullInt32Field{Field: f}
 	return &tf
@@ -753,16 +785,12 @@ func (f *NullInt32Field) getField() Field {
 // Scan implements sql.Scanner
 func (f *NullInt32Field) Scan(src interface{}) error {
 	if src == nil {
-		f.data = nil
-		f.changed = false
-		f.set = true
+		f.setData(nil, false)
 		return nil
 	}
 	if v, ok := src.(int64); ok {
 		data := int32(v)
-		f.data = &data
-		f.changed = false
-		f.set = true
+		f.setData(&data, false)
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -780,7 +808,11 @@ func (f *NullInt32Field) Get() *int32 {
 
 // Set updates the data
 func (f *NullInt32Field) Set(v *int32) {
-	f.changed = true
+	f.setData(v, true)
+}
+
+func (f *NullInt32Field) setData(v *int32, changed bool) {
+	f.changed = changed
 	f.set = true
 	f.data = v
 }
@@ -801,6 +833,7 @@ type NullFloat64Field struct {
 	set     bool
 }
 
+// NewNullFloat64Field creates a new NullFloat64Field
 func NewNullFloat64Field(f Field) *NullFloat64Field {
 	tf := NullFloat64Field{Field: f}
 	return &tf
@@ -817,17 +850,14 @@ func (f *NullFloat64Field) Scan(src interface{}) error {
 	if err != nil {
 		return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
 	}
-
-	f.changed = false
-	f.set = true
 	if !nf.Valid {
-
-		f.data = nil
+		f.setData(nil, false)
 		return nil
 	}
 
-	v := float64(nf.Float64)
-	f.data = &v
+	v := (nf.Float64)
+
+	f.setData(&v, false)
 	return nil
 }
 
@@ -843,7 +873,11 @@ func (f *NullFloat64Field) Get() *float64 {
 
 // Set updates the data
 func (f *NullFloat64Field) Set(v *float64) {
-	f.changed = true
+	f.setData(v, true)
+}
+
+func (f *NullFloat64Field) setData(v *float64, changed bool) {
+	f.changed = changed
 	f.set = true
 	f.data = v
 }
@@ -864,6 +898,7 @@ type NullFloat32Field struct {
 	set     bool
 }
 
+// NewNullFloat32Field creates a new NullFloat32Field
 func NewNullFloat32Field(f Field) *NullFloat32Field {
 	tf := NullFloat32Field{Field: f}
 	return &tf
@@ -880,17 +915,14 @@ func (f *NullFloat32Field) Scan(src interface{}) error {
 	if err != nil {
 		return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
 	}
-
-	f.changed = false
-	f.set = true
 	if !nf.Valid {
-
-		f.data = nil
+		f.setData(nil, false)
 		return nil
 	}
 
 	v := float32(nf.Float64)
-	f.data = &v
+
+	f.setData(&v, false)
 	return nil
 }
 
@@ -906,7 +938,11 @@ func (f *NullFloat32Field) Get() *float32 {
 
 // Set updates the data
 func (f *NullFloat32Field) Set(v *float32) {
-	f.changed = true
+	f.setData(v, true)
+}
+
+func (f *NullFloat32Field) setData(v *float32, changed bool) {
+	f.changed = changed
 	f.set = true
 	f.data = v
 }
@@ -927,6 +963,7 @@ type NullBytesField struct {
 	set     bool
 }
 
+// NewNullBytesField creates a new NullBytesField
 func NewNullBytesField(f Field) *NullBytesField {
 	tf := NullBytesField{Field: f}
 	return &tf
@@ -939,15 +976,11 @@ func (f *NullBytesField) getField() Field {
 // Scan implements sql.Scanner
 func (f *NullBytesField) Scan(src interface{}) error {
 	if src == nil {
-		f.data = nil
-		f.changed = false
-		f.set = true
+		f.setData(nil, false)
 		return nil
 	}
 	if v, ok := src.([]byte); ok {
-		f.data = &v
-		f.changed = false
-		f.set = true
+		f.setData(&v, false)
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -965,7 +998,11 @@ func (f *NullBytesField) Get() *[]byte {
 
 // Set updates the data
 func (f *NullBytesField) Set(v *[]byte) {
-	f.changed = true
+	f.setData(v, true)
+}
+
+func (f *NullBytesField) setData(v *[]byte, changed bool) {
+	f.changed = changed
 	f.set = true
 	f.data = v
 }
@@ -986,6 +1023,7 @@ type NullTimeField struct {
 	set     bool
 }
 
+// NewNullTimeField creates a new NullTimeField
 func NewNullTimeField(f Field) *NullTimeField {
 	tf := NullTimeField{Field: f}
 	return &tf
@@ -998,15 +1036,11 @@ func (f *NullTimeField) getField() Field {
 // Scan implements sql.Scanner
 func (f *NullTimeField) Scan(src interface{}) error {
 	if src == nil {
-		f.data = nil
-		f.changed = false
-		f.set = true
+		f.setData(nil, false)
 		return nil
 	}
 	if v, ok := src.(time.Time); ok {
-		f.data = &v
-		f.changed = false
-		f.set = true
+		f.setData(&v, false)
 		return nil
 	}
 	return fmt.Errorf(`Unsupported scan, cannot scan %T into %T`, src, f.data)
@@ -1024,7 +1058,11 @@ func (f *NullTimeField) Get() *time.Time {
 
 // Set updates the data
 func (f *NullTimeField) Set(v *time.Time) {
-	f.changed = true
+	f.setData(v, true)
+}
+
+func (f *NullTimeField) setData(v *time.Time, changed bool) {
+	f.changed = changed
 	f.set = true
 	f.data = v
 }
