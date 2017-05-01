@@ -44,6 +44,20 @@ func Lte(i1, i2 interface{}) qb.Condition {
 	return createOperatorCondition(i1, i2, `<=`)
 }
 
+// IsNull ...
+func IsNull(f1 qb.Field) qb.Condition {
+	return func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
+		return concatQuery(ag, vl, f1, ` IS NULL`)
+	}
+}
+
+// NotNull ...
+func NotNull(f1 qb.Field) qb.Condition {
+	return func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
+		return concatQuery(ag, vl, f1, ` IS NOT NULL`)
+	}
+}
+
 // Like ...
 func Like(f1 qb.Field, s string) qb.Condition {
 	f2 := makeField(s)
