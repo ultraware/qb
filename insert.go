@@ -1,39 +1,33 @@
 package qb
 
 func buildInsert(t *Table, f []DataField) string {
-	ag := NoAlias{}
-	vl := ValueList{}
-	s := `INSERT INTO ` + t.QueryString(&ag, &vl) + ` (`
-	for k, v := range f {
-		if k > 0 {
-			s += COMMA
-		}
-		s += v.QueryString(&ag, &vl)
-	}
-	s += `) VALUES `
-	return s
+	b := sqlBuilder{&NoAlias{}, nil}
+	return `INSERT INTO ` + t.QueryString(b.alias, &b.values) + ` (` + b.ListDataFields(f, false) + `) VALUES` + "\n"
 }
 
 func getInsertValue(f []DataField) (string, []interface{}) {
+	b := sqlBuilder{&NoAlias{}, nil}
 	s := `(`
-	values := []interface{}{}
 
 	for k, v := range f {
-		field, ok := v.getField().(*TableField)
-		if !ok {
-			panic(`Cannot use non-table field in insert`)
-		}
 		if k > 0 {
 			s += COMMA
 		}
-		if (!v.isSet() || field.ReadOnly) && field.HasDefault {
+		if shouldDefault(v) {
 			s += `DEFAULT`
-		} else {
-			s += VALUE
-			val, _ := v.Value()
-			values = append(values, val)
+			continue
 		}
+		val, _ := v.Value()
+		s += Value(val).QueryString(b.alias, &b.values)
 	}
 	s += `)`
-	return s, values
+	return s, b.values
+}
+
+func shouldDefault(v DataField) bool {
+	field, ok := v.getField().(*TableField)
+	if !ok {
+		panic(`Cannot use non-table field in insert`)
+	}
+	return (!v.isSet() || field.ReadOnly) && field.HasDefault
 }

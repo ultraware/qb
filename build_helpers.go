@@ -8,6 +8,8 @@ const (
 	VALUE = `?`
 )
 
+///// Alias /////
+
 // NoAlias returns no alias
 type NoAlias struct{}
 
@@ -22,8 +24,8 @@ type AliasGenerator struct {
 	list    map[Source]string
 }
 
-func newGenerator() AliasGenerator {
-	return AliasGenerator{0, make(map[Source]string)}
+func newGenerator() *AliasGenerator {
+	return &AliasGenerator{0, make(map[Source]string)}
 }
 
 // Get returns the alias for the given source
@@ -41,10 +43,31 @@ func (g *AliasGenerator) Get(src Source) string {
 	return g.list[src]
 }
 
+///// Value list /////
+
 // ValueList is a list of static values used in a query
 type ValueList []interface{}
 
 // Append adds the given values to the list
 func (list *ValueList) Append(v ...interface{}) {
 	*list = append(*list, v...)
+}
+
+///// Primary /////
+
+// GetPrimaryFields return all fields in the given list that are a primary key
+func GetPrimaryFields(f []DataField) []DataField {
+	list := []DataField{}
+	for _, v := range f {
+		if !isPrimary(v) {
+			continue
+		}
+		list = append(list, v)
+	}
+	return list
+}
+
+func isPrimary(v DataField) bool {
+	f, ok := v.getField().(*TableField)
+	return ok && f.Primary
 }

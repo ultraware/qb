@@ -15,25 +15,20 @@ type SelectQuery interface {
 
 // SelectBuilder ...
 type SelectBuilder struct {
-	source    Source
-	dstFields []DataField
-	fields    []Field
-	where     []Condition
-	joins     []Join
-	order     []FieldOrder
-	group     []Field
-	tables    []Source
-	limit     int
-	offset    int
+	source Source
+	fields []DataField
+	where  []Condition
+	joins  []Join
+	order  []FieldOrder
+	group  []Field
+	tables []Source
+	limit  int
+	offset int
 }
 
 // NewSelectBuilder ...
 func NewSelectBuilder(f []DataField, src Source) SelectBuilder {
-	fields := make([]Field, len(f))
-	for k, v := range f {
-		fields[k] = Field(v)
-	}
-	return SelectBuilder{dstFields: f, fields: fields, source: src}
+	return SelectBuilder{fields: f, source: src}
 }
 
 // Where ...
@@ -43,53 +38,53 @@ func (q SelectBuilder) Where(c Condition) SelectBuilder {
 }
 
 // InnerJoin ...
-func (q SelectBuilder) InnerJoin(f1, f2 Field) SelectBuilder {
-	return q.join(`INNER`, f1, f2)
+func (q SelectBuilder) InnerJoin(f1, f2 Field, c ...Condition) SelectBuilder {
+	return q.join(`INNER`, f1, f2, c)
 }
 
 // CrossJoin ...
-func (q SelectBuilder) CrossJoin(f1, f2 Field) SelectBuilder {
-	return q.join(`CROSS`, f1, f2)
+func (q SelectBuilder) CrossJoin(f1, f2 Field, c ...Condition) SelectBuilder {
+	return q.join(`CROSS`, f1, f2, c)
 }
 
 // LeftJoin ...
-func (q SelectBuilder) LeftJoin(f1, f2 Field) SelectBuilder {
-	return q.join(`LEFT`, f1, f2)
+func (q SelectBuilder) LeftJoin(f1, f2 Field, c ...Condition) SelectBuilder {
+	return q.join(`LEFT`, f1, f2, c)
 }
 
 // RightJoin ...
-func (q SelectBuilder) RightJoin(f1, f2 Field) SelectBuilder {
-	return q.join(`RIGHT`, f1, f2)
+func (q SelectBuilder) RightJoin(f1, f2 Field, c ...Condition) SelectBuilder {
+	return q.join(`RIGHT`, f1, f2, c)
 }
 
 // join ...
-func (q SelectBuilder) join(t string, f1, f2 Field) SelectBuilder {
+func (q SelectBuilder) join(t string, f1, f2 Field, c []Condition) SelectBuilder {
 	if len(q.tables) == 0 {
 		q.tables = []Source{q.source}
 	}
 
 	var new Source
-	c := 0
+	i := 0
 	for _, v := range q.tables {
 		if reflect.DeepEqual(v, f1.Source()) {
-			c++
+			i++
 			new = f2.Source()
 		}
 		if reflect.DeepEqual(v, f2.Source()) {
-			c++
+			i++
 			new = f1.Source()
 		}
 	}
 
-	if c == 0 {
+	if i == 0 {
 		panic(`Both tables already joined`)
 	}
-	if c > 1 {
+	if i > 1 {
 		panic(`None of these tables are present in the query`)
 	}
 
 	q.tables = append(q.tables, new)
-	q.joins = append(q.joins, Join{t, [2]Field{f1, f2}, new})
+	q.joins = append(q.joins, Join{t, [2]Field{f1, f2}, new, c})
 
 	return q
 }
@@ -124,99 +119,22 @@ func (q SelectBuilder) SQL() (string, []interface{}) {
 }
 
 func (q SelectBuilder) getSQL(aliasFields bool) (string, []interface{}) {
-	b := selectBuilder{newGenerator(), ValueList{}}
+	b := sqlBuilder{newGenerator(), ValueList{}}
 
-	s := b.selectSQL(q.fields, aliasFields)
-	s += b.fromSQL(q.source)
-	s += b.joinSQL(q.joins)
-	s += b.whereSQL(q.where)
-	s += b.groupSQL(q.group)
-	s += b.orderSQL(q.order)
-	if q.limit > 0 {
-		s += ` LIMIT ` + strconv.Itoa(q.limit)
-	}
-	if q.offset > 0 {
-		s += ` OFFSET ` + strconv.Itoa(q.offset)
+	for _, v := range q.tables {
+		_ = b.alias.Get(v)
 	}
 
-	return s, []interface{}(b.list)
-}
+	s := b.Select(aliasFields, q.fields...) +
+		b.From(q.source) +
+		b.Join(q.joins...) +
+		b.Where(q.where...) +
+		b.GroupBy(q.group...) +
+		b.OrderBy(q.order...) +
+		b.Limit(q.limit) +
+		b.Offset(q.offset)
 
-type selectBuilder struct {
-	alias AliasGenerator
-	list  ValueList
-}
-
-func (b *selectBuilder) listFields(f []Field, aliasFields bool) string {
-	s := ``
-	for k, v := range f {
-		if k > 0 {
-			s += COMMA
-		}
-		s += v.QueryString(&b.alias, &b.list)
-		if aliasFields {
-			s += ` f` + strconv.Itoa(k)
-		}
-	}
-	return s
-}
-
-func (b *selectBuilder) selectSQL(f []Field, aliasFields bool) string {
-	return `SELECT ` + b.listFields(f, aliasFields)
-}
-
-func (b *selectBuilder) fromSQL(s Source) string {
-	return ` FROM ` + s.QueryString(&b.alias, &b.list)
-}
-
-func (b *selectBuilder) joinSQL(j []Join) string {
-	s := ``
-
-	for _, v := range j {
-		f1 := v.Fields[0].QueryString(&b.alias, &b.list)
-		f2 := v.Fields[1].QueryString(&b.alias, &b.list)
-
-		s += ` ` + v.Type + ` JOIN ` + v.New.QueryString(&b.alias, &b.list) + ` ON (` + f1 + ` = ` + f2 + `)`
-	}
-
-	return s
-}
-
-func (b *selectBuilder) whereSQL(c []Condition) string {
-	s := ``
-	for k, v := range c {
-		if k == 0 {
-			s += ` WHERE `
-		} else {
-			s += ` AND `
-		}
-
-		s += v(&b.alias, &b.list)
-	}
-
-	return s
-}
-
-func (b *selectBuilder) orderSQL(o []FieldOrder) string {
-	if len(o) == 0 {
-		return ``
-	}
-
-	s := ` ORDER BY `
-	for k, v := range o {
-		if k > 0 {
-			s += COMMA
-		}
-		s += v.Field.QueryString(&b.alias, &b.list) + ` ` + v.Order
-	}
-	return s
-}
-
-func (b *selectBuilder) groupSQL(f []Field) string {
-	if len(f) == 0 {
-		return ``
-	}
-	return ` GROUP BY ` + b.listFields(f, false)
+	return s, []interface{}(b.values)
 }
 
 // SubQuery converts the SelectQuery to a SubQuery for use in further queries
@@ -234,7 +152,7 @@ func (q SelectBuilder) SubQuery() *SubQuery {
 
 // Fields ...
 func (q SelectBuilder) Fields() []DataField {
-	return q.dstFields
+	return q.fields
 }
 
 ////////////////////////////

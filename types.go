@@ -30,7 +30,11 @@ type Table struct {
 
 // QueryString ...
 func (t *Table) QueryString(ag Alias, _ *ValueList) string {
-	return t.Name + ` ` + ag.Get(t)
+	alias := ag.Get(t)
+	if len(alias) > 0 {
+		alias = ` ` + alias
+	}
+	return t.Name + alias
 }
 
 // AliasString ...
@@ -67,8 +71,11 @@ type SubQuery struct {
 
 // QueryString ...
 func (t *SubQuery) QueryString(ag Alias, vl *ValueList) string {
-	vl.Append(t.values...)
-	return `(` + t.sql + `) ` + ag.Get(t)
+	alias := ag.Get(t)
+	if len(alias) > 0 {
+		alias = ` ` + alias
+	}
+	return `(` + t.sql + `)` + alias
 }
 
 // AliasString ...
@@ -237,13 +244,14 @@ func (f ValueField) DataType() string {
 ///
 
 // Condition is used in the Where function
-type Condition func(*AliasGenerator, *ValueList) string
+type Condition func(Alias, *ValueList) string
 
 // Join are used for joins on tables
 type Join struct {
-	Type   string
-	Fields [2]Field
-	New    Source
+	Type       string
+	Fields     [2]Field
+	New        Source
+	Conditions []Condition
 }
 
 // FieldOrder specifies the order in which fields should be sorted

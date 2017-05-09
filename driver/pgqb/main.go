@@ -147,6 +147,7 @@ func (db *DB) Update(record savable) error {
 // Insert inster the record in the database
 func (db *DB) Insert(record savable) error {
 	s, v := record.InsertValues(record.All())
+	s += "\n"
 	s, v = db.prepareSQL(record.InsertHeader(record.All())+s, v)
 
 	_, err := db.DB.Exec(s, v...)
@@ -177,7 +178,7 @@ func (b *BatchInsert) Add(record savable) {
 
 	s, v := record.InsertValues(record.All())
 	if b.count > 0 {
-		s = `, ` + s
+		b.SQL += `,` + "\n"
 	}
 	b.SQL += s
 	b.Values = append(b.Values, v...)
@@ -189,9 +190,9 @@ func (db *DB) ExecuteBatch(b *BatchInsert) error {
 	if b.count == 0 {
 		panic(`Cannot insert empty batch`)
 	}
-	s, v := b.SQL, b.Values
+	s, v := b.SQL+"\n", b.Values
 	if len(b.conflict) > 0 {
-		s += qb.GetUpsertSQL(b.conflict, b.updatable)
+		s += getUpsertSQL(b.conflict, b.updatable)
 	}
 	s, v = db.prepareSQL(s, v)
 
@@ -203,8 +204,19 @@ func (db *DB) ExecuteBatch(b *BatchInsert) error {
 func (db *DB) Upsert(record savable, conflict ...qb.DataField) error {
 	s, v := record.InsertValues(record.All())
 	s = record.InsertHeader(record.All()) + s
-	s += qb.GetUpsertSQL(conflict, record.All())
+	s += getUpsertSQL(conflict, record.All())
 	s, v = db.prepareSQL(s, v)
 	_, err := db.DB.Exec(s, v...)
 	return err
+}
+
+func getUpsertSQL(conflict []qb.DataField, f []qb.DataField) string {
+	sql := ``
+	for k, v := range conflict {
+		if k > 0 {
+			sql += qb.COMMA
+		}
+		sql += v.QueryString(&qb.NoAlias{}, nil)
+	}
+	return `ON CONFLICT (` + sql + `) DO ` + qb.UpdateExcluded(f)
 }

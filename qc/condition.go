@@ -9,7 +9,7 @@ import (
 func createOperatorCondition(i1, i2 interface{}, operator string) qb.Condition {
 	f1 := makeField(i1)
 	f2 := makeField(i2)
-	return func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
+	return func(ag qb.Alias, vl *qb.ValueList) string {
 		return concatQuery(ag, vl, f1, ` `+operator+` `, f2)
 	}
 }
@@ -46,14 +46,14 @@ func Lte(i1, i2 interface{}) qb.Condition {
 
 // IsNull ...
 func IsNull(f1 qb.Field) qb.Condition {
-	return func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
+	return func(ag qb.Alias, vl *qb.ValueList) string {
 		return concatQuery(ag, vl, f1, ` IS NULL`)
 	}
 }
 
 // NotNull ...
 func NotNull(f1 qb.Field) qb.Condition {
-	return func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
+	return func(ag qb.Alias, vl *qb.ValueList) string {
 		return concatQuery(ag, vl, f1, ` IS NOT NULL`)
 	}
 }
@@ -61,7 +61,7 @@ func NotNull(f1 qb.Field) qb.Condition {
 // Like ...
 func Like(f1 qb.Field, s string) qb.Condition {
 	f2 := makeField(s)
-	return func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
+	return func(ag qb.Alias, vl *qb.ValueList) string {
 		return concatQuery(ag, vl, f1, ` LIKE `, f2)
 	}
 }
@@ -69,7 +69,7 @@ func Like(f1 qb.Field, s string) qb.Condition {
 // In ...
 func In(f1 qb.Field, in ...interface{}) qb.Condition {
 	list := strings.TrimSuffix(strings.Repeat(`?, `, len(in)), `, `)
-	return func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
+	return func(ag qb.Alias, vl *qb.ValueList) string {
 		vl.Append(in...)
 		return concatQuery(ag, vl, f1, ` IN (`+list+`)`)
 	}
@@ -77,14 +77,14 @@ func In(f1 qb.Field, in ...interface{}) qb.Condition {
 
 // Not ...
 func Not(c qb.Condition) qb.Condition {
-	return func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
+	return func(ag qb.Alias, vl *qb.ValueList) string {
 		return `NOT(` + c(ag, vl) + `)`
 	}
 }
 
 // createLogicalCondition ...
 func createLogicalCondition(operator string, conditions ...qb.Condition) qb.Condition {
-	return func(ag *qb.AliasGenerator, vl *qb.ValueList) string {
+	return func(ag qb.Alias, vl *qb.ValueList) string {
 		s := `(`
 		for k, c := range conditions {
 			if k > 0 {
