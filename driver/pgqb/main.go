@@ -2,6 +2,7 @@ package pgqb
 
 import (
 	"database/sql"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -60,13 +61,13 @@ func printUint(i interface{}) string {
 	return strconv.FormatUint(v, 10)
 }
 
-func prepareQuery(q qb.SelectQuery) (string, []interface{}) {
+func (db *DB) prepareQuery(q qb.SelectQuery) (string, []interface{}) {
 	s, v := q.SQL()
 
-	return prepareSQL(s, v)
+	return db.prepareSQL(s, v)
 }
 
-func prepareSQL(s string, v []interface{}) (string, []interface{}) {
+func (db *DB) prepareSQL(s string, v []interface{}) (string, []interface{}) {
 	vc := 0
 	c := 0
 
@@ -84,12 +85,17 @@ func prepareSQL(s string, v []interface{}) (string, []interface{}) {
 		s = s[:i] + str + s[i+1:]
 	}
 
+	if db.Debug {
+		fmt.Printf("-- Running query:\n%s-- With values: %v\n\n", s, new)
+	}
+
 	return s, new
 }
 
 // DB ...
 type DB struct {
-	DB *sql.DB
+	DB    *sql.DB
+	Debug bool
 }
 
 // New returns a new postgresql qb wrapper
@@ -99,7 +105,7 @@ func New(db *sql.DB) *DB {
 
 // Query executes the givven SelectQuery on the database
 func (db *DB) Query(q qb.SelectQuery) (*qb.Cursor, error) {
-	s, v := prepareQuery(q)
+	s, v := db.prepareQuery(q)
 
 	r, err := db.DB.Query(s, v...)
 	return qb.NewCursor(q.Fields(), r), err
@@ -107,7 +113,7 @@ func (db *DB) Query(q qb.SelectQuery) (*qb.Cursor, error) {
 
 // QueryRow executes the givven SelectQuery on the database, only returns one row
 func (db *DB) QueryRow(q qb.SelectQuery) error {
-	s, v := prepareQuery(q)
+	s, v := db.prepareQuery(q)
 	r := db.DB.QueryRow(s, v...)
 
 	f := q.Fields()
@@ -133,7 +139,7 @@ type savable interface {
 
 // Update updates the record in the database
 func (db *DB) Update(record savable) error {
-	s, v := prepareSQL(record.UpdateRecord(record.All()))
+	s, v := db.prepareSQL(record.UpdateRecord(record.All()))
 	_, err := db.DB.Exec(s, v...)
 	return err
 }
@@ -141,7 +147,7 @@ func (db *DB) Update(record savable) error {
 // Insert inster the record in the database
 func (db *DB) Insert(record savable) error {
 	s, v := record.InsertValues(record.All())
-	s, v = prepareSQL(record.InsertHeader(record.All())+s, v)
+	s, v = db.prepareSQL(record.InsertHeader(record.All())+s, v)
 
 	_, err := db.DB.Exec(s, v...)
 	return err
@@ -187,7 +193,7 @@ func (db *DB) ExecuteBatch(b *BatchInsert) error {
 	if len(b.conflict) > 0 {
 		s += qb.GetUpsertSQL(b.conflict, b.updatable)
 	}
-	s, v = prepareSQL(s, v)
+	s, v = db.prepareSQL(s, v)
 
 	_, err := db.DB.Exec(s, v...)
 	return err
@@ -198,7 +204,7 @@ func (db *DB) Upsert(record savable, conflict ...qb.DataField) error {
 	s, v := record.InsertValues(record.All())
 	s = record.InsertHeader(record.All()) + s
 	s += qb.GetUpsertSQL(conflict, record.All())
-	s, v = prepareSQL(s, v)
+	s, v = db.prepareSQL(s, v)
 	_, err := db.DB.Exec(s, v...)
 	return err
 }
