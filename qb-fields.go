@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"fmt"
+	"reflect"
 	"time"
 )
 
@@ -53,6 +54,12 @@ func (f *StringField) setData(v string, changed bool) {
 	f.changed = changed
 	f.set = true
 	f.data = v
+}
+
+func (f *StringField) Reset() {
+	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
+	f.changed = false
+	f.set = false
 }
 
 func (f *StringField) hasChanged() bool {
@@ -109,6 +116,12 @@ func (f *BoolField) setData(v bool, changed bool) {
 	f.changed = changed
 	f.set = true
 	f.data = v
+}
+
+func (f *BoolField) Reset() {
+	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
+	f.changed = false
+	f.set = false
 }
 
 func (f *BoolField) hasChanged() bool {
@@ -168,6 +181,12 @@ func (f *IntField) setData(v int, changed bool) {
 	f.data = v
 }
 
+func (f *IntField) Reset() {
+	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
+	f.changed = false
+	f.set = false
+}
+
 func (f *IntField) hasChanged() bool {
 	return f.changed
 }
@@ -222,6 +241,12 @@ func (f *Int64Field) setData(v int64, changed bool) {
 	f.changed = changed
 	f.set = true
 	f.data = v
+}
+
+func (f *Int64Field) Reset() {
+	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
+	f.changed = false
+	f.set = false
 }
 
 func (f *Int64Field) hasChanged() bool {
@@ -279,6 +304,12 @@ func (f *Int32Field) setData(v int32, changed bool) {
 	f.changed = changed
 	f.set = true
 	f.data = v
+}
+
+func (f *Int32Field) Reset() {
+	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
+	f.changed = false
+	f.set = false
 }
 
 func (f *Int32Field) hasChanged() bool {
@@ -342,6 +373,12 @@ func (f *Float64Field) setData(v float64, changed bool) {
 	f.data = v
 }
 
+func (f *Float64Field) Reset() {
+	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
+	f.changed = false
+	f.set = false
+}
+
 func (f *Float64Field) hasChanged() bool {
 	return f.changed
 }
@@ -403,6 +440,12 @@ func (f *Float32Field) setData(v float32, changed bool) {
 	f.data = v
 }
 
+func (f *Float32Field) Reset() {
+	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
+	f.changed = false
+	f.set = false
+}
+
 func (f *Float32Field) hasChanged() bool {
 	return f.changed
 }
@@ -459,6 +502,12 @@ func (f *BytesField) setData(v []byte, changed bool) {
 	f.data = v
 }
 
+func (f *BytesField) Reset() {
+	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
+	f.changed = false
+	f.set = false
+}
+
 func (f *BytesField) hasChanged() bool {
 	return f.changed
 }
@@ -513,6 +562,12 @@ func (f *TimeField) setData(v time.Time, changed bool) {
 	f.changed = changed
 	f.set = true
 	f.data = v
+}
+
+func (f *TimeField) Reset() {
+	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
+	f.changed = false
+	f.set = false
 }
 
 func (f *TimeField) hasChanged() bool {
@@ -575,6 +630,12 @@ func (f *NullStringField) setData(v *string, changed bool) {
 	f.data = v
 }
 
+func (f *NullStringField) Reset() {
+	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
+	f.changed = false
+	f.set = false
+}
+
 func (f *NullStringField) hasChanged() bool {
 	return f.changed
 }
@@ -633,6 +694,12 @@ func (f *NullBoolField) setData(v *bool, changed bool) {
 	f.changed = changed
 	f.set = true
 	f.data = v
+}
+
+func (f *NullBoolField) Reset() {
+	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
+	f.changed = false
+	f.set = false
 }
 
 func (f *NullBoolField) hasChanged() bool {
@@ -696,6 +763,12 @@ func (f *NullIntField) setData(v *int, changed bool) {
 	f.data = v
 }
 
+func (f *NullIntField) Reset() {
+	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
+	f.changed = false
+	f.set = false
+}
+
 func (f *NullIntField) hasChanged() bool {
 	return f.changed
 }
@@ -754,6 +827,12 @@ func (f *NullInt64Field) setData(v *int64, changed bool) {
 	f.changed = changed
 	f.set = true
 	f.data = v
+}
+
+func (f *NullInt64Field) Reset() {
+	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
+	f.changed = false
+	f.set = false
 }
 
 func (f *NullInt64Field) hasChanged() bool {
@@ -815,6 +894,12 @@ func (f *NullInt32Field) setData(v *int32, changed bool) {
 	f.changed = changed
 	f.set = true
 	f.data = v
+}
+
+func (f *NullInt32Field) Reset() {
+	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
+	f.changed = false
+	f.set = false
 }
 
 func (f *NullInt32Field) hasChanged() bool {
@@ -882,6 +967,12 @@ func (f *NullFloat64Field) setData(v *float64, changed bool) {
 	f.data = v
 }
 
+func (f *NullFloat64Field) Reset() {
+	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
+	f.changed = false
+	f.set = false
+}
+
 func (f *NullFloat64Field) hasChanged() bool {
 	return f.changed
 }
@@ -947,6 +1038,12 @@ func (f *NullFloat32Field) setData(v *float32, changed bool) {
 	f.data = v
 }
 
+func (f *NullFloat32Field) Reset() {
+	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
+	f.changed = false
+	f.set = false
+}
+
 func (f *NullFloat32Field) hasChanged() bool {
 	return f.changed
 }
@@ -1007,6 +1104,12 @@ func (f *NullBytesField) setData(v *[]byte, changed bool) {
 	f.data = v
 }
 
+func (f *NullBytesField) Reset() {
+	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
+	f.changed = false
+	f.set = false
+}
+
 func (f *NullBytesField) hasChanged() bool {
 	return f.changed
 }
@@ -1065,6 +1168,12 @@ func (f *NullTimeField) setData(v *time.Time, changed bool) {
 	f.changed = changed
 	f.set = true
 	f.data = v
+}
+
+func (f *NullTimeField) Reset() {
+	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
+	f.changed = false
+	f.set = false
 }
 
 func (f *NullTimeField) hasChanged() bool {

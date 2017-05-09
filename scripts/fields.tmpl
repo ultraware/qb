@@ -75,6 +75,12 @@ func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) setData(v {{if .Nullable
 	f.data = v
 }
 
+func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) Reset() {
+	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
+	f.changed = false
+	f.set = false
+}
+
 func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) hasChanged() bool {
 	return f.changed
 }

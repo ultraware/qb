@@ -102,6 +102,7 @@ type Field interface {
 // DataField is a Field that can store data
 type DataField interface {
 	Field
+	Reset()
 	getField() Field
 	sql.Scanner
 	driver.Valuer
