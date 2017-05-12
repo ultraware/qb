@@ -23,3 +23,11 @@ func (f CalculatedField) Source() qb.Source {
 func (f CalculatedField) DataType() string {
 	return f.Type
 }
+
+func newCalculatedField(src qb.Source, t string, args ...interface{}) CalculatedField {
+	return CalculatedField{
+		Action: func(ag qb.Alias, vl *qb.ValueList) string { return concatQuery(ag, vl, args...) },
+		S:      src,
+		Type:   t,
+	}
+}
