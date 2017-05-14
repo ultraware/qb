@@ -68,6 +68,9 @@ func Like(f1 qb.Field, s string) qb.Condition {
 
 // In ...
 func In(f1 qb.Field, in ...interface{}) qb.Condition {
+	if len(in) == 0 {
+		panic(`Cannot call qc.In with zero in values`)
+	}
 	list := strings.TrimSuffix(strings.Repeat(`?, `, len(in)), `, `)
 	return func(ag qb.Alias, vl *qb.ValueList) string {
 		vl.Append(in...)
