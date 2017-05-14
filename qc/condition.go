@@ -44,6 +44,15 @@ func Lte(i1, i2 interface{}) qb.Condition {
 	return createOperatorCondition(i1, i2, `<=`)
 }
 
+// Between ...
+func Between(f1 qb.Field, i1, i2 interface{}) qb.Condition {
+	f2 := makeField(i1)
+	f3 := makeField(i2)
+	return func(ag qb.Alias, vl *qb.ValueList) string {
+		return concatQuery(ag, vl, f1, ` BETWEEN `, f2, ` AND `, f3)
+	}
+}
+
 // IsNull ...
 func IsNull(f1 qb.Field) qb.Condition {
 	return func(ag qb.Alias, vl *qb.ValueList) string {
