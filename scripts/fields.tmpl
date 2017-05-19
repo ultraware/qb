@@ -75,6 +75,7 @@ func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) setData(v {{if .Nullable
 	f.data = v
 }
 
+// Reset sets the data to the default Go value and sets changed and set to false
 func (f *{{if .Nullable}}Null{{end}}{{.TypeName}}Field) Reset() {
 	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
 	f.changed = false

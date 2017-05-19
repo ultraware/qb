@@ -56,6 +56,7 @@ func (f *StringField) setData(v string, changed bool) {
 	f.data = v
 }
 
+// Reset sets the data to the default Go value and sets changed and set to false
 func (f *StringField) Reset() {
 	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
 	f.changed = false
@@ -118,6 +119,7 @@ func (f *BoolField) setData(v bool, changed bool) {
 	f.data = v
 }
 
+// Reset sets the data to the default Go value and sets changed and set to false
 func (f *BoolField) Reset() {
 	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
 	f.changed = false
@@ -181,6 +183,7 @@ func (f *IntField) setData(v int, changed bool) {
 	f.data = v
 }
 
+// Reset sets the data to the default Go value and sets changed and set to false
 func (f *IntField) Reset() {
 	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
 	f.changed = false
@@ -243,6 +246,7 @@ func (f *Int64Field) setData(v int64, changed bool) {
 	f.data = v
 }
 
+// Reset sets the data to the default Go value and sets changed and set to false
 func (f *Int64Field) Reset() {
 	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
 	f.changed = false
@@ -306,6 +310,7 @@ func (f *Int32Field) setData(v int32, changed bool) {
 	f.data = v
 }
 
+// Reset sets the data to the default Go value and sets changed and set to false
 func (f *Int32Field) Reset() {
 	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
 	f.changed = false
@@ -373,6 +378,7 @@ func (f *Float64Field) setData(v float64, changed bool) {
 	f.data = v
 }
 
+// Reset sets the data to the default Go value and sets changed and set to false
 func (f *Float64Field) Reset() {
 	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
 	f.changed = false
@@ -440,6 +446,7 @@ func (f *Float32Field) setData(v float32, changed bool) {
 	f.data = v
 }
 
+// Reset sets the data to the default Go value and sets changed and set to false
 func (f *Float32Field) Reset() {
 	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
 	f.changed = false
@@ -502,6 +509,7 @@ func (f *BytesField) setData(v []byte, changed bool) {
 	f.data = v
 }
 
+// Reset sets the data to the default Go value and sets changed and set to false
 func (f *BytesField) Reset() {
 	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
 	f.changed = false
@@ -564,6 +572,7 @@ func (f *TimeField) setData(v time.Time, changed bool) {
 	f.data = v
 }
 
+// Reset sets the data to the default Go value and sets changed and set to false
 func (f *TimeField) Reset() {
 	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
 	f.changed = false
@@ -630,6 +639,7 @@ func (f *NullStringField) setData(v *string, changed bool) {
 	f.data = v
 }
 
+// Reset sets the data to the default Go value and sets changed and set to false
 func (f *NullStringField) Reset() {
 	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
 	f.changed = false
@@ -696,6 +706,7 @@ func (f *NullBoolField) setData(v *bool, changed bool) {
 	f.data = v
 }
 
+// Reset sets the data to the default Go value and sets changed and set to false
 func (f *NullBoolField) Reset() {
 	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
 	f.changed = false
@@ -763,6 +774,7 @@ func (f *NullIntField) setData(v *int, changed bool) {
 	f.data = v
 }
 
+// Reset sets the data to the default Go value and sets changed and set to false
 func (f *NullIntField) Reset() {
 	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
 	f.changed = false
@@ -829,6 +841,7 @@ func (f *NullInt64Field) setData(v *int64, changed bool) {
 	f.data = v
 }
 
+// Reset sets the data to the default Go value and sets changed and set to false
 func (f *NullInt64Field) Reset() {
 	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
 	f.changed = false
@@ -896,6 +909,7 @@ func (f *NullInt32Field) setData(v *int32, changed bool) {
 	f.data = v
 }
 
+// Reset sets the data to the default Go value and sets changed and set to false
 func (f *NullInt32Field) Reset() {
 	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
 	f.changed = false
@@ -967,6 +981,7 @@ func (f *NullFloat64Field) setData(v *float64, changed bool) {
 	f.data = v
 }
 
+// Reset sets the data to the default Go value and sets changed and set to false
 func (f *NullFloat64Field) Reset() {
 	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
 	f.changed = false
@@ -1038,6 +1053,7 @@ func (f *NullFloat32Field) setData(v *float32, changed bool) {
 	f.data = v
 }
 
+// Reset sets the data to the default Go value and sets changed and set to false
 func (f *NullFloat32Field) Reset() {
 	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
 	f.changed = false
@@ -1104,6 +1120,7 @@ func (f *NullBytesField) setData(v *[]byte, changed bool) {
 	f.data = v
 }
 
+// Reset sets the data to the default Go value and sets changed and set to false
 func (f *NullBytesField) Reset() {
 	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
 	f.changed = false
@@ -1170,6 +1187,7 @@ func (f *NullTimeField) setData(v *time.Time, changed bool) {
 	f.data = v
 }
 
+// Reset sets the data to the default Go value and sets changed and set to false
 func (f *NullTimeField) Reset() {
 	reflect.ValueOf(&f.data).Elem().Set(reflect.Zero(reflect.TypeOf(f.data)))
 	f.changed = false
