@@ -116,12 +116,7 @@ func (db *DB) QueryRow(q qb.SelectQuery) error {
 	s, v := db.prepareQuery(q)
 	r := db.DB.QueryRow(s, v...)
 
-	f := q.Fields()
-	dst := make([]interface{}, len(f))
-	for k, v := range f {
-		dst[k] = v
-	}
-	return r.Scan(dst...)
+	return qb.ScanToFields(r, q.Fields())
 }
 
 // RawExec executes the given SQL with the given params directly on the database

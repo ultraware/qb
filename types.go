@@ -1,7 +1,5 @@
 package qb
 
-//go:generate go run scripts/main.go
-
 import (
 	"database/sql"
 	"database/sql/driver"
@@ -99,20 +97,9 @@ type Field interface {
 	DataType() string
 }
 
-// DataField is a Field that can store data
-type DataField interface {
-	Field
-	Reset()
-	getField() Field
-	sql.Scanner
-	driver.Valuer
-	hasChanged() bool
-	isSet() bool
-}
-
 // Cursor ...
 type Cursor struct {
-	dst                []interface{}
+	fields             []DataField
 	rows               *sql.Rows
 	DisableExitOnError bool
 	err                error
@@ -120,11 +107,7 @@ type Cursor struct {
 
 // NewCursor returns a new Cursor
 func NewCursor(f []DataField, r *sql.Rows) *Cursor {
-	dst := make([]interface{}, len(f))
-	for k, v := range f {
-		dst[k] = v
-	}
-	c := &Cursor{dst: dst, rows: r}
+	c := &Cursor{fields: f, rows: r}
 	return c
 }
 
@@ -134,7 +117,7 @@ func (c *Cursor) Next() bool {
 		c.Close()
 		return false
 	}
-	err := c.rows.Scan(c.dst...)
+	err := ScanToFields(c.rows, c.fields)
 	if err != nil {
 		c.err = err
 		if !c.DisableExitOnError {
@@ -183,6 +166,12 @@ func (f TableField) Source() Source {
 // DataType ...
 func (f TableField) DataType() string {
 	return f.Type
+}
+
+// New creates a new instance of the field with a different Parent
+func (f TableField) New(src Source) *TableField {
+	f.Parent = src
+	return &f
 }
 
 // ValueField contains values supplied by the program

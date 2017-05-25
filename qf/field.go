@@ -24,8 +24,13 @@ func (f CalculatedField) DataType() string {
 	return f.Type
 }
 
-func newCalculatedField(src qb.Source, t string, args ...interface{}) CalculatedField {
-	return CalculatedField{
+// New returns a new DataField using the given value
+func (f *CalculatedField) New(v interface{}) qb.DataField {
+	return qb.NewDataField(f, v)
+}
+
+func newCalculatedField(src qb.Source, t string, args ...interface{}) *CalculatedField {
+	return &CalculatedField{
 		Action: func(ag qb.Alias, vl *qb.ValueList) string { return concatQuery(ag, vl, args...) },
 		S:      src,
 		Type:   t,

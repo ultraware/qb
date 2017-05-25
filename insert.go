@@ -17,15 +17,14 @@ func getInsertValue(f []DataField) (string, []interface{}) {
 			s += `DEFAULT`
 			continue
 		}
-		val, _ := v.Value()
-		s += Value(val).QueryString(b.alias, &b.values)
+		s += Value(v.Get()).QueryString(b.alias, &b.values)
 	}
 	s += `)`
 	return s, b.values
 }
 
 func shouldDefault(v DataField) bool {
-	field, ok := v.getField().(*TableField)
+	field, ok := v.Field.(*TableField)
 	if !ok {
 		panic(`Cannot use non-table field in insert`)
 	}

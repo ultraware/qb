@@ -39,35 +39,14 @@ type Field struct {
 	String     string
 	Type       string
 	FieldType  string
-	Default    string
 	ReadOnly   bool
 	HasDefault bool
 	Primary    bool
 }
 
 var fieldTypes = map[string]string{
-	`string`:  `StringField`,
-	`int`:     `IntField`,
-	`int64`:   `Int64Field`,
-	`int32`:   `Int32Field`,
-	`float64`: `Float64Field`,
-	`float32`: `Float32Field`,
-	`float`:   `Float64Field`,
-	`bool`:    `BoolField`,
-	`time`:    `TimeField`,
-	`bytes`:   `BytesField`,
-}
-
-var defaultTypes = map[string]string{
-	`string`:  "``",
-	`int`:     `0`,
-	`int64`:   `0`,
-	`int32`:   `0`,
-	`float64`: `0`,
-	`float32`: `0`,
-	`bool`:    `false`,
-	`time`:    `time.Time{}`,
-	`bytes`:   `nil`,
+	`time`:  `time.Time`,
+	`bytes`: `[]byte`,
 }
 
 var fullUpperList = []string{
@@ -111,15 +90,19 @@ var fullUpperList = []string{
 	`xss`,
 }
 
-func newField(name string, t string, nullable bool, readOnly bool, hasDefault bool, primary bool) Field {
-	var prefix string
-	def := defaultTypes[t]
-	if nullable {
-		prefix = `Null`
-		def = `nil`
+func getType(t string, null bool) string {
+	p := ``
+	if null {
+		p = `*`
 	}
+	if v, ok := fieldTypes[t]; ok {
+		return p + v
+	}
+	return p + t
+}
 
-	return Field{cleanName(name), name, t, prefix + fieldTypes[t], def, readOnly, hasDefault, primary}
+func newField(name string, t string, nullable bool, readOnly bool, hasDefault bool, primary bool) Field {
+	return Field{cleanName(name), name, t, getType(t, nullable), readOnly, hasDefault, primary}
 }
 
 func cleanName(s string) string {
@@ -144,6 +127,13 @@ func cleanName(s string) string {
 	return strings.Join(parts, ``)
 }
 
+func printError(e error) {
+	if e == nil {
+		return
+	}
+	fmt.Println(e)
+}
+
 func main() {
 	p := flag.String(`package`, `model`, `The package name for the output file`)
 	flag.Parse()
@@ -157,26 +147,27 @@ func main() {
 	in, err := os.Open(args[0])
 	if err != nil {
 		fmt.Println(`Failed to open input file`)
+		fmt.Printf("%v\n", err)
 		os.Exit(2)
 	}
-	defer in.Close()
 
 	input := []InputTable{}
 
 	err = json.NewDecoder(in).Decode(&input)
 	if err != nil {
 		fmt.Println(`Failed to parse input file`)
+		fmt.Printf("%v\n", err)
+		_ = in.Close()
 		os.Exit(2)
 	}
-
-	in.Close()
+	printError(in.Close())
 
 	out, err := os.OpenFile(args[1], os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0600)
 	if err != nil {
 		fmt.Println(`Failed to open output file`)
+		fmt.Printf("%v\n", err)
 		os.Exit(2)
 	}
-	defer out.Close()
 
 	tables := []Table{}
 
@@ -197,17 +188,23 @@ func main() {
 
 	t, err := template.New(`code`).Parse(codeTemplate)
 	if err != nil {
-		panic(err)
+		_ = out.Close()
+		fmt.Println(`Failed to parse template`)
+		fmt.Printf("%v\n", err)
+		os.Exit(3)
 	}
 
 	for _, v := range tables {
 		err = t.Execute(out, v)
 		if err != nil {
-			panic(err)
+			_ = out.Close()
+			fmt.Println(`Failed to execute template`)
+			fmt.Printf("%v\n", err)
+			os.Exit(3)
 		}
 	}
 
-	out.Close()
+	printError(out.Close())
 
-	exec.Command(`goimports`, `-w`, out.Name()).Run()
+	printError(exec.Command(`goimports`, `-w`, out.Name()).Run())
 }

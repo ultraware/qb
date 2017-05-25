@@ -68,6 +68,6 @@ func GetPrimaryFields(f []DataField) []DataField {
 }
 
 func isPrimary(v DataField) bool {
-	f, ok := v.getField().(*TableField)
+	f, ok := v.Field.(*TableField)
 	return ok && f.Primary
 }

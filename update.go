@@ -13,7 +13,7 @@ func GetUpdatableFields(f []DataField) []DataField {
 }
 
 func updatable(f DataField) bool {
-	v, ok := f.getField().(*TableField)
+	v, ok := f.Field.(*TableField)
 	if !ok {
 		panic(`Cannot use non-table field in update`)
 	}

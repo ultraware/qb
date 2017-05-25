@@ -1,9 +1,6 @@
 package qb
 
-import (
-	"reflect"
-	"strconv"
-)
+import "strconv"
 
 // SelectQuery ...
 type SelectQuery interface {
@@ -64,23 +61,23 @@ func (q SelectBuilder) join(t string, f1, f2 Field, c []Condition) SelectBuilder
 	}
 
 	var new Source
-	i := 0
+	exists := 0
 	for _, v := range q.tables {
-		if reflect.DeepEqual(v, f1.Source()) {
-			i++
+		if v == f1.Source() {
+			exists++
 			new = f2.Source()
 		}
-		if reflect.DeepEqual(v, f2.Source()) {
-			i++
+		if v == f2.Source() {
+			exists++
 			new = f1.Source()
 		}
 	}
 
-	if i == 0 {
-		panic(`Both tables already joined`)
-	}
-	if i > 1 {
+	if exists == 0 {
 		panic(`None of these tables are present in the query`)
+	}
+	if exists > 1 {
+		panic(`Both tables already joined`)
 	}
 
 	q.tables = append(q.tables, new)

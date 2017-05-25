@@ -51,6 +51,11 @@ var testFieldB = &TableField{Name: `colB`, Parent: testTable, Type: `int`}
 var testTable2 = &Table{Name: `tmp2`}
 var testFieldA2 = &TableField{Name: `colA2`, Parent: testTable2, Type: `int`}
 
+func NewIntField(f Field) DataField {
+	i := 0
+	return NewDataField(f, &i)
+}
+
 func TestFrom(t *testing.T) {
 	info(t, `-- Testing without alias`)
 	b := sqlBuilder{&NoAlias{}, nil}

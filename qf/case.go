@@ -77,3 +77,8 @@ func (f CaseField) Source() qb.Source {
 func (f CaseField) DataType() string {
 	return f.Else.DataType()
 }
+
+// New returns a new DataField using the given value
+func (f *CaseField) New(v interface{}) qb.DataField {
+	return qb.NewDataField(f, v)
+}

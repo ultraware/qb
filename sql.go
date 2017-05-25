@@ -95,8 +95,7 @@ func (b *sqlBuilder) Where(c ...Condition) string {
 func (b *sqlBuilder) WhereDataField(f []DataField) string {
 	c := []Condition{}
 	for _, v := range f {
-		val, _ := v.Value()
-		c = append(c, eq(v, Value(val)))
+		c = append(c, eq(v, Value(v.Get())))
 	}
 
 	return b.Where(c...)
@@ -147,8 +146,7 @@ func (b *sqlBuilder) Set(f []DataField) string {
 		if k > 0 {
 			s += COMMA
 		}
-		val, _ := v.Value()
-		s += eq(v, Value(val))(b.alias, &b.values)
+		s += eq(v, Value(v.Get()))(b.alias, &b.values)
 	}
 	return s + "\n"
 }
