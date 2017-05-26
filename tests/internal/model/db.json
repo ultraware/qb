@@ -1,0 +1,19 @@
+[
+	{
+		"name": "one",
+		"fields": [
+			{"name": "ID", "type": "int", "primary": true, "read_only": true},
+			{"name": "Name", "type": "string"},
+			{"name": "CreatedAt", "type": "time", "read_only": true}
+		]
+	},
+	{
+		"name": "two",
+		"fields": [
+			{"name": "OneID", "type": "int", "primary": true},
+			{"name": "Number", "type": "int", "primary": true},
+			{"name": "Comment", "type": "string"},
+			{"name": "ModifiedAt", "type": "time", "null": true}
+		]
+	}
+]
