@@ -1,0 +1,34 @@
+{
+	"Format": "{{printf `%-11s` .Linter }} | {{.Path}} @{{.Line}}: {{.Message}}",
+	"Deadline": "2m",
+	"Sort": ["linter", "severity", "path"],
+	"Exclude": ["bindata.go"],
+
+	"DisableAll": true,
+	"Enable": [
+		"vet",
+		"vetshadow",
+		"deadcode",
+		"gocyclo",
+		"golint",
+		"varcheck",
+		"structcheck",
+		"aligncheck",
+		"errcheck",
+		"dupl",
+		"ineffassign",
+		"interfacer",
+		"unconvert",
+		"goconst",
+		"gosimple",
+		"staticcheck",
+		"gofmt",
+		"lll",
+		"misspell",
+		"unparam",
+		"unused"
+	],
+
+	"Cyclo": 14,
+	"LineLength": 150
+}
