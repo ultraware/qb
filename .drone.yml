@@ -1,0 +1,30 @@
+workspace:
+  base: /root/go-projects/
+  path: src/git.ultraware.nl/NiseVoid/qb
+
+pipeline:
+  clone:
+    image: plugins/git
+    tags: true
+
+  compile:
+    image: registry.ultraware.nl/go-build:latest
+    pull: true
+    auth_config:
+      username: ${REGISTRY_USERNAME}
+      password: ${REGISTRY_PASSWORD}
+    environment:
+       CGO_ENABLED: 0
+    commands:
+      - make
+    when:
+      event: [ push, tag, pull_request ]
+
+services:
+  pgsql:
+    image: postgres:9.6.2-alpine
+    pull: true
+    environment:
+      - DB_HOST=postgres
+      - ENV POSTGRES_USER test
+      - ENV POSTGRES_DB test
