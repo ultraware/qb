@@ -8,7 +8,7 @@ type Scanner interface {
 }
 
 // ScanToFields scans to a set of fields
-func ScanToFields(r Scanner, f []DataField) error {
+func ScanToFields(f []DataField, r Scanner) error {
 	dst := make([]interface{}, len(f))
 	for k := range f {
 		dst[k] = f[k].getScanTarget()

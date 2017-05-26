@@ -1,5 +1,17 @@
 package qb
 
+// UpdateRecordSQL ...
+func UpdateRecordSQL(t *Table, f []DataField) (string, []interface{}) {
+	b := sqlBuilder{&NoAlias{}, nil}
+
+	p := GetPrimaryFields(f)
+	if len(p) == 0 {
+		panic(`Cannot update without primary`)
+	}
+
+	return b.Update(t) + b.Set(f) + b.WhereDataField(p), b.values
+}
+
 // GetUpdatableFields returns a list of all updatable fields
 func GetUpdatableFields(f []DataField) []DataField {
 	fields := []DataField{}
@@ -22,21 +34,4 @@ func updatable(f DataField) bool {
 		return false
 	}
 	return true
-}
-
-// UpdateExcluded generates an UPDATE statement using EXCLUDED.fieldname for every field
-func UpdateExcluded(f []DataField) string {
-	b := sqlBuilder{&NoAlias{}, nil}
-	return `UPDATE SET ` + b.SetExcluded(f)
-}
-
-func buildUpdate(t *Table, f []DataField) (string, []interface{}) {
-	b := sqlBuilder{&NoAlias{}, nil}
-
-	p := GetPrimaryFields(f)
-	if len(p) == 0 {
-		panic(`Cannot update without primary`)
-	}
-
-	return b.Update(t) + b.Set(f) + b.WhereDataField(p), b.values
 }

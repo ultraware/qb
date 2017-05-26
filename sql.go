@@ -150,16 +150,3 @@ func (b *sqlBuilder) Set(f []DataField) string {
 	}
 	return s + "\n"
 }
-
-func (b *sqlBuilder) SetExcluded(f []DataField) string {
-	s := `SET `
-	for k, v := range f {
-		if k > 0 {
-			s += `, `
-		}
-		sql := v.QueryString(b.alias, &b.values)
-		s += sql + ` = EXCLUDED.` + sql
-		continue
-	}
-	return s + "\n"
-}

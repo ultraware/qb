@@ -24,7 +24,7 @@ type {{.Table}}Type struct {
 {{- range .Fields}}
 	{{.Name}} qb.DataField
 {{- end}}
-	*qb.Table
+	table *qb.Table
 }
 
 // All returns every field as an array
@@ -34,6 +34,16 @@ func (t *{{.Table}}Type) All() []qb.DataField {
 			t.{{.Name}},
 		{{- end -}}
 	}
+}
+
+// GetTable returns an object with info about the table
+func (t *{{.Table}}Type) GetTable() *qb.Table {
+	return t.table
+}
+
+// Select starts a SELECT query
+func (t *{{.Table}}Type) Select(f ...qb.DataField) qb.SelectBuilder {
+	return t.table.Select(f...)
 }
 
 // {{.Table}} returns a new {{.Table}}Type

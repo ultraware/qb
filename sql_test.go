@@ -128,7 +128,6 @@ func TestSet(t *testing.T) {
 	b := sqlBuilder{&NoAlias{}, nil}
 
 	checkOutput(t, `SET `, b.Set([]DataField{f1, f2}), true)
-	checkOutput(t, `SET colA = EXCLUDED.colA, colB = EXCLUDED.colB`, b.SetExcluded([]DataField{f1, f2}), true)
 
 	f2.Set(1)
 	checkOutput(t, `SET colB = ?`, b.Set([]DataField{f1, f2}), true)

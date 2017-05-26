@@ -1,13 +1,15 @@
 package qb
 
-func buildInsert(t *Table, f []DataField) string {
+// InsertHeaderSQL ...
+func InsertHeaderSQL(t *Table, f []DataField) string {
 	b := sqlBuilder{&NoAlias{}, nil}
 	return `INSERT INTO ` + t.QueryString(b.alias, &b.values) + ` (` + b.ListDataFields(f, false) + `) VALUES` + "\n"
 }
 
-func getInsertValue(f []DataField) (string, []interface{}) {
+// InsertValueSQL ...
+func InsertValueSQL(f []DataField) (string, []interface{}) {
 	b := sqlBuilder{&NoAlias{}, nil}
-	s := `(`
+	var s string
 
 	for k, v := range f {
 		if k > 0 {
@@ -19,7 +21,7 @@ func getInsertValue(f []DataField) (string, []interface{}) {
 		}
 		s += Value(v.Get()).QueryString(b.alias, &b.values)
 	}
-	s += `)`
+	s = `(` + s + `)`
 	return s, b.values
 }
 

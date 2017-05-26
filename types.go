@@ -45,21 +45,6 @@ func (t *Table) Select(f ...DataField) SelectBuilder {
 	return NewSelectBuilder(f, t)
 }
 
-// InsertHeader ...
-func (t *Table) InsertHeader(f []DataField) string {
-	return buildInsert(t, f)
-}
-
-// InsertValues ...
-func (t *Table) InsertValues(f []DataField) (string, []interface{}) {
-	return getInsertValue(f)
-}
-
-// UpdateRecord ...
-func (t *Table) UpdateRecord(f []DataField) (string, []interface{}) {
-	return buildUpdate(t, f)
-}
-
 // SubQuery ...
 type SubQuery struct {
 	sql    string
@@ -117,7 +102,7 @@ func (c *Cursor) Next() bool {
 		c.Close()
 		return false
 	}
-	err := ScanToFields(c.rows, c.fields)
+	err := ScanToFields(c.fields, c.rows)
 	if err != nil {
 		c.err = err
 		if !c.DisableExitOnError {
