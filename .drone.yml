@@ -16,6 +16,7 @@ pipeline:
     environment:
        CGO_ENABLED: 0
     commands:
+      - make generator && mv qb-generator /go/bin
       - make
     when:
       event: [ push, tag, pull_request ]
@@ -26,5 +27,5 @@ services:
     pull: true
     environment:
       - DB_HOST=postgres
-      - ENV POSTGRES_USER test
-      - ENV POSTGRES_DB test
+      - POSTGRES_USER=test
+      - POSTGRES_DB=test
