@@ -28,7 +28,8 @@ func StartTests(t *testing.T) {
 	testInsert(t)
 	testUpdate(t)
 	testSelect(t)
-	// testLeftJoin(t)
+	testDelete(t)
+	testLeftJoin(t)
 }
 
 func testInsert(test *testing.T) {
@@ -105,5 +106,37 @@ func testSelect(test *testing.T) {
 
 	assert.Nil(t.Data.ModifiedAt)
 	assert.True(t.ModifiedAt.Empty())
+	assert.True(t.OneID.Empty())
+}
+
+func testDelete(test *testing.T) {
+	t := model.Two()
+	t.Data.OneID = 1
+	t.Data.Number = 1
+
+	err := db.Delete(t)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func testLeftJoin(test *testing.T) {
+	o := model.One()
+	t := model.Two()
+
+	q := o.Select(o.ID, t.OneID).
+		LeftJoin(t.OneID, o.ID).
+		Where(qc.Eq(o.ID, 1))
+	err := db.QueryRow(q)
+	if err != nil {
+		panic(err)
+	}
+
+	assert := assert.New(test)
+
+	assert.Equal(1, o.Data.ID)
+	assert.False(o.ID.Empty())
+
+	assert.Equal(0, t.Data.OneID)
 	assert.True(t.OneID.Empty())
 }

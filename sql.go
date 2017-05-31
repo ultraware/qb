@@ -150,3 +150,7 @@ func (b *sqlBuilder) Set(f []DataField) string {
 	}
 	return s + "\n"
 }
+
+func (b *sqlBuilder) Delete(t *Table) string {
+	return `DELETE FROM ` + t.QueryString(b.alias, &b.values) + "\n"
+}

@@ -25,7 +25,7 @@ func (db QueryTarget) printType(v interface{}, c *int) (string, bool) {
 	}
 }
 
-func (db QueryTarget) prepare(q qb.SelectQuery) (string, []interface{}) {
+func (db QueryTarget) prepare(q qb.Query) (string, []interface{}) {
 	s, v := q.SQL()
 
 	return db.prepareSQL(s, v)
@@ -84,6 +84,14 @@ func (db QueryTarget) QueryRow(q qb.SelectQuery) error {
 	return qb.ScanToFields(q.Fields(), r)
 }
 
+// Exec executes the given query, returns only an error
+func (db QueryTarget) Exec(q qb.Query) error {
+	s, v := db.prepare(q)
+	_, err := db.src.Exec(s, v...)
+
+	return err
+}
+
 // RawExec executes the given SQL with the given params directly on the database
 func (db QueryTarget) RawExec(s string, v ...interface{}) error {
 	_, err := db.src.Exec(s, v...)
@@ -102,6 +110,12 @@ func (db QueryTarget) Insert(record Savable) error {
 // Update updates the record in the database
 func (db QueryTarget) Update(record Savable) error {
 	s, v := qb.UpdateRecordSQL(record.GetTable(), record.All())
+	return db.prepareExec(s, v)
+}
+
+// Delete updates the record in the database
+func (db QueryTarget) Delete(record Savable) error {
+	s, v := qb.DeleteRecordSQL(record.GetTable(), record.All())
 	return db.prepareExec(s, v)
 }
 

@@ -68,6 +68,12 @@ func TestFrom(t *testing.T) {
 	checkOutput(t, `FROM tmp t1`, b.From(testTable), true)
 }
 
+func TestDelete(t *testing.T) {
+	b := sqlBuilder{&NoAlias{}, nil}
+
+	checkOutput(t, `DELETE FROM tmp`, b.Delete(testTable), true)
+}
+
 func TestUpdate(t *testing.T) {
 	b := sqlBuilder{&NoAlias{}, nil}
 

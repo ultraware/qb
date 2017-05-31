@@ -46,6 +46,11 @@ func (t *{{.Table}}Type) Select(f ...qb.DataField) qb.SelectBuilder {
 	return t.table.Select(f...)
 }
 
+// Delete creates a DELETE query
+func (t *{{.Table}}Type) Delete(c1 qb.Condition, c ...qb.Condition) qb.Query {
+	return t.table.Delete(c1, c...)
+}
+
 // {{.Table}} returns a new {{.Table}}Type
 func {{.Table}}() *{{.Table}}Type {
 	table := qb{{$.Table}}Table

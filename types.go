@@ -10,6 +10,25 @@ import (
 /// Source
 ///
 
+// Query ...
+type Query interface {
+	SQL() (string, []interface{})
+}
+
+type query struct {
+	sql    string
+	values []interface{}
+}
+
+func newQuery(s string, v []interface{}) Query {
+	return &query{sql: s, values: v}
+}
+
+// SQL ...
+func (q *query) SQL() (string, []interface{}) {
+	return q.sql, q.values
+}
+
 // Alias ...
 type Alias interface {
 	Get(Source) string
@@ -43,6 +62,11 @@ func (t *Table) AliasString() string {
 // Select ...
 func (t *Table) Select(f ...DataField) SelectBuilder {
 	return NewSelectBuilder(f, t)
+}
+
+// Delete ...
+func (t *Table) Delete(c1 Condition, c ...Condition) Query {
+	return newQuery(DeleteSQL(t, append(c, c1)))
 }
 
 // SubQuery ...
