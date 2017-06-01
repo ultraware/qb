@@ -11,6 +11,7 @@ func TestAll(t *testing.T) {
 
 	f1 := &qb.TableField{Name: `A`, Type: `int`, Parent: tb}
 	f2 := &qb.TableField{Name: `B`, Type: `int`, Parent: tb}
+	f3 := &qb.TableField{Name: `C`, Type: `string`, Parent: tb}
 
 	check(t, Distinct(f1), `DISTINCT A`, f1.Type, tb)
 	check(t, CountAll(), `count(1)`, `int`, nil)
@@ -24,6 +25,7 @@ func TestAll(t *testing.T) {
 	check(t, Coalesce(f1, f2), `coalesce(A, B)`, f1.Type, tb)
 
 	check(t, Lower(f1), `lower(A)`, `string`, tb)
+	check(t, Concat(f3, `B`, `A`), `C || ? || ?`, `string`, tb)
 
 	check(t, Now(), `now()`, `time`, nil)
 

@@ -52,6 +52,27 @@ func Lower(f qb.Field) *CalculatedField {
 	return newCalculatedField(f.Source(), `string`, `lower(`, f, `)`)
 }
 
+// Concat ...
+func Concat(i ...interface{}) *CalculatedField {
+	s := make([]interface{}, len(i)*2-1)
+	var src qb.Source
+	for k, v := range i {
+		if k > 0 {
+			s[k*2-1] = ` || `
+		}
+
+		f := makeField(v)
+
+		if f.Source() != nil && src == nil {
+			src = f.Source()
+		}
+
+		s[k*2] = f
+	}
+
+	return newCalculatedField(src, `string`, s...)
+}
+
 ///// Date functions /////
 
 // Now ...
