@@ -128,17 +128,16 @@ func TestSelect(t *testing.T) {
 }
 
 func TestSet(t *testing.T) {
-	f1 := NewIntField(testFieldA)
-	f2 := NewIntField(testFieldB)
-
 	b := sqlBuilder{&NoAlias{}, nil}
 
-	checkOutput(t, `SET `, b.Set([]DataField{f1, f2}), true)
+	checkOutput(t, `SET `, b.Set([]set{}), true)
 
-	f2.Set(1)
-	checkOutput(t, `SET colB = ?`, b.Set([]DataField{f1, f2}), true)
-	f1.Set(3)
-	checkOutput(t, `SET colA = ?, colB = ?`, b.Set([]DataField{f1, f2}), true)
+	checkOutput(t, `SET colA = ?`, b.Set([]set{{testFieldA, Value(1)}}), true)
+
+	checkOutput(t,
+		`SET colA = ?, colB = ?`,
+		b.Set([]set{{testFieldA, Value(1)}, {testFieldB, Value(3)}}),
+		true)
 }
 
 // Conditions

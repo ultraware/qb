@@ -8,6 +8,7 @@ import (
 
 	"git.ultraware.nl/NiseVoid/qb/qbdb"
 	"git.ultraware.nl/NiseVoid/qb/qc"
+	"git.ultraware.nl/NiseVoid/qb/qf"
 	"git.ultraware.nl/NiseVoid/qb/tests/internal/model"
 )
 
@@ -27,6 +28,7 @@ func StartTests(t *testing.T) {
 
 	testInsert(t)
 	testUpdate(t)
+	testUpdateAll(t)
 	testSelect(t)
 	testDelete(t)
 	testLeftJoin(t)
@@ -83,6 +85,17 @@ func testUpdate(test *testing.T) {
 	}
 }
 
+func testUpdateAll(test *testing.T) {
+	t := model.Two()
+
+	q := t.Update().Set(t.Comment, qf.Concat(t.Comment, `.1`))
+
+	err := db.Exec(q)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func testSelect(test *testing.T) {
 	o := model.One()
 	t := model.Two()
@@ -102,7 +115,7 @@ func testSelect(test *testing.T) {
 
 	assert.Equal(`Test 1.1`, o.Data.Name)
 	assert.Equal(1, t.Data.Number)
-	assert.Equal(`Test comment v2`, t.Data.Comment)
+	assert.Equal(`Test comment v2.1`, t.Data.Comment)
 
 	assert.Nil(t.Data.ModifiedAt)
 	assert.True(t.ModifiedAt.Empty())

@@ -69,6 +69,11 @@ func (t *Table) Delete(c1 Condition, c ...Condition) Query {
 	return newQuery(DeleteSQL(t, append(c, c1)))
 }
 
+// Update ...
+func (t *Table) Update() UpdateBuilder {
+	return UpdateBuilder{t, nil, nil}
+}
+
 // SubQuery ...
 type SubQuery struct {
 	sql    string

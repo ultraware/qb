@@ -51,6 +51,11 @@ func (t *{{.Table}}Type) Delete(c1 qb.Condition, c ...qb.Condition) qb.Query {
 	return t.table.Delete(c1, c...)
 }
 
+// Update starts an UPDATE query
+func (t *{{.Table}}Type) Update() qb.UpdateBuilder {
+	return t.table.Update()
+}
+
 // {{.Table}} returns a new {{.Table}}Type
 func {{.Table}}() *{{.Table}}Type {
 	table := qb{{$.Table}}Table

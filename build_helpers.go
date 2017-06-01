@@ -8,6 +8,15 @@ const (
 	VALUE = `?`
 )
 
+///// Field /////
+
+func makeField(i interface{}) Field {
+	if f, ok := i.(Field); ok {
+		return f
+	}
+	return Value(i)
+}
+
 ///// Alias /////
 
 // NoAlias returns no alias

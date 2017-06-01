@@ -140,13 +140,13 @@ func (b *sqlBuilder) Update(t *Table) string {
 	return `UPDATE ` + t.QueryString(b.alias, &b.values) + "\n"
 }
 
-func (b *sqlBuilder) Set(f []DataField) string {
+func (b *sqlBuilder) Set(sets []set) string {
 	s := `SET `
-	for k, v := range GetUpdatableFields(f) {
+	for k, v := range sets {
 		if k > 0 {
 			s += COMMA
 		}
-		s += eq(v, Value(v.Get()))(b.alias, &b.values)
+		s += eq(v.Field, v.Value)(b.alias, &b.values)
 	}
 	return s + "\n"
 }

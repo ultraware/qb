@@ -9,7 +9,13 @@ func UpdateRecordSQL(t *Table, f []DataField) (string, []interface{}) {
 		panic(`Cannot update without primary`)
 	}
 
-	return b.Update(t) + b.Set(f) + b.WhereDataField(p), b.values
+	f = GetUpdatableFields(f)
+	s := make([]set, len(f))
+	for k, v := range f {
+		s[k] = set{v, Value(v.Value)}
+	}
+
+	return b.Update(t) + b.Set(s) + b.WhereDataField(p), b.values
 }
 
 // GetUpdatableFields returns a list of all updatable fields
@@ -34,4 +40,34 @@ func updatable(f DataField) bool {
 		return false
 	}
 	return true
+}
+
+type set struct {
+	Field Field
+	Value Field
+}
+
+// UpdateBuilder ...
+type UpdateBuilder struct {
+	t   *Table
+	c   []Condition
+	set []set
+}
+
+// Set ...
+func (q UpdateBuilder) Set(f Field, v interface{}) UpdateBuilder {
+	q.set = append(q.set, set{f, makeField(v)})
+	return q
+}
+
+// Where ...
+func (q UpdateBuilder) Where(c Condition) UpdateBuilder {
+	q.c = append(q.c, c)
+	return q
+}
+
+// SQL ...
+func (q UpdateBuilder) SQL() (string, []interface{}) {
+	b := sqlBuilder{&NoAlias{}, nil}
+	return b.Update(q.t) + b.Set(q.set) + b.Where(q.c...), b.values
 }
