@@ -19,7 +19,7 @@ func InsertValueSQL(f []DataField) (string, []interface{}) {
 			s += `DEFAULT`
 			continue
 		}
-		s += Value(v.Get()).QueryString(b.alias, &b.values)
+		s += Value(v.GetValue()).QueryString(b.alias, &b.values)
 	}
 	s = `(` + s + `)`
 	return s, b.values

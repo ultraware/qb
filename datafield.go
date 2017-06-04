@@ -40,23 +40,13 @@ func NewDataField(f Field, v interface{}) DataField {
 	}
 
 	df := DataField{f, &dataState{Value: v, empty: true}}
-	df.UpdateInit()
+	df.InitialValue = df.GetValue()
 	return df
 }
 
-// UpdateInit sets the initial value to be the same as the current value
-func (f *DataField) UpdateInit() {
-	f.InitialValue = f.Get()
-}
-
-// Get *DEPRECATED* returns a copy of the current value
-func (f *DataField) Get() interface{} {
+// GetValue returns the content of the current value
+func (f *DataField) GetValue() interface{} {
 	return reflect.ValueOf(f.Value).Elem().Interface()
-}
-
-// Set *DEPRECATED* changes the value of the value
-func (f *DataField) Set(v interface{}) {
-	reflect.ValueOf(f.Value).Elem().Set(reflect.ValueOf(v))
 }
 
 // Empty checks if the current field is empty (nil)
@@ -69,7 +59,7 @@ func (f *DataField) isSet() bool {
 }
 
 func (f *DataField) hasChanged() bool {
-	return f.Get() != f.InitialValue
+	return f.GetValue() != f.InitialValue
 }
 
 func (f *DataField) getScanTarget() interface{} {
