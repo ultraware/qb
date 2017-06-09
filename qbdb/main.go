@@ -38,7 +38,7 @@ func (db QueryTarget) prepareSQL(s string, v []interface{}) (string, []interface
 
 	new := []interface{}{}
 	for {
-		i := strings.IndexRune(s, '?')
+		i := strings.IndexRune(s[offset:], '?')
 		if i == -1 {
 			break
 		}
@@ -51,11 +51,11 @@ func (db QueryTarget) prepareSQL(s string, v []interface{}) (string, []interface
 			new = append(new, v[vc-1])
 		}
 
-		offset++
 		if str != `?` {
+			s = s[:offset] + str + s[offset+1:]
 			offset += len(str) - 1
-			s = s[:i] + str + s[i+1:]
 		}
+		offset++
 	}
 
 	db.log(s, new)
