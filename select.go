@@ -4,8 +4,8 @@ import "strconv"
 
 // SelectQuery ...
 type SelectQuery interface {
-	SQL() (string, []interface{})
-	getSQL(aliasFields bool) (string, []interface{})
+	SQL(Driver) (string, []interface{})
+	getSQL(Driver, bool) (string, []interface{})
 	SubQuery() *SubQuery
 	Fields() []DataField
 }
@@ -29,8 +29,8 @@ func NewSelectBuilder(f []DataField, src Source) SelectBuilder {
 }
 
 // Where ...
-func (q SelectBuilder) Where(c Condition) SelectBuilder {
-	q.where = append(q.where, c)
+func (q SelectBuilder) Where(c ...Condition) SelectBuilder {
+	q.where = append(q.where, c...)
 	return q
 }
 
@@ -111,12 +111,12 @@ func (q SelectBuilder) Offset(i int) SelectBuilder {
 }
 
 // SQL ...
-func (q SelectBuilder) SQL() (string, []interface{}) {
-	return q.getSQL(false)
+func (q SelectBuilder) SQL(d Driver) (string, []interface{}) {
+	return q.getSQL(d, false)
 }
 
-func (q SelectBuilder) getSQL(aliasFields bool) (string, []interface{}) {
-	b := sqlBuilder{newGenerator(), ValueList{}}
+func (q SelectBuilder) getSQL(d Driver, aliasFields bool) (string, []interface{}) {
+	b := sqlBuilder{d, newGenerator(), ValueList{}}
 
 	for _, v := range q.tables {
 		_ = b.alias.Get(v)
@@ -136,9 +136,7 @@ func (q SelectBuilder) getSQL(aliasFields bool) (string, []interface{}) {
 
 // SubQuery converts the SelectQuery to a SubQuery for use in further queries
 func (q SelectBuilder) SubQuery() *SubQuery {
-	s, v := q.getSQL(true)
-
-	sq := SubQuery{sql: s, values: v}
+	sq := SubQuery{query: q}
 
 	for k, v := range q.fields {
 		sq.fields = append(sq.fields, TableField{Name: `f` + strconv.Itoa(k), Parent: &sq, Type: v.DataType()})
@@ -160,17 +158,17 @@ type CombinedQuery struct {
 	queries     []SelectQuery
 }
 
-func (q CombinedQuery) getSQL(aliasFields bool) (string, []interface{}) {
+func (q CombinedQuery) getSQL(d Driver, aliasFields bool) (string, []interface{}) {
 	s := ``
 	values := []interface{}{}
 	for k, v := range q.queries {
 		var sql string
 		var val []interface{}
 		if k == 0 {
-			sql, val = v.getSQL(aliasFields)
+			sql, val = v.getSQL(d, aliasFields)
 		} else {
 			s += ` ` + q.combineType + ` `
-			sql, val = v.getSQL(false)
+			sql, val = v.getSQL(d, false)
 		}
 		s += `(` + sql + `)`
 		values = append(values, val...)
@@ -180,8 +178,8 @@ func (q CombinedQuery) getSQL(aliasFields bool) (string, []interface{}) {
 }
 
 // SQL ...
-func (q CombinedQuery) SQL() (string, []interface{}) {
-	return q.getSQL(false)
+func (q CombinedQuery) SQL(d Driver) (string, []interface{}) {
+	return q.getSQL(d, false)
 }
 
 // Fields ...
@@ -191,9 +189,7 @@ func (q CombinedQuery) Fields() []DataField {
 
 // SubQuery converts the SelectQuery to a SubQuery for use in further queries
 func (q CombinedQuery) SubQuery() *SubQuery {
-	s, v := q.getSQL(true)
-
-	sq := SubQuery{sql: s, values: v}
+	sq := SubQuery{query: q}
 
 	for k, v := range q.Fields() {
 		sq.fields = append(sq.fields, TableField{Name: `f` + strconv.Itoa(k), Parent: &sq, Type: v.DataType()})

@@ -42,6 +42,14 @@ func info(t *testing.T, msg string) {
 	t.Log(notice(msg))
 }
 
+func testBuilder(alias bool) sqlBuilder {
+	b := sqlBuilder{nil, &NoAlias{}, nil}
+	if alias {
+		b.alias = newGenerator()
+	}
+	return b
+}
+
 // Tables
 
 var testTable = &Table{Name: `tmp`}
@@ -58,45 +66,54 @@ func NewIntField(f Field) DataField {
 
 func TestFrom(t *testing.T) {
 	info(t, `-- Testing without alias`)
-	b := sqlBuilder{&NoAlias{}, nil}
+	b := testBuilder(false)
 
 	checkOutput(t, `FROM tmp`, b.From(testTable), true)
 
 	info(t, `-- Testing with alias`)
-	b = sqlBuilder{newGenerator(), nil}
+	b = testBuilder(true)
 
 	checkOutput(t, `FROM tmp t1`, b.From(testTable), true)
 }
 
 func TestDelete(t *testing.T) {
-	b := sqlBuilder{&NoAlias{}, nil}
+	b := testBuilder(false)
 
 	checkOutput(t, `DELETE FROM tmp`, b.Delete(testTable), true)
 }
 
 func TestUpdate(t *testing.T) {
-	b := sqlBuilder{&NoAlias{}, nil}
+	b := testBuilder(false)
 
 	checkOutput(t, `UPDATE tmp`, b.Update(testTable), true)
 }
 
+func TestInsert(t *testing.T) {
+	b := testBuilder(false)
+
+	checkOutput(t, `INSERT INTO tmp ()`, b.Insert(testTable, nil), true)
+	checkOutput(t, `INSERT INTO tmp (colA, colB)`,
+		b.Insert(testTable, []DataField{NewIntField(testFieldA), NewIntField(testFieldB)}),
+		true)
+}
+
 func TestJoin(t *testing.T) {
-	b := sqlBuilder{newGenerator(), nil}
+	b := testBuilder(true)
 
 	_ = b.From(testTable)
 
 	checkOutput(t,
-		`INNER JOIN tmp2 t2 ON (t1.colA = t2.colA2)`,
+		"\t"+`INNER JOIN tmp2 t2 ON (t1.colA = t2.colA2)`,
 		b.Join(Join{`INNER`, [2]Field{testFieldA, testFieldA2}, testTable2, nil}),
 		true,
 	)
 	checkOutput(t,
-		`LEFT JOIN tmp2 t2 ON (t1.colA = t2.colA2 AND a AND b)`,
+		"\t"+`LEFT JOIN tmp2 t2 ON (t1.colA = t2.colA2 AND a AND b)`,
 		b.Join(Join{`LEFT`, [2]Field{testFieldA, testFieldA2}, testTable2, []Condition{testCondition, testCondition2}}),
 		true,
 	)
 	checkOutput(t,
-		`INNER JOIN tmp2 t2 ON (t1.colA = t2.colA2)`+"\n"+
+		"\t"+`INNER JOIN tmp2 t2 ON (t1.colA = t2.colA2)`+"\n\t"+
 			`LEFT JOIN tmp2 t2 ON (t1.colA = t2.colA2 AND a AND b)`,
 		b.Join(
 			Join{`INNER`, [2]Field{testFieldA, testFieldA2}, testTable2, nil},
@@ -113,14 +130,14 @@ func TestSelect(t *testing.T) {
 	f2 := NewIntField(testFieldB)
 
 	info(t, `-- Testing without alias`)
-	b := sqlBuilder{&NoAlias{}, nil}
+	b := testBuilder(false)
 
 	checkOutput(t, `SELECT colA, colB`, b.Select(false, f1, f2), true)
 
 	checkOutput(t, `SELECT colA f0, colB f1`, b.Select(true, f1, f2), true)
 
 	info(t, `-- Testing with alias`)
-	b = sqlBuilder{newGenerator(), nil}
+	b = testBuilder(true)
 
 	checkOutput(t, `SELECT t1.colA, t1.colB`, b.Select(false, f1, f2), true)
 
@@ -128,7 +145,7 @@ func TestSelect(t *testing.T) {
 }
 
 func TestSet(t *testing.T) {
-	b := sqlBuilder{&NoAlias{}, nil}
+	b := testBuilder(false)
 
 	checkOutput(t, `SET `, b.Set([]set{}), true)
 
@@ -142,29 +159,29 @@ func TestSet(t *testing.T) {
 
 // Conditions
 
-var testCondition = func(_ Alias, _ *ValueList) string {
+var testCondition = func(_ Driver, _ Alias, _ *ValueList) string {
 	return `a`
 }
 
-var testCondition2 = func(_ Alias, _ *ValueList) string {
+var testCondition2 = func(_ Driver, _ Alias, _ *ValueList) string {
 	return `b`
 }
 
 func TestWhere(t *testing.T) {
-	b := sqlBuilder{}
+	b := testBuilder(false)
 
-	checkOutput(t, `WHERE a`+"\n"+`AND b`, b.Where(testCondition, testCondition2), true)
+	checkOutput(t, `WHERE a`+"\n\t"+`AND b`, b.Where(testCondition, testCondition2), true)
 
 	checkOutput(t, ``, b.Where(), false)
 }
 
 func TestWhereDataField(t *testing.T) {
-	b := sqlBuilder{&NoAlias{}, nil}
+	b := testBuilder(false)
 
 	f1 := NewIntField(testFieldA)
 	f2 := NewIntField(testFieldB)
 
-	checkOutput(t, `WHERE colA = ?`+"\n"+`AND colB = ?`, b.WhereDataField([]DataField{f1, f2}), true)
+	checkOutput(t, `WHERE colA = ?`+"\n\t"+`AND colB = ?`, b.WhereDataField([]DataField{f1, f2}), true)
 
 	checkOutput(t, ``, b.WhereDataField(nil), false)
 }
@@ -172,29 +189,43 @@ func TestWhereDataField(t *testing.T) {
 // Other
 
 func TestGroupBy(t *testing.T) {
-	b := sqlBuilder{&NoAlias{}, nil}
+	b := testBuilder(false)
 
 	checkOutput(t, `GROUP BY colA, colB`, b.GroupBy(testFieldA, testFieldB), true)
 	checkOutput(t, ``, b.GroupBy(), false)
 }
 
 func TestOrderBy(t *testing.T) {
-	b := sqlBuilder{&NoAlias{}, nil}
+	b := testBuilder(false)
 
 	checkOutput(t, `ORDER BY colA ASC, colB DESC`, b.OrderBy(Asc(testFieldA), Desc(testFieldB)), true)
 	checkOutput(t, ``, b.OrderBy(), false)
 }
 
 func TestLimit(t *testing.T) {
-	b := sqlBuilder{&NoAlias{}, nil}
+	b := testBuilder(false)
 
 	checkOutput(t, `LIMIT 2`, b.Limit(2), true)
 	checkOutput(t, ``, b.Limit(0), false)
 }
 
 func TestOffset(t *testing.T) {
-	b := sqlBuilder{&NoAlias{}, nil}
+	b := testBuilder(false)
 
 	checkOutput(t, `OFFSET 2`, b.Offset(2), true)
 	checkOutput(t, ``, b.Offset(0), false)
+}
+
+func TestValues(t *testing.T) {
+	b := testBuilder(false)
+
+	line := []Field{Value(1), Value(2), Value(3)}
+
+	checkOutput(t, `VALUES (?, ?, ?)`, b.Values([][]Field{line}), true)
+	checkOutput(t, `VALUES`+"\n\t"+
+		`(?, ?, ?),`+"\n\t"+
+		`(?, ?, ?)`,
+		b.Values([][]Field{line, line}),
+		true,
+	)
 }

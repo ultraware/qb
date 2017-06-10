@@ -3,11 +3,16 @@ package qb
 import "strconv"
 
 type sqlBuilder struct {
+	driver Driver
 	alias  Alias
 	values ValueList
 }
 
 ///// Non-statements /////
+
+func (b *sqlBuilder) ToSQL(qs QueryStringer) string {
+	return qs.QueryString(b.driver, b.alias, &b.values)
+}
 
 // List lists the given fields
 func (b *sqlBuilder) List(f []Field, withAlias bool) string {
@@ -16,7 +21,7 @@ func (b *sqlBuilder) List(f []Field, withAlias bool) string {
 		if k > 0 {
 			s += COMMA
 		}
-		s += v.QueryString(b.alias, &b.values)
+		s += b.ToSQL(v)
 		if withAlias {
 			s += ` f` + strconv.Itoa(k)
 		}
@@ -39,14 +44,16 @@ func (b *sqlBuilder) Conditions(c []Condition, newline bool) string {
 	s := ``
 	for k, v := range c {
 		if k > 0 {
-			if !newline {
+			if newline {
+				s += INDENT
+			} else {
 				s += ` `
 			}
 			s += `AND `
 		}
-		s += v(b.alias, &b.values)
+		s += v(b.driver, b.alias, &b.values)
 		if newline {
-			s += "\n"
+			s += NEWLINE
 		}
 	}
 
@@ -54,32 +61,32 @@ func (b *sqlBuilder) Conditions(c []Condition, newline bool) string {
 }
 
 func eq(f1, f2 Field) Condition {
-	return func(ag Alias, vl *ValueList) string {
-		return f1.QueryString(ag, vl) + ` = ` + f2.QueryString(ag, vl)
+	return func(d Driver, ag Alias, vl *ValueList) string {
+		return ConcatQuery(d, ag, vl, f1, ` = `, f2)
 	}
 }
 
 ///// SQL statements /////
 
 func (b *sqlBuilder) Select(withAlias bool, f ...DataField) string {
-	return `SELECT ` + b.ListDataFields(f, withAlias) + "\n"
+	return `SELECT ` + b.ListDataFields(f, withAlias) + NEWLINE
 }
 
 func (b *sqlBuilder) From(src Source) string {
-	return `FROM ` + src.QueryString(b.alias, &b.values) + "\n"
+	return `FROM ` + b.ToSQL(src) + NEWLINE
 }
 
 func (b *sqlBuilder) Join(j ...Join) string {
 	s := ``
 
 	for _, v := range j {
-		s += v.Type + ` JOIN ` + v.New.QueryString(b.alias, &b.values) + ` ON (`
+		s += INDENT + v.Type + ` JOIN ` + b.ToSQL(v.New) + ` ON (`
 
 		v.Conditions = append([]Condition{eq(v.Fields[0], v.Fields[1])}, v.Conditions...)
 
 		s += b.Conditions(v.Conditions, false)
 
-		s += `)` + "\n"
+		s += `)` + NEWLINE
 	}
 
 	return s
@@ -105,7 +112,7 @@ func (b *sqlBuilder) GroupBy(f ...Field) string {
 	if len(f) == 0 {
 		return ``
 	}
-	return `GROUP BY ` + b.List(f, false) + "\n"
+	return `GROUP BY ` + b.List(f, false) + NEWLINE
 }
 
 func (b *sqlBuilder) OrderBy(o ...FieldOrder) string {
@@ -115,29 +122,30 @@ func (b *sqlBuilder) OrderBy(o ...FieldOrder) string {
 	s := `ORDER BY `
 	for k, v := range o {
 		if k > 0 {
-			s += `, `
+			s += COMMA
 		}
-		s += v.Field.QueryString(b.alias, &b.values) + ` ` + v.Order
+		s += b.ToSQL(v.Field) + ` ` + v.Order
 	}
-	return s + "\n"
+	return s + NEWLINE
 }
 
 func (b *sqlBuilder) Limit(i int) string {
 	if i == 0 {
 		return ``
 	}
-	return `LIMIT ` + strconv.Itoa(i) + "\n"
+	return `LIMIT ` + strconv.Itoa(i) + NEWLINE
 }
 
 func (b *sqlBuilder) Offset(i int) string {
 	if i == 0 {
 		return ``
 	}
-	return `OFFSET ` + strconv.Itoa(i) + "\n"
+	return `OFFSET ` + strconv.Itoa(i) + NEWLINE
 }
 
 func (b *sqlBuilder) Update(t *Table) string {
-	return `UPDATE ` + t.QueryString(b.alias, &b.values) + "\n"
+	_ = t.Name
+	return `UPDATE ` + b.ToSQL(t) + NEWLINE
 }
 
 func (b *sqlBuilder) Set(sets []set) string {
@@ -146,11 +154,51 @@ func (b *sqlBuilder) Set(sets []set) string {
 		if k > 0 {
 			s += COMMA
 		}
-		s += eq(v.Field, v.Value)(b.alias, &b.values)
+		s += eq(v.Field, v.Value)(b.driver, b.alias, &b.values)
 	}
-	return s + "\n"
+	return s + NEWLINE
 }
 
 func (b *sqlBuilder) Delete(t *Table) string {
-	return `DELETE FROM ` + t.QueryString(b.alias, &b.values) + "\n"
+	_ = t.Name
+	return `DELETE FROM ` + b.ToSQL(t) + NEWLINE
+}
+
+func (b *sqlBuilder) Insert(t *Table, f []DataField) string {
+	_ = t.Name
+	s := `INSERT INTO ` + b.ToSQL(t) + ` (`
+	for k, v := range f {
+		if k > 0 {
+			s += COMMA
+		}
+		s += b.ToSQL(v)
+	}
+	return s + `)` + NEWLINE
+}
+
+func (b *sqlBuilder) Values(f [][]Field) string {
+	s := `VALUES`
+	for k, v := range f {
+		if k != 0 {
+			s += `,`
+		}
+		if len(f) > 1 {
+			s += NEWLINE + INDENT
+		} else {
+			s += ` `
+		}
+		s += b.ValueLine(v)
+	}
+	return s + NEWLINE
+}
+
+func (b *sqlBuilder) ValueLine(f []Field) string {
+	s := ``
+	for k, v := range f {
+		if k != 0 {
+			s += COMMA
+		}
+		s += b.ToSQL(v)
+	}
+	return `(` + s + `)`
 }

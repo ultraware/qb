@@ -56,6 +56,11 @@ func (t *{{.Table}}Type) Update() qb.UpdateBuilder {
 	return t.table.Update()
 }
 
+// Insert starts an INSERT query
+func (t *{{.Table}}Type) Insert() *qb.InsertBuilder {
+	return t.table.Insert(t.All())
+}
+
 // {{.Table}} returns a new {{.Table}}Type
 func {{.Table}}() *{{.Table}}Type {
 	table := qb{{$.Table}}Table

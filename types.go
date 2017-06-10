@@ -6,27 +6,18 @@ import (
 	"time"
 )
 
-///
-/// Source
-///
+// Driver implements databse-specific features
+type Driver interface {
+	ValueString(int) string
+	BoolString(bool) string
+	UpsertSQL(*Table, []Field, Query) (string, []interface{})
+	ConcatOperator() string
+	ExcludedField(string) string
+}
 
 // Query ...
 type Query interface {
-	SQL() (string, []interface{})
-}
-
-type query struct {
-	sql    string
-	values []interface{}
-}
-
-func newQuery(s string, v []interface{}) Query {
-	return &query{sql: s, values: v}
-}
-
-// SQL ...
-func (q *query) SQL() (string, []interface{}) {
-	return q.sql, q.values
+	SQL(Driver) (string, []interface{})
 }
 
 // Alias ...
@@ -34,9 +25,18 @@ type Alias interface {
 	Get(Source) string
 }
 
+// QueryStringer ...
+type QueryStringer interface {
+	QueryString(Driver, Alias, *ValueList) string
+}
+
+///
+/// Source
+///
+
 // Source ...
 type Source interface {
-	QueryString(Alias, *ValueList) string
+	QueryStringer
 	AliasString() string
 }
 
@@ -46,7 +46,7 @@ type Table struct {
 }
 
 // QueryString ...
-func (t *Table) QueryString(ag Alias, _ *ValueList) string {
+func (t *Table) QueryString(_ Driver, ag Alias, _ *ValueList) string {
 	alias := ag.Get(t)
 	if len(alias) > 0 {
 		alias = ` ` + alias
@@ -66,7 +66,7 @@ func (t *Table) Select(f ...DataField) SelectBuilder {
 
 // Delete ...
 func (t *Table) Delete(c1 Condition, c ...Condition) Query {
-	return newQuery(DeleteSQL(t, append(c, c1)))
+	return DeleteBuilder{t, append(c, c1)}
 }
 
 // Update ...
@@ -74,20 +74,26 @@ func (t *Table) Update() UpdateBuilder {
 	return UpdateBuilder{t, nil, nil}
 }
 
+// Insert ...
+func (t *Table) Insert(f []DataField) *InsertBuilder {
+	q := InsertBuilder{table: t, fields: f}
+	return &q
+}
+
 // SubQuery ...
 type SubQuery struct {
-	sql    string
-	values []interface{}
+	query  SelectQuery
 	fields []Field
 }
 
 // QueryString ...
-func (t *SubQuery) QueryString(ag Alias, vl *ValueList) string {
+func (t *SubQuery) QueryString(d Driver, ag Alias, vl *ValueList) string {
 	alias := ag.Get(t)
 	if len(alias) > 0 {
 		alias = ` ` + alias
 	}
-	return `(` + t.sql + `)` + alias
+	sql, _ := t.query.SQL(d)
+	return `(` + sql + `)` + alias
 }
 
 // AliasString ...
@@ -106,7 +112,7 @@ func (t *SubQuery) Select(f ...DataField) SelectBuilder {
 
 // Field represents a field in a query
 type Field interface {
-	QueryString(Alias, *ValueList) string
+	QueryStringer
 	Source() Source
 	DataType() string
 }
@@ -164,7 +170,7 @@ type TableField struct {
 }
 
 // QueryString ...
-func (f TableField) QueryString(ag Alias, _ *ValueList) string {
+func (f TableField) QueryString(_ Driver, ag Alias, _ *ValueList) string {
 	alias := ag.Get(f.Parent)
 	if alias != `` {
 		alias += `.`
@@ -228,7 +234,7 @@ func Value(v interface{}) ValueField {
 }
 
 // QueryString ...
-func (f ValueField) QueryString(_ Alias, vl *ValueList) string {
+func (f ValueField) QueryString(_ Driver, _ Alias, vl *ValueList) string {
 	vl.Append(f.Value)
 	return VALUE
 }
@@ -248,7 +254,7 @@ func (f ValueField) DataType() string {
 ///
 
 // Condition is used in the Where function
-type Condition func(Alias, *ValueList) string
+type Condition func(Driver, Alias, *ValueList) string
 
 // Join are used for joins on tables
 type Join struct {

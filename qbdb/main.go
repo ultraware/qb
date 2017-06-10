@@ -26,7 +26,7 @@ func (db QueryTarget) printType(v interface{}, c *int) (string, bool) {
 }
 
 func (db QueryTarget) prepare(q qb.Query) (string, []interface{}) {
-	s, v := q.SQL()
+	s, v := q.SQL(db.Driver)
 
 	return db.prepareSQL(s, v)
 }
@@ -94,44 +94,6 @@ func (db QueryTarget) Exec(q qb.Query) error {
 
 // RawExec executes the given SQL with the given params directly on the database
 func (db QueryTarget) RawExec(s string, v ...interface{}) error {
-	_, err := db.src.Exec(s, v...)
-	return err
-}
-
-// Insert inserts the record into the database
-func (db QueryTarget) Insert(record Savable) error {
-	f := record.All()
-	s, v := qb.InsertValueSQL(f)
-	s = qb.InsertHeaderSQL(record.GetTable(), f) + s + "\n"
-
-	return db.prepareExec(s, v)
-}
-
-// Update updates the record in the database
-func (db QueryTarget) Update(record Savable) error {
-	s, v := qb.UpdateRecordSQL(record.GetTable(), record.All())
-	return db.prepareExec(s, v)
-}
-
-// Delete updates the record in the database
-func (db QueryTarget) Delete(record Savable) error {
-	s, v := qb.DeleteRecordSQL(record.GetTable(), record.All())
-	return db.prepareExec(s, v)
-}
-
-// Upsert tries to insert a record or update if a given field conflicts
-func (db QueryTarget) Upsert(record Savable, conflict ...qb.DataField) error {
-	f := record.All()
-	s, v := qb.InsertValueSQL(f)
-	s = qb.InsertHeaderSQL(record.GetTable(), f) +
-		s +
-		db.Driver.UpsertSQL(record.All(), conflict)
-
-	return db.prepareExec(s, v)
-}
-
-func (db QueryTarget) prepareExec(s string, v []interface{}) error {
-	s, v = db.prepareSQL(s, v)
 	_, err := db.src.Exec(s, v...)
 	return err
 }

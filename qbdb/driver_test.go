@@ -19,8 +19,16 @@ func (d driver) BoolString(v bool) string {
 	return `f`
 }
 
-func (d driver) UpsertSQL(f []qb.DataField, conflict []qb.DataField) string {
+func (d driver) UpsertSQL(_ *qb.Table, _ []qb.Field, _ qb.Query) (string, []interface{}) {
 	panic(`Not implemented`)
+}
+
+func (d driver) ConcatOperator() string {
+	panic(`This should not be used`)
+}
+
+func (d driver) ExcludedField(string) string {
+	panic(`This should not be used`)
 }
 
 var db = New(driver{}, nil)

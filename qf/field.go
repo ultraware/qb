@@ -4,14 +4,14 @@ import "git.ultraware.nl/NiseVoid/qb"
 
 // CalculatedField is a field created by running functions on a TableField
 type CalculatedField struct {
-	Action func(qb.Alias, *qb.ValueList) string
+	Action func(qb.Driver, qb.Alias, *qb.ValueList) string
 	S      qb.Source
 	Type   string
 }
 
 // QueryString ...
-func (f CalculatedField) QueryString(ag qb.Alias, vl *qb.ValueList) string {
-	return f.Action(ag, vl)
+func (f CalculatedField) QueryString(d qb.Driver, ag qb.Alias, vl *qb.ValueList) string {
+	return f.Action(d, ag, vl)
 }
 
 // Source ...
@@ -31,7 +31,7 @@ func (f *CalculatedField) New(v interface{}) qb.DataField {
 
 func newCalculatedField(src qb.Source, t string, args ...interface{}) *CalculatedField {
 	return &CalculatedField{
-		Action: func(ag qb.Alias, vl *qb.ValueList) string { return concatQuery(ag, vl, args...) },
+		Action: func(d qb.Driver, ag qb.Alias, vl *qb.ValueList) string { return qb.ConcatQuery(d, ag, vl, args...) },
 		S:      src,
 		Type:   t,
 	}

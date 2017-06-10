@@ -4,6 +4,17 @@ import "git.ultraware.nl/NiseVoid/qb"
 
 ///// General functions /////
 
+// Excluded ...
+func Excluded(f qb.Field) *CalculatedField {
+	return &CalculatedField{
+		Action: func(d qb.Driver, ag qb.Alias, vl *qb.ValueList) string {
+			return d.ExcludedField(f.QueryString(d, ag, vl))
+		},
+		S:    f.Source(),
+		Type: f.DataType(),
+	}
+}
+
 // Distinct ...
 func Distinct(f qb.Field) *CalculatedField {
 	return newCalculatedField(f.Source(), f.DataType(), `DISTINCT `, f)
@@ -41,7 +52,7 @@ func Max(f qb.Field) *CalculatedField {
 
 // Coalesce ...
 func Coalesce(f1 qb.Field, i interface{}) *CalculatedField {
-	f2 := makeField(i)
+	f2 := qb.MakeField(i)
 	return newCalculatedField(f1.Source(), f1.DataType(), `coalesce(`, f1, `, `, f2, `)`)
 }
 
@@ -54,23 +65,24 @@ func Lower(f qb.Field) *CalculatedField {
 
 // Concat ...
 func Concat(i ...interface{}) *CalculatedField {
-	s := make([]interface{}, len(i)*2-1)
-	var src qb.Source
-	for k, v := range i {
-		if k > 0 {
-			s[k*2-1] = ` || `
-		}
+	return &CalculatedField{
+		Action: func(d qb.Driver, ag qb.Alias, vl *qb.ValueList) string {
+			s := make([]interface{}, len(i)*2-1)
+			for k, v := range i {
+				if k > 0 {
+					s[k*2-1] = ` ` + d.ConcatOperator() + ` `
+				}
 
-		f := makeField(v)
+				f := qb.MakeField(v)
 
-		if f.Source() != nil && src == nil {
-			src = f.Source()
-		}
+				s[k*2] = f
+			}
 
-		s[k*2] = f
+			return qb.ConcatQuery(d, ag, vl, s...)
+		},
+		S:    nil,
+		Type: `string`,
 	}
-
-	return newCalculatedField(src, `string`, s...)
 }
 
 ///// Date functions /////
@@ -99,7 +111,7 @@ func Floor(f qb.Field) *CalculatedField {
 
 // Round ...
 func Round(f1 qb.Field, precision int) *CalculatedField {
-	f2 := makeField(precision)
+	f2 := qb.MakeField(precision)
 	return newCalculatedField(f1.Source(), f1.DataType(), `round(`, f1, `, `, f2, `)`)
 }
 
@@ -107,36 +119,36 @@ func Round(f1 qb.Field, precision int) *CalculatedField {
 
 // Add ...
 func Add(f1 qb.Field, i interface{}) *CalculatedField {
-	f2 := makeField(i)
+	f2 := qb.MakeField(i)
 	return newCalculatedField(f1.Source(), f1.DataType(), f1, ` + `, f2)
 }
 
 // Sub ...
 func Sub(f1 qb.Field, i interface{}) *CalculatedField {
-	f2 := makeField(i)
+	f2 := qb.MakeField(i)
 	return newCalculatedField(f1.Source(), f1.DataType(), f1, ` - `, f2)
 }
 
 // Mult ...
 func Mult(f1 qb.Field, i interface{}) *CalculatedField {
-	f2 := makeField(i)
+	f2 := qb.MakeField(i)
 	return newCalculatedField(f1.Source(), f1.DataType(), f1, ` * `, f2)
 }
 
 // Div ...
 func Div(f1 qb.Field, i interface{}) *CalculatedField {
-	f2 := makeField(i)
+	f2 := qb.MakeField(i)
 	return newCalculatedField(f1.Source(), f1.DataType(), f1, ` / `, f2)
 }
 
 // Mod ...
 func Mod(f1 qb.Field, i interface{}) *CalculatedField {
-	f2 := makeField(i)
+	f2 := qb.MakeField(i)
 	return newCalculatedField(f1.Source(), f1.DataType(), f1, ` % `, f2)
 }
 
 // Pow ...
 func Pow(f1 qb.Field, i interface{}) *CalculatedField {
-	f2 := makeField(i)
+	f2 := qb.MakeField(i)
 	return newCalculatedField(f1.Source(), f1.DataType(), f1, ` ^ `, f2)
 }

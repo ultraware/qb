@@ -4,7 +4,7 @@
 		"fields": [
 			{"name": "ID", "type": "int", "primary": true, "read_only": true},
 			{"name": "Name", "type": "string"},
-			{"name": "CreatedAt", "type": "time", "read_only": true}
+			{"name": "CreatedAt", "type": "time", "read_only": true, "default": true}
 		]
 	},
 	{

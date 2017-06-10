@@ -55,10 +55,6 @@ func (f *DataField) Empty() bool {
 }
 
 func (f *DataField) isSet() bool {
-	return f.hasChanged()
-}
-
-func (f *DataField) hasChanged() bool {
 	return f.GetValue() != f.InitialValue
 }
 

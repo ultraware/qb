@@ -20,7 +20,7 @@ DROP TABLE IF EXISTS two;
 CREATE TABLE one (
 	ID int PRIMARY KEY,
 	Name varchar(50) NOT NULL,
-	CreatedAt timestamp NOT NULL
+	CreatedAt timestamp NOT NULL DEFAULT now()
 );
 
 CREATE TABLE two (

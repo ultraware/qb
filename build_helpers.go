@@ -2,19 +2,36 @@ package qb
 
 import "strconv"
 
-// Constants used when building queries
-const (
-	COMMA = `, `
-	VALUE = `?`
+// Values used when building queries
+var (
+	COMMA   = `, `
+	NEWLINE = "\n"
+	INDENT  = "\t"
+	VALUE   = `?`
 )
 
 ///// Field /////
 
-func makeField(i interface{}) Field {
+// MakeField ...
+func MakeField(i interface{}) Field {
 	if f, ok := i.(Field); ok {
 		return f
 	}
 	return Value(i)
+}
+
+// ConcatQuery ...
+func ConcatQuery(d Driver, ag Alias, vl *ValueList, values ...interface{}) string {
+	s := ``
+	for _, val := range values {
+		switch v := val.(type) {
+		case (Field):
+			s += v.QueryString(d, ag, vl)
+		case (string):
+			s += v
+		}
+	}
+	return s
 }
 
 ///// Alias /////

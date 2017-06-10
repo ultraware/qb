@@ -1,28 +1,21 @@
 package qb
 
-// InsertHeaderSQL ...
-func InsertHeaderSQL(t *Table, f []DataField) string {
-	b := sqlBuilder{&NoAlias{}, nil}
-	return `INSERT INTO ` + t.QueryString(b.alias, &b.values) + ` (` + b.ListDataFields(f, false) + `) VALUES` + "\n"
+// Default ...
+type Default struct{}
+
+// QueryString ...
+func (f Default) QueryString(_ Driver, ag Alias, _ *ValueList) string {
+	return `DEFAULT`
 }
 
-// InsertValueSQL ...
-func InsertValueSQL(f []DataField) (string, []interface{}) {
-	b := sqlBuilder{&NoAlias{}, nil}
-	var s string
+// Source ...
+func (f Default) Source() Source {
+	return nil
+}
 
-	for k, v := range f {
-		if k > 0 {
-			s += COMMA
-		}
-		if shouldDefault(v) {
-			s += `DEFAULT`
-			continue
-		}
-		s += Value(v.GetValue()).QueryString(b.alias, &b.values)
-	}
-	s = `(` + s + `)`
-	return s, b.values
+// DataType ...
+func (f Default) DataType() string {
+	return ``
 }
 
 func shouldDefault(v DataField) bool {
@@ -30,5 +23,46 @@ func shouldDefault(v DataField) bool {
 	if !ok {
 		panic(`Cannot use non-table field in insert`)
 	}
-	return (!v.isSet() || field.ReadOnly) && field.HasDefault
+	return !v.isSet() && field.HasDefault
+}
+
+// InsertBuilder is used to create a SQL INSERT query
+type InsertBuilder struct {
+	table    *Table
+	fields   []DataField
+	values   [][]Field
+	update   Query
+	conflict []Field
+}
+
+// Add adds a single row to the list of rows
+func (q *InsertBuilder) Add() {
+	list := make([]Field, len(q.fields))
+	for k, v := range q.fields {
+		if shouldDefault(v) {
+			list[k] = Default{}
+			continue
+		}
+		list[k] = Value(v.GetValue())
+	}
+	q.values = append(q.values, list)
+}
+
+// Upsert ...
+func (q *InsertBuilder) Upsert(query Query, conflict ...Field) {
+	q.update = query
+	q.conflict = conflict
+}
+
+// SQL ...
+func (q *InsertBuilder) SQL(d Driver) (string, []interface{}) {
+	b := sqlBuilder{d, &NoAlias{}, nil}
+	sql := b.Insert(q.table, q.fields) + b.Values(q.values)
+	if q.update != nil {
+		s, v := d.UpsertSQL(q.table, q.conflict, q.update)
+		b.values.Append(v...)
+		sql += s
+	}
+
+	return sql, b.values
 }

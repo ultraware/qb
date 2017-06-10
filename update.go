@@ -1,50 +1,20 @@
 package qb
 
-// UpdateRecordSQL ...
-func UpdateRecordSQL(t *Table, f []DataField) (string, []interface{}) {
-	b := sqlBuilder{&NoAlias{}, nil}
-
-	p := GetPrimaryFields(f)
-	if len(p) == 0 {
-		panic(`Cannot update without primary`)
-	}
-
-	f = GetUpdatableFields(f)
-	s := make([]set, len(f))
-	for k, v := range f {
-		s[k] = set{v, Value(v.Value)}
-	}
-
-	return b.Update(t) + b.Set(s) + b.WhereDataField(p), b.values
-}
-
-// GetUpdatableFields returns a list of all updatable fields
-func GetUpdatableFields(f []DataField) []DataField {
-	fields := []DataField{}
-	for _, v := range f {
-		if !updatable(v) {
-			continue
-		}
-		fields = append(fields, v)
-	}
-	return fields
-}
-
-func updatable(f DataField) bool {
-	v, ok := f.Field.(*TableField)
-	if !ok {
-		panic(`Cannot use non-table field in update`)
-	}
-
-	if v.ReadOnly || !f.hasChanged() || v.Primary {
-		return false
-	}
-	return true
-}
-
 type set struct {
 	Field Field
 	Value Field
+}
+
+func newSet(f Field, v interface{}) set {
+	f1, ok := f.(*TableField)
+	if !ok {
+		panic(`Cannot use non-table field in update`)
+	}
+	if f1.ReadOnly {
+		panic(`Cannot update read-only field`)
+	}
+	f2 := MakeField(v)
+	return set{f1, f2}
 }
 
 // UpdateBuilder ...
@@ -56,7 +26,10 @@ type UpdateBuilder struct {
 
 // Set ...
 func (q UpdateBuilder) Set(f Field, v interface{}) UpdateBuilder {
-	q.set = append(q.set, set{f, makeField(v)})
+	if v, ok := f.(DataField); ok {
+		f = v.Field
+	}
+	q.set = append(q.set, newSet(f, v))
 	return q
 }
 
@@ -67,7 +40,7 @@ func (q UpdateBuilder) Where(c Condition) UpdateBuilder {
 }
 
 // SQL ...
-func (q UpdateBuilder) SQL() (string, []interface{}) {
-	b := sqlBuilder{&NoAlias{}, nil}
+func (q UpdateBuilder) SQL(d Driver) (string, []interface{}) {
+	b := sqlBuilder{d, &NoAlias{}, nil}
 	return b.Update(q.t) + b.Set(q.set) + b.Where(q.c...), b.values
 }

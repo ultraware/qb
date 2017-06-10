@@ -1,19 +1,13 @@
 package qb
 
-// DeleteSQL ...
-func DeleteSQL(t *Table, c []Condition) (string, []interface{}) {
-	b := sqlBuilder{&NoAlias{}, nil}
-	return b.Delete(t) + b.Where(c...), b.values
+// DeleteBuilder ...
+type DeleteBuilder struct {
+	table *Table
+	c     []Condition
 }
 
-// DeleteRecordSQL ...
-func DeleteRecordSQL(t *Table, f []DataField) (string, []interface{}) {
-	b := sqlBuilder{&NoAlias{}, nil}
-
-	p := GetPrimaryFields(f)
-	if len(p) == 0 {
-		panic(`Cannot update without primary`)
-	}
-
-	return b.Delete(t) + b.WhereDataField(p), b.values
+// SQL ...
+func (q DeleteBuilder) SQL(d Driver) (string, []interface{}) {
+	b := sqlBuilder{d, &NoAlias{}, nil}
+	return b.Delete(q.table) + b.Where(q.c...), b.values
 }

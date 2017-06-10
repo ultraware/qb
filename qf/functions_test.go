@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"git.ultraware.nl/NiseVoid/qb"
+	"git.ultraware.nl/NiseVoid/qb/driver/pgqb"
 )
 
 func TestAll(t *testing.T) {
@@ -12,6 +13,8 @@ func TestAll(t *testing.T) {
 	f1 := &qb.TableField{Name: `A`, Type: `int`, Parent: tb}
 	f2 := &qb.TableField{Name: `B`, Type: `int`, Parent: tb}
 	f3 := &qb.TableField{Name: `C`, Type: `string`, Parent: tb}
+
+	check(t, Excluded(f1), `EXCLUDED.A`, f1.Type, tb)
 
 	check(t, Distinct(f1), `DISTINCT A`, f1.Type, tb)
 	check(t, CountAll(), `count(1)`, `int`, nil)
@@ -25,7 +28,7 @@ func TestAll(t *testing.T) {
 	check(t, Coalesce(f1, f2), `coalesce(A, B)`, f1.Type, tb)
 
 	check(t, Lower(f1), `lower(A)`, `string`, tb)
-	check(t, Concat(f3, `B`, `A`), `C || ? || ?`, `string`, tb)
+	check(t, Concat(f3, `B`, `A`), `C || ? || ?`, `string`, nil)
 
 	check(t, Now(), `now()`, `time`, nil)
 
@@ -43,7 +46,7 @@ func TestAll(t *testing.T) {
 }
 
 func check(t *testing.T, f qb.Field, expectedSQL, expectedType string, src qb.Source) {
-	sql := f.QueryString(&qb.NoAlias{}, &qb.ValueList{})
+	sql := f.QueryString(pgqb.Driver{}, &qb.NoAlias{}, &qb.ValueList{})
 
 	if sql != expectedSQL {
 		t.Errorf(`Incorrect SQL. Expected: "%s". Got: "%s"`, expectedSQL, sql)

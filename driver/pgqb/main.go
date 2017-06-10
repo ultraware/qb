@@ -3,6 +3,7 @@ package pgqb
 import (
 	"database/sql"
 	"strconv"
+	"strings"
 
 	"git.ultraware.nl/NiseVoid/qb"
 	"git.ultraware.nl/NiseVoid/qb/qbdb"
@@ -26,27 +27,31 @@ func (d Driver) BoolString(v bool) string {
 	return strconv.FormatBool(v)
 }
 
-// UpsertSQL returns the
-func (d Driver) UpsertSQL(f []qb.DataField, conflict []qb.DataField) string {
+// ConcatOperator ...
+func (d Driver) ConcatOperator() string {
+	return `||`
+}
+
+// ExcludedField ...
+func (d Driver) ExcludedField(f string) string {
+	return `EXCLUDED.` + f
+}
+
+// UpsertSQL ...
+func (d Driver) UpsertSQL(t *qb.Table, conflict []qb.Field, q qb.Query) (string, []interface{}) {
 	sql := ``
 	for k, v := range conflict {
 		if k > 0 {
 			sql += qb.COMMA
 		}
-		sql += v.QueryString(&qb.NoAlias{}, nil)
+		sql += v.QueryString(d, &qb.NoAlias{}, nil)
 	}
-	return `ON CONFLICT (` + sql + `) DO ` + updateExcluded(f)
-}
 
-func updateExcluded(f []qb.DataField) string {
-	s := `UPDATE SET `
-	for k, v := range f {
-		if k > 0 {
-			s += `, `
-		}
-		sql := v.QueryString(&qb.NoAlias{}, nil)
-		s += sql + ` = EXCLUDED.` + sql
-		continue
+	usql, values := q.SQL(d)
+	if !strings.HasPrefix(usql, `UPDATE `+t.Name) {
+		panic(`Update does not update the correct table`)
 	}
-	return s + "\n"
+	usql = strings.Replace(usql, `UPDATE `+t.Name, `UPDATE`, -1)
+
+	return `ON CONFLICT (` + sql + `) DO ` + usql, values
 }

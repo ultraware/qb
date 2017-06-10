@@ -2,7 +2,6 @@ package tests
 
 import (
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -26,69 +25,59 @@ func StartTests(t *testing.T) {
 		db.Debug = true
 	}
 
+	testUpsert(t)
 	testInsert(t)
+	testUpsert(t)
 	testUpdate(t)
-	testUpdateAll(t)
 	testSelect(t)
 	testDelete(t)
 	testLeftJoin(t)
 }
 
-func testInsert(test *testing.T) {
-	// Insert into One
+func testUpsert(test *testing.T) {
 	o := model.One()
 
 	o.Data.ID = 1
 	o.Data.Name = `Test 1`
-	o.Data.CreatedAt = time.Now()
 
-	err := db.Insert(o)
+	q := o.Insert()
+	q.Add()
+	q.Upsert(
+		o.Update().
+			Set(o.Name, qf.Concat(qf.Excluded(o.Name), `.1`)),
+		o.ID,
+	)
+	err := db.Exec(q)
 	if err != nil {
 		panic(err)
 	}
+}
 
-	// Insert into Two
+func testInsert(test *testing.T) {
 	t := model.Two()
 
-	t.Data.OneID = o.Data.ID
+	q := t.Insert()
+
+	t.Data.OneID = 1
 	t.Data.Number = 1
 	t.Data.Comment = `Test comment`
+	q.Add()
 
-	err = db.Insert(t)
+	t.Data.Number = 2
+	t.Data.Comment += ` 2`
+	q.Add()
+
+	err := db.Exec(q)
 	if err != nil {
 		panic(err)
 	}
 }
 
 func testUpdate(test *testing.T) {
-	// Insert
-	o := model.One()
-
-	o.Data.ID = 1
-	o.Data.Name = `Test 1.1`
-
-	err := db.Update(o)
-	if err != nil {
-		panic(err)
-	}
-
-	// Insert
 	t := model.Two()
 
-	t.Data.OneID = o.Data.ID
-	t.Data.Number = 1
-	t.Data.Comment = `Test comment v2`
-
-	err = db.Update(t)
-	if err != nil {
-		panic(err)
-	}
-}
-
-func testUpdateAll(test *testing.T) {
-	t := model.Two()
-
-	q := t.Update().Set(t.Comment, qf.Concat(t.Comment, `.1`))
+	q := t.Update().
+		Set(t.Comment, qf.Concat(`Test comment v2`, `.1`))
 
 	err := db.Exec(q)
 	if err != nil {
@@ -124,10 +113,9 @@ func testSelect(test *testing.T) {
 
 func testDelete(test *testing.T) {
 	t := model.Two()
-	t.Data.OneID = 1
-	t.Data.Number = 1
 
-	err := db.Delete(t)
+	q := t.Delete(qc.Eq(t.OneID, 1))
+	err := db.Exec(q)
 	if err != nil {
 		panic(err)
 	}

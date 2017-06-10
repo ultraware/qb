@@ -25,7 +25,7 @@ func TestAll(t *testing.T) {
 	check(t, Like(f1, `%a%`), `A LIKE ?`)
 	check(t, In(f1, 1, 2, 3), `A IN (?, ?, ?)`)
 
-	check(t, Not(Eq(f1, f2)), `NOT(A = B)`)
+	check(t, Not(Eq(f1, f2)), `NOT (A = B)`)
 	check(t, And(Eq(f1, f2), NotNull(f1)), `(A = B AND A IS NOT NULL)`)
 	check(t, Or(Eq(f1, f2), IsNull(f1)), `(A = B OR A IS NULL)`)
 
@@ -35,7 +35,7 @@ func TestAll(t *testing.T) {
 }
 
 func check(t *testing.T, c qb.Condition, expectedSQL string) {
-	sql := c(&qb.NoAlias{}, &qb.ValueList{})
+	sql := c(nil, &qb.NoAlias{}, &qb.ValueList{})
 
 	if sql != expectedSQL {
 		t.Errorf(`Incorrect SQL. Expected: "%s". Got: "%s"`, expectedSQL, sql)

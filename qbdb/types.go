@@ -6,13 +6,6 @@ import (
 	"git.ultraware.nl/NiseVoid/qb"
 )
 
-// Driver implements databse-specific features
-type Driver interface {
-	ValueString(int) string
-	BoolString(bool) string
-	UpsertSQL(fields []qb.DataField, conflict []qb.DataField) string
-}
-
 // Tx is a transaction
 type Tx struct {
 	QueryTarget
@@ -36,7 +29,7 @@ type QueryTarget struct {
 		Query(string, ...interface{}) (*sql.Rows, error)
 		QueryRow(string, ...interface{}) *sql.Row
 	}
-	Driver Driver
+	Driver qb.Driver
 	Debug  bool
 }
 
@@ -53,7 +46,7 @@ func (db *DB) Begin() (Tx, error) {
 }
 
 // New returns a new DB
-func New(driver Driver, db *sql.DB) *DB {
+func New(driver qb.Driver, db *sql.DB) *DB {
 	return &DB{QueryTarget{db, driver, false}, db}
 }
 

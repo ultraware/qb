@@ -2,6 +2,7 @@ package myqb
 
 import (
 	"database/sql"
+	"strings"
 
 	"git.ultraware.nl/NiseVoid/qb"
 	"git.ultraware.nl/NiseVoid/qb/qbdb"
@@ -28,16 +29,23 @@ func (d Driver) BoolString(v bool) string {
 	return `0`
 }
 
-// UpsertSQL returns the
-func (d Driver) UpsertSQL(f []qb.DataField, _ []qb.DataField) string {
-	s := ``
-	for k, v := range f {
-		if k > 0 {
-			s += `, `
-		}
-		sql := v.QueryString(&qb.NoAlias{}, nil)
-		s += sql + ` = ` + `VALUES(` + sql + `)`
-	}
+// ConcatOperator ...
+func (d Driver) ConcatOperator() string {
+	return `||`
+}
 
-	return `ON DUPLICATE KEY UPDATE SET ` + s + "\n"
+// ExcludedField ...
+func (d Driver) ExcludedField(f string) string {
+	return `VALUES(` + f + `)`
+}
+
+// UpsertSQL ...
+func (d Driver) UpsertSQL(t *qb.Table, _ []qb.Field, q qb.Query) (string, []interface{}) {
+	usql, values := q.SQL(d)
+	if !strings.HasPrefix(usql, `UPDATE `+t.Name) {
+		panic(`Update does not update the correct table`)
+	}
+	usql = strings.Replace(usql, `UPDATE `+t.Name, `UPDATE`, -1)
+
+	return `ON DUPLICATE KEY ` + usql, values
 }
