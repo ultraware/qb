@@ -8,20 +8,15 @@ func (f Default) QueryString(_ Driver, ag Alias, _ *ValueList) string {
 	return `DEFAULT`
 }
 
-// Source ...
-func (f Default) Source() Source {
-	return nil
-}
-
-// DataType ...
-func (f Default) DataType() string {
-	return ``
+// New ...
+func (f Default) New(_ interface{}) DataField {
+	panic(`Cannot call New on Default`)
 }
 
 func shouldDefault(v DataField) bool {
 	field, ok := v.Field.(*TableField)
 	if !ok {
-		panic(`Cannot use non-table field in insert`)
+		panic(`Cannot use non-TableField field in insert`)
 	}
 	return !v.isSet() && field.HasDefault
 }

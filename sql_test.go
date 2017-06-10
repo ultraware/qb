@@ -53,11 +53,11 @@ func testBuilder(alias bool) sqlBuilder {
 // Tables
 
 var testTable = &Table{Name: `tmp`}
-var testFieldA = &TableField{Name: `colA`, Parent: testTable, Type: `int`}
-var testFieldB = &TableField{Name: `colB`, Parent: testTable, Type: `int`}
+var testFieldA = &TableField{Name: `colA`, Parent: testTable}
+var testFieldB = &TableField{Name: `colB`, Parent: testTable}
 
 var testTable2 = &Table{Name: `tmp2`}
-var testFieldA2 = &TableField{Name: `colA2`, Parent: testTable2, Type: `int`}
+var testFieldA2 = &TableField{Name: `colA2`, Parent: testTable2}
 
 func NewIntField(f Field) DataField {
 	i := 0

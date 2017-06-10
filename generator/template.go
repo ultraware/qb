@@ -4,7 +4,7 @@ var codeTemplate = `///// {{.Table}} /////
 var qb{{.Table}}Table = qb.Table{Name: "{{.TableString}}"}
 
 {{range .Fields -}}
-var qb{{$.Table}}F{{.Name}} = qb.TableField{Parent: &qb{{$.Table}}Table, Name: "{{.String}}", Type: "{{.Type}}", 
+var qb{{$.Table}}F{{.Name}} = qb.TableField{Parent: &qb{{$.Table}}Table, Name: "{{.String}}", 
 	{{- if .ReadOnly }}ReadOnly: true,{{end -}}
 	{{- if .HasDefault }}HasDefault: true,{{end -}}
 	{{- if .Primary }}Primary: true{{end -}}
@@ -68,7 +68,7 @@ func {{.Table}}() *{{.Table}}Type {
 	return &{{.Table}}Type{
 		&data,
 	{{- range .Fields}}
-		qb.NewDataField(qb{{$.Table}}F{{.Name}}.New(&table), &data.{{.Name}}),
+		qb{{$.Table}}F{{.Name}}.Copy(&table).New(&data.{{.Name}}),
 	{{- end}}
 		&table,
 	}

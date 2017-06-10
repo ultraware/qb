@@ -63,13 +63,13 @@ func (q SelectBuilder) join(t string, f1, f2 Field, c []Condition) SelectBuilder
 	var new Source
 	exists := 0
 	for _, v := range q.tables {
-		if v == f1.Source() {
+		if src := getParent(f1); src == v {
 			exists++
-			new = f2.Source()
+			new = getParent(f2)
 		}
-		if v == f2.Source() {
+		if src := getParent(f2); src == v {
 			exists++
-			new = f1.Source()
+			new = getParent(f1)
 		}
 	}
 
@@ -138,8 +138,8 @@ func (q SelectBuilder) getSQL(d Driver, aliasFields bool) (string, []interface{}
 func (q SelectBuilder) SubQuery() *SubQuery {
 	sq := SubQuery{query: q}
 
-	for k, v := range q.fields {
-		sq.fields = append(sq.fields, TableField{Name: `f` + strconv.Itoa(k), Parent: &sq, Type: v.DataType()})
+	for k := range q.fields {
+		sq.fields = append(sq.fields, TableField{Name: `f` + strconv.Itoa(k), Parent: &sq})
 	}
 
 	return &sq
@@ -191,8 +191,8 @@ func (q CombinedQuery) Fields() []DataField {
 func (q CombinedQuery) SubQuery() *SubQuery {
 	sq := SubQuery{query: q}
 
-	for k, v := range q.Fields() {
-		sq.fields = append(sq.fields, TableField{Name: `f` + strconv.Itoa(k), Parent: &sq, Type: v.DataType()})
+	for k := range q.Fields() {
+		sq.fields = append(sq.fields, TableField{Name: `f` + strconv.Itoa(k), Parent: &sq})
 	}
 
 	return &sq

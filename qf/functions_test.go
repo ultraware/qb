@@ -10,55 +10,47 @@ import (
 func TestAll(t *testing.T) {
 	tb := &qb.Table{Name: `test`}
 
-	f1 := &qb.TableField{Name: `A`, Type: `int`, Parent: tb}
-	f2 := &qb.TableField{Name: `B`, Type: `int`, Parent: tb}
-	f3 := &qb.TableField{Name: `C`, Type: `string`, Parent: tb}
+	f1 := &qb.TableField{Name: `A`, Parent: tb}
+	f2 := &qb.TableField{Name: `B`, Parent: tb}
+	f3 := &qb.TableField{Name: `C`, Parent: tb}
 
-	check(t, Excluded(f1), `EXCLUDED.A`, f1.Type, tb)
+	check(t, Excluded(f1), `EXCLUDED.A`)
 
-	check(t, Distinct(f1), `DISTINCT A`, f1.Type, tb)
-	check(t, CountAll(), `count(1)`, `int`, nil)
-	check(t, Count(f1), `count(A)`, `int`, tb)
+	check(t, Distinct(f1), `DISTINCT A`)
+	check(t, CountAll(), `count(1)`)
+	check(t, Count(f1), `count(A)`)
 
-	check(t, Sum(f1), `sum(A)`, f1.Type, tb)
-	check(t, Average(f1), `avg(A)`, `float`, tb)
-	check(t, Min(f1), `min(A)`, f1.Type, tb)
-	check(t, Max(f1), `max(A)`, f1.Type, tb)
+	check(t, Sum(f1), `sum(A)`)
+	check(t, Average(f1), `avg(A)`)
+	check(t, Min(f1), `min(A)`)
+	check(t, Max(f1), `max(A)`)
 
-	check(t, Coalesce(f1, f2), `coalesce(A, B)`, f1.Type, tb)
+	check(t, Coalesce(f1, f2), `coalesce(A, B)`)
 
-	check(t, Lower(f1), `lower(A)`, `string`, tb)
-	check(t, Concat(f3, `B`, `A`), `C || ? || ?`, `string`, nil)
+	check(t, Lower(f1), `lower(A)`)
+	check(t, Concat(f3, `B`, `A`), `C || ? || ?`)
 
-	check(t, Now(), `now()`, `time`, nil)
+	check(t, Now(), `now()`)
 
-	check(t, Abs(f1), `abs(A)`, f1.Type, tb)
-	check(t, Ceil(f1), `ceil(A)`, f1.Type, tb)
-	check(t, Floor(f1), `floor(A)`, f1.Type, tb)
-	check(t, Round(f1, 2), `round(A, ?)`, f1.Type, tb)
+	check(t, Abs(f1), `abs(A)`)
+	check(t, Ceil(f1), `ceil(A)`)
+	check(t, Floor(f1), `floor(A)`)
+	check(t, Round(f1, 2), `round(A, ?)`)
 
-	check(t, Add(f1, f2), `A + B`, f1.Type, tb)
-	check(t, Sub(f1, f2), `A - B`, f1.Type, tb)
-	check(t, Mult(f1, f2), `A * B`, f1.Type, tb)
-	check(t, Div(f1, f2), `A / B`, f1.Type, tb)
-	check(t, Mod(f1, f2), `A % B`, f1.Type, tb)
-	check(t, Pow(f1, f2), `A ^ B`, f1.Type, tb)
+	check(t, Add(f1, f2), `A + B`)
+	check(t, Sub(f1, f2), `A - B`)
+	check(t, Mult(f1, f2), `A * B`)
+	check(t, Div(f1, f2), `A / B`)
+	check(t, Mod(f1, f2), `A % B`)
+	check(t, Pow(f1, f2), `A ^ B`)
 }
 
-func check(t *testing.T, f qb.Field, expectedSQL, expectedType string, src qb.Source) {
+func check(t *testing.T, f qb.Field, expectedSQL string) {
 	sql := f.QueryString(pgqb.Driver{}, &qb.NoAlias{}, &qb.ValueList{})
 
 	if sql != expectedSQL {
 		t.Errorf(`Incorrect SQL. Expected: "%s". Got: "%s"`, expectedSQL, sql)
 		return
-	}
-
-	if f.DataType() != expectedType {
-		t.Errorf(`Incorrect type. Expected: %s. Got: %s`, expectedType, f.DataType())
-	}
-
-	if f.Source() != src {
-		t.Errorf(`Source was not saved correctly!`)
 	}
 
 	t.Logf(`Success! "%s"`, sql)

@@ -3,7 +3,6 @@ package qb
 import (
 	"database/sql"
 	"database/sql/driver"
-	"time"
 )
 
 // Driver implements databse-specific features
@@ -113,8 +112,7 @@ func (t *SubQuery) Select(f ...DataField) SelectBuilder {
 // Field represents a field in a query
 type Field interface {
 	QueryStringer
-	Source() Source
-	DataType() string
+	New(interface{}) DataField
 }
 
 // Cursor ...
@@ -163,7 +161,6 @@ func (c Cursor) Error() error {
 type TableField struct {
 	Parent     Source
 	Name       string
-	Type       string
 	ReadOnly   bool
 	HasDefault bool
 	Primary    bool
@@ -178,26 +175,44 @@ func (f TableField) QueryString(_ Driver, ag Alias, _ *ValueList) string {
 	return alias + f.Name
 }
 
-// Source ...
-func (f TableField) Source() Source {
-	return f.Parent
-}
-
-// DataType ...
-func (f TableField) DataType() string {
-	return f.Type
-}
-
-// New creates a new instance of the field with a different Parent
-func (f TableField) New(src Source) *TableField {
+// Copy creates a new instance of the field with a different Parent
+func (f TableField) Copy(src Source) *TableField {
 	f.Parent = src
 	return &f
 }
 
-// ValueField contains values supplied by the program
-type ValueField struct {
+// New returns a new DataField using this field
+func (f TableField) New(v interface{}) DataField {
+	return NewDataField(&f, v)
+}
+
+func getParent(f Field) Source {
+	if v, ok := f.(DataField); ok {
+		f = v.Field
+	}
+	v, ok := f.(*TableField)
+	if !ok {
+		panic(`Invalid use of a non-TableField field`)
+	}
+	return v.Parent
+}
+
+type valueField struct {
 	Value interface{}
-	Type  string
+}
+
+func (f valueField) QueryString(_ Driver, _ Alias, vl *ValueList) string {
+	vl.Append(f.Value)
+	return VALUE
+}
+
+func (f valueField) New(_ interface{}) DataField {
+	panic(`Cannot call New on a value`)
+}
+
+// Value creats a new Field
+func Value(v interface{}) Field {
+	return valueField{getValue(v)}
 }
 
 func getValue(v interface{}) interface{} {
@@ -208,45 +223,6 @@ func getValue(v interface{}) interface{} {
 		}
 	}
 	return v
-}
-
-func getType(v interface{}) string {
-	switch v.(type) {
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
-		return `int`
-	case float32, float64:
-		return `float`
-	case string:
-		return `string`
-	case bool:
-		return `bool`
-	case time.Time:
-		return `time`
-	default:
-		return `unknown`
-	}
-}
-
-// Value ...
-func Value(v interface{}) ValueField {
-	v = getValue(v)
-	return ValueField{v, getType(v)}
-}
-
-// QueryString ...
-func (f ValueField) QueryString(_ Driver, _ Alias, vl *ValueList) string {
-	vl.Append(f.Value)
-	return VALUE
-}
-
-// Source ...
-func (f ValueField) Source() Source {
-	return nil
-}
-
-// DataType ...
-func (f ValueField) DataType() string {
-	return f.Type
 }
 
 ///

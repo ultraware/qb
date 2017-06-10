@@ -25,12 +25,6 @@ func (l WhenList) When(c qb.Condition, v interface{}) WhenList {
 		f = qb.Value(v)
 	}
 
-	if len(l) > 0 {
-		if l[0].F.DataType() != f.DataType() {
-			panic(`Return types in case don't match.`)
-		}
-	}
-
 	return append(l, when{C: c, F: f})
 }
 
@@ -44,11 +38,6 @@ func (l WhenList) Else(v interface{}) CaseField {
 		f = qb.Value(v)
 	}
 
-	if len(l) > 0 {
-		if l[0].F.DataType() != f.DataType() {
-			panic(`Return types in case don't match.`)
-		}
-	}
 	return CaseField{When: []when(l), Else: f}
 }
 
@@ -66,16 +55,6 @@ func (f CaseField) QueryString(d qb.Driver, ag qb.Alias, vl *qb.ValueList) strin
 	}
 	s += ` ELSE ` + f.Else.QueryString(d, ag, vl) + ` END`
 	return s
-}
-
-// Source always returns nil
-func (f CaseField) Source() qb.Source {
-	return nil
-}
-
-// DataType returns the type that will be returned by the case
-func (f CaseField) DataType() string {
-	return f.Else.DataType()
 }
 
 // New returns a new DataField using the given value

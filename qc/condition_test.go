@@ -9,8 +9,8 @@ import (
 func TestAll(t *testing.T) {
 	tb := &qb.Table{Name: `test`}
 
-	f1 := &qb.TableField{Name: `A`, Type: `int`, Parent: tb}
-	f2 := &qb.TableField{Name: `B`, Type: `int`, Parent: tb}
+	f1 := &qb.TableField{Name: `A`, Parent: tb}
+	f2 := &qb.TableField{Name: `B`, Parent: tb}
 
 	check(t, Eq(f1, f2), `A = B`)
 	check(t, Ne(f1, f2), `A != B`)
