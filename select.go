@@ -152,13 +152,12 @@ func (q SelectBuilder) Fields() []DataField {
 
 ////////////////////////////
 
-// CombinedQuery ...
-type CombinedQuery struct {
+type combinedQuery struct {
 	combineType string
 	queries     []SelectQuery
 }
 
-func (q CombinedQuery) getSQL(d Driver, aliasFields bool) (string, []interface{}) {
+func (q combinedQuery) getSQL(d Driver, aliasFields bool) (string, []interface{}) {
 	s := ``
 	values := []interface{}{}
 	for k, v := range q.queries {
@@ -177,18 +176,15 @@ func (q CombinedQuery) getSQL(d Driver, aliasFields bool) (string, []interface{}
 	return s, values
 }
 
-// SQL ...
-func (q CombinedQuery) SQL(d Driver) (string, []interface{}) {
+func (q combinedQuery) SQL(d Driver) (string, []interface{}) {
 	return q.getSQL(d, false)
 }
 
-// Fields ...
-func (q CombinedQuery) Fields() []DataField {
+func (q combinedQuery) Fields() []DataField {
 	return q.queries[0].Fields()
 }
 
-// SubQuery converts the SelectQuery to a SubQuery for use in further queries
-func (q CombinedQuery) SubQuery() *SubQuery {
+func (q combinedQuery) SubQuery() *SubQuery {
 	sq := SubQuery{query: q}
 
 	for k := range q.Fields() {
@@ -201,31 +197,31 @@ func (q CombinedQuery) SubQuery() *SubQuery {
 ////////////////////////
 
 // UnionAll ...
-func UnionAll(q ...SelectQuery) CombinedQuery {
-	return CombinedQuery{combineType: `UNION ALL`, queries: q}
+func UnionAll(q ...SelectQuery) SelectQuery {
+	return combinedQuery{combineType: `UNION ALL`, queries: q}
 }
 
 // Union ...
-func Union(q ...SelectQuery) CombinedQuery {
-	return CombinedQuery{combineType: `UNION`, queries: q}
+func Union(q ...SelectQuery) SelectQuery {
+	return combinedQuery{combineType: `UNION`, queries: q}
 }
 
 // ExceptAll ...
-func ExceptAll(q1, q2 SelectQuery) CombinedQuery {
-	return CombinedQuery{combineType: `EXCEPT ALL`, queries: []SelectQuery{q1, q2}}
+func ExceptAll(q1, q2 SelectQuery) SelectQuery {
+	return combinedQuery{combineType: `EXCEPT ALL`, queries: []SelectQuery{q1, q2}}
 }
 
 // Except ...
-func Except(q1, q2 SelectQuery) CombinedQuery {
-	return CombinedQuery{combineType: `EXCEPT`, queries: []SelectQuery{q1, q2}}
+func Except(q1, q2 SelectQuery) SelectQuery {
+	return combinedQuery{combineType: `EXCEPT`, queries: []SelectQuery{q1, q2}}
 }
 
 // IntersectAll ...
-func IntersectAll(q1, q2 SelectQuery) CombinedQuery {
-	return CombinedQuery{combineType: `INTERSECT ALL`, queries: []SelectQuery{q1, q2}}
+func IntersectAll(q1, q2 SelectQuery) SelectQuery {
+	return combinedQuery{combineType: `INTERSECT ALL`, queries: []SelectQuery{q1, q2}}
 }
 
 // Intersect ...
-func Intersect(q1, q2 SelectQuery) CombinedQuery {
-	return CombinedQuery{combineType: `INTERSECT`, queries: []SelectQuery{q1, q2}}
+func Intersect(q1, q2 SelectQuery) SelectQuery {
+	return combinedQuery{combineType: `INTERSECT`, queries: []SelectQuery{q1, q2}}
 }
