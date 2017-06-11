@@ -16,11 +16,19 @@ var (
 	notice = color.New(color.FgCyan).SprintFunc()
 )
 
+func quoted(s string) string {
+	var n string
+	if len(strings.Split(s, "\n")) > 1 {
+		n = "\n"
+	}
+	return n + `"` + str(s) + `"`
+}
+
 func checkOutput(t *testing.T, expected, out string, needsnewline bool) {
 	if needsnewline {
 		if !strings.HasSuffix(out, "\n") {
 			t.Error(warn(`FAIL!`) + "\n\n" +
-				`Got:      "` + str(out) + `"` + "\n" +
+				`Got:      ` + quoted(out) + "\n" +
 				`Expected a trailing newline`,
 			)
 			return
@@ -30,11 +38,11 @@ func checkOutput(t *testing.T, expected, out string, needsnewline bool) {
 
 	if out != expected {
 		t.Error(warn(`FAIL!`) + "\n\n" +
-			`Got:      "` + str(out) + `"` + "\n" +
-			`Expected: "` + str(expected) + `"` + "\n",
+			`Got:      ` + quoted(out) + "\n" +
+			`Expected: ` + quoted(expected) + "\n",
 		)
 	} else {
-		t.Log(okay(`PASS`)+`:`, `"`+str(out)+`"`)
+		t.Log(okay(`PASS`)+`:`, quoted(out))
 	}
 }
 

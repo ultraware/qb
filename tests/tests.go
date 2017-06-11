@@ -77,7 +77,8 @@ func testUpdate(test *testing.T) {
 	t := model.Two()
 
 	q := t.Update().
-		Set(t.Comment, qf.Concat(`Test comment v2`, `.1`))
+		Set(t.Comment, qf.Concat(t.Comment, ` v2`)).
+		Where(qc.Eq(t.OneID, 1))
 
 	err := db.Exec(q)
 	if err != nil {
@@ -104,7 +105,7 @@ func testSelect(test *testing.T) {
 
 	assert.Equal(`Test 1.1`, o.Data.Name)
 	assert.Equal(1, t.Data.Number)
-	assert.Equal(`Test comment v2.1`, t.Data.Comment)
+	assert.Equal(`Test comment v2`, t.Data.Comment)
 
 	assert.Nil(t.Data.ModifiedAt)
 	assert.True(t.ModifiedAt.Empty())
