@@ -15,7 +15,7 @@ type SelectBuilder struct {
 	source Source
 	fields []DataField
 	where  []Condition
-	joins  []Join
+	joins  []join
 	order  []FieldOrder
 	group  []Field
 	tables []Source
@@ -81,7 +81,7 @@ func (q SelectBuilder) join(t string, f1, f2 Field, c []Condition) SelectBuilder
 	}
 
 	q.tables = append(q.tables, new)
-	q.joins = append(q.joins, Join{t, [2]Field{f1, f2}, new, c})
+	q.joins = append(q.joins, join{t, [2]Field{f1, f2}, new, c})
 
 	return q
 }
@@ -116,7 +116,7 @@ func (q SelectBuilder) SQL(d Driver) (string, []interface{}) {
 }
 
 func (q SelectBuilder) getSQL(d Driver, aliasFields bool) (string, []interface{}) {
-	b := sqlBuilder{d, newGenerator(), ValueList{}}
+	b := sqlBuilder{d, AliasGenerator(), ValueList{}}
 
 	for _, v := range q.tables {
 		_ = b.alias.Get(v)

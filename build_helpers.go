@@ -36,26 +36,28 @@ func ConcatQuery(d Driver, ag Alias, vl *ValueList, values ...interface{}) strin
 
 ///// Alias /////
 
-// NoAlias returns no alias
-type NoAlias struct{}
+type noAlias struct{}
 
-// Get implements the Alias interface
-func (n *NoAlias) Get(_ Source) string {
+func (n *noAlias) Get(_ Source) string {
 	return ``
 }
 
-// AliasGenerator makes aliasses for tables and keeps track of the previously given aliasses
-type AliasGenerator struct {
+// NoAlias returns no alias
+func NoAlias() Alias {
+	return &noAlias{}
+}
+
+type aliasGenerator struct {
 	counter int
 	list    map[Source]string
 }
 
-func newGenerator() *AliasGenerator {
-	return &AliasGenerator{0, make(map[Source]string)}
+// AliasGenerator returns an incrementing alias for each new Source
+func AliasGenerator() Alias {
+	return &aliasGenerator{0, make(map[Source]string)}
 }
 
-// Get returns the alias for the given source
-func (g *AliasGenerator) Get(src Source) string {
+func (g *aliasGenerator) Get(src Source) string {
 	if src == nil {
 		return ``
 	}
@@ -65,7 +67,7 @@ func (g *AliasGenerator) Get(src Source) string {
 	}
 
 	g.counter++
-	g.list[src] = src.AliasString() + strconv.Itoa(g.counter)
+	g.list[src] = src.aliasString() + strconv.Itoa(g.counter)
 	return g.list[src]
 }
 
@@ -77,23 +79,4 @@ type ValueList []interface{}
 // Append adds the given values to the list
 func (list *ValueList) Append(v ...interface{}) {
 	*list = append(*list, v...)
-}
-
-///// Primary /////
-
-// GetPrimaryFields return all fields in the given list that are a primary key
-func GetPrimaryFields(f []DataField) []DataField {
-	list := []DataField{}
-	for _, v := range f {
-		if !isPrimary(v) {
-			continue
-		}
-		list = append(list, v)
-	}
-	return list
-}
-
-func isPrimary(v DataField) bool {
-	f, ok := v.Field.(*TableField)
-	return ok && f.Primary
 }

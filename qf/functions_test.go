@@ -46,7 +46,7 @@ func TestAll(t *testing.T) {
 }
 
 func check(t *testing.T, f qb.Field, expectedSQL string) {
-	sql := f.QueryString(pgqb.Driver{}, &qb.NoAlias{}, &qb.ValueList{})
+	sql := f.QueryString(pgqb.Driver{}, qb.NoAlias(), &qb.ValueList{})
 
 	if sql != expectedSQL {
 		t.Errorf(`Incorrect SQL. Expected: "%s". Got: "%s"`, expectedSQL, sql)

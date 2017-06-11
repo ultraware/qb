@@ -8,6 +8,6 @@ type DeleteBuilder struct {
 
 // SQL ...
 func (q DeleteBuilder) SQL(d Driver) (string, []interface{}) {
-	b := sqlBuilder{d, &NoAlias{}, nil}
+	b := sqlBuilder{d, NoAlias(), nil}
 	return b.Delete(q.table) + b.Where(q.c...), b.values
 }

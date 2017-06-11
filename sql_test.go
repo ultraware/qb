@@ -43,9 +43,9 @@ func info(t *testing.T, msg string) {
 }
 
 func testBuilder(alias bool) sqlBuilder {
-	b := sqlBuilder{nil, &NoAlias{}, nil}
+	b := sqlBuilder{nil, NoAlias(), nil}
 	if alias {
-		b.alias = newGenerator()
+		b.alias = AliasGenerator()
 	}
 	return b
 }
@@ -104,20 +104,20 @@ func TestJoin(t *testing.T) {
 
 	checkOutput(t,
 		"\t"+`INNER JOIN tmp2 t2 ON (t1.colA = t2.colA2)`,
-		b.Join(Join{`INNER`, [2]Field{testFieldA, testFieldA2}, testTable2, nil}),
+		b.Join(join{`INNER`, [2]Field{testFieldA, testFieldA2}, testTable2, nil}),
 		true,
 	)
 	checkOutput(t,
 		"\t"+`LEFT JOIN tmp2 t2 ON (t1.colA = t2.colA2 AND a AND b)`,
-		b.Join(Join{`LEFT`, [2]Field{testFieldA, testFieldA2}, testTable2, []Condition{testCondition, testCondition2}}),
+		b.Join(join{`LEFT`, [2]Field{testFieldA, testFieldA2}, testTable2, []Condition{testCondition, testCondition2}}),
 		true,
 	)
 	checkOutput(t,
 		"\t"+`INNER JOIN tmp2 t2 ON (t1.colA = t2.colA2)`+"\n\t"+
 			`LEFT JOIN tmp2 t2 ON (t1.colA = t2.colA2 AND a AND b)`,
 		b.Join(
-			Join{`INNER`, [2]Field{testFieldA, testFieldA2}, testTable2, nil},
-			Join{`LEFT`, [2]Field{testFieldA, testFieldA2}, testTable2, []Condition{testCondition, testCondition2}},
+			join{`INNER`, [2]Field{testFieldA, testFieldA2}, testTable2, nil},
+			join{`LEFT`, [2]Field{testFieldA, testFieldA2}, testTable2, []Condition{testCondition, testCondition2}},
 		),
 		true,
 	)

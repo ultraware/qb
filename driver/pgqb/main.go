@@ -44,7 +44,7 @@ func (d Driver) UpsertSQL(t *qb.Table, conflict []qb.Field, q qb.Query) (string,
 		if k > 0 {
 			sql += qb.COMMA
 		}
-		sql += v.QueryString(d, &qb.NoAlias{}, nil)
+		sql += v.QueryString(d, qb.NoAlias(), nil)
 	}
 
 	usql, values := q.SQL(d)

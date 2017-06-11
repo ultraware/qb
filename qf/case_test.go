@@ -17,7 +17,7 @@ func TestCase(t *testing.T) {
 
 	values := qb.ValueList{}
 
-	sql := c.QueryString(nil, &qb.NoAlias{}, &values)
+	sql := c.QueryString(nil, qb.NoAlias(), &values)
 
 	if len(values) != 3 || values[0] != 1 || values[1] != 2 || values[2] != 3 {
 		t.Errorf(`Expected values [1, 2 3]. Got: %v`, values)

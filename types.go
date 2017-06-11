@@ -36,7 +36,7 @@ type QueryStringer interface {
 // Source ...
 type Source interface {
 	QueryStringer
-	AliasString() string
+	aliasString() string
 }
 
 // Table ...
@@ -53,8 +53,8 @@ func (t *Table) QueryString(_ Driver, ag Alias, _ *ValueList) string {
 	return t.Name + alias
 }
 
-// AliasString ...
-func (t *Table) AliasString() string {
+// aliasString ...
+func (t *Table) aliasString() string {
 	return `t`
 }
 
@@ -95,8 +95,8 @@ func (t *SubQuery) QueryString(d Driver, ag Alias, vl *ValueList) string {
 	return `(` + sql + `)` + alias
 }
 
-// AliasString ...
-func (t *SubQuery) AliasString() string {
+// aliasString ...
+func (t *SubQuery) aliasString() string {
 	return `sq`
 }
 
@@ -232,8 +232,7 @@ func getValue(v interface{}) interface{} {
 // Condition is used in the Where function
 type Condition func(Driver, Alias, *ValueList) string
 
-// Join are used for joins on tables
-type Join struct {
+type join struct {
 	Type       string
 	Fields     [2]Field
 	New        Source

@@ -1,19 +1,19 @@
 package qb
 
-// Default ...
-type Default struct{}
+// defaultField ...
+type defaultField struct{}
 
 // QueryString ...
-func (f Default) QueryString(_ Driver, ag Alias, _ *ValueList) string {
+func (f defaultField) QueryString(_ Driver, ag Alias, _ *ValueList) string {
 	return `DEFAULT`
 }
 
 // New ...
-func (f Default) New(_ interface{}) DataField {
-	panic(`Cannot call New on Default`)
+func (f defaultField) New(_ interface{}) DataField {
+	panic(`Cannot call New on defaultField`)
 }
 
-func shouldDefault(v DataField) bool {
+func shoulddefaultField(v DataField) bool {
 	field, ok := v.Field.(*TableField)
 	if !ok {
 		panic(`Cannot use non-TableField field in insert`)
@@ -34,8 +34,8 @@ type InsertBuilder struct {
 func (q *InsertBuilder) Add() {
 	list := make([]Field, len(q.fields))
 	for k, v := range q.fields {
-		if shouldDefault(v) {
-			list[k] = Default{}
+		if shoulddefaultField(v) {
+			list[k] = defaultField{}
 			continue
 		}
 		list[k] = Value(v.GetValue())
@@ -51,7 +51,7 @@ func (q *InsertBuilder) Upsert(query Query, conflict ...Field) {
 
 // SQL ...
 func (q *InsertBuilder) SQL(d Driver) (string, []interface{}) {
-	b := sqlBuilder{d, &NoAlias{}, nil}
+	b := sqlBuilder{d, NoAlias(), nil}
 	sql := b.Insert(q.table, q.fields) + b.Values(q.values)
 	if q.update != nil {
 		s, v := d.UpsertSQL(q.table, q.conflict, q.update)

@@ -41,6 +41,6 @@ func (q UpdateBuilder) Where(c Condition) UpdateBuilder {
 
 // SQL ...
 func (q UpdateBuilder) SQL(d Driver) (string, []interface{}) {
-	b := sqlBuilder{d, &NoAlias{}, nil}
+	b := sqlBuilder{d, NoAlias(), nil}
 	return b.Update(q.t) + b.Set(q.set) + b.Where(q.c...), b.values
 }

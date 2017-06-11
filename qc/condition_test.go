@@ -35,7 +35,7 @@ func TestAll(t *testing.T) {
 }
 
 func check(t *testing.T, c qb.Condition, expectedSQL string) {
-	sql := c(nil, &qb.NoAlias{}, &qb.ValueList{})
+	sql := c(nil, qb.NoAlias(), &qb.ValueList{})
 
 	if sql != expectedSQL {
 		t.Errorf(`Incorrect SQL. Expected: "%s". Got: "%s"`, expectedSQL, sql)

@@ -76,7 +76,7 @@ func (b *sqlBuilder) From(src Source) string {
 	return `FROM ` + b.ToSQL(src) + NEWLINE
 }
 
-func (b *sqlBuilder) Join(j ...Join) string {
+func (b *sqlBuilder) Join(j ...join) string {
 	s := ``
 
 	for _, v := range j {
