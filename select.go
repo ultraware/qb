@@ -1,13 +1,40 @@
 package qb
 
-import "strconv"
-
 // SelectQuery ...
 type SelectQuery interface {
 	SQL(Driver) (string, []interface{})
 	getSQL(Driver, bool) (string, []interface{})
 	SubQuery() *SubQuery
 	Fields() []DataField
+}
+
+type returningBuilder struct {
+	query  Query
+	fields []DataField
+}
+
+// Returning creates a RETURNING or OUTPUT query
+func Returning(q Query, f ...DataField) SelectQuery {
+	return returningBuilder{q, f}
+}
+
+func (q returningBuilder) SQL(d Driver) (string, []interface{}) {
+	return q.getSQL(d, false)
+}
+
+func (q returningBuilder) getSQL(d Driver, aliasFields bool) (string, []interface{}) {
+	b := sqlBuilder{d, NoAlias(), ValueList{}}
+
+	s, v := d.Returning(q.query, b.ListDataFields(q.fields, aliasFields)+NEWLINE)
+	return s, append(v, b.values...)
+}
+
+func (q returningBuilder) Fields() []DataField {
+	return q.fields
+}
+
+func (q returningBuilder) SubQuery() *SubQuery {
+	return newSubQuery(q, q.fields)
 }
 
 // SelectBuilder ...
@@ -136,13 +163,7 @@ func (q SelectBuilder) getSQL(d Driver, aliasFields bool) (string, []interface{}
 
 // SubQuery converts the SelectQuery to a SubQuery for use in further queries
 func (q SelectBuilder) SubQuery() *SubQuery {
-	sq := SubQuery{query: q}
-
-	for k := range q.fields {
-		sq.fields = append(sq.fields, TableField{Name: `f` + strconv.Itoa(k), Parent: &sq})
-	}
-
-	return &sq
+	return newSubQuery(q, q.fields)
 }
 
 // Fields ...
@@ -185,13 +206,7 @@ func (q combinedQuery) Fields() []DataField {
 }
 
 func (q combinedQuery) SubQuery() *SubQuery {
-	sq := SubQuery{query: q}
-
-	for k := range q.Fields() {
-		sq.fields = append(sq.fields, TableField{Name: `f` + strconv.Itoa(k), Parent: &sq})
-	}
-
-	return &sq
+	return newSubQuery(q, q.Fields())
 }
 
 ////////////////////////

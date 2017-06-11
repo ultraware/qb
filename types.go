@@ -3,6 +3,7 @@ package qb
 import (
 	"database/sql"
 	"database/sql/driver"
+	"strconv"
 )
 
 // Driver implements databse-specific features
@@ -12,6 +13,7 @@ type Driver interface {
 	UpsertSQL(*Table, []Field, Query) (string, []interface{})
 	ConcatOperator() string
 	ExcludedField(string) string
+	Returning(Query, string) (string, []interface{})
 }
 
 // Query ...
@@ -83,6 +85,16 @@ func (t *Table) Insert(f []DataField) *InsertBuilder {
 type SubQuery struct {
 	query  SelectQuery
 	fields []Field
+}
+
+func newSubQuery(q SelectQuery, f []DataField) *SubQuery {
+	sq := SubQuery{query: q}
+
+	for k := range f {
+		sq.fields = append(sq.fields, TableField{Name: `f` + strconv.Itoa(k), Parent: &sq})
+	}
+
+	return &sq
 }
 
 // QueryString ...

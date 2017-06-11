@@ -55,3 +55,9 @@ func (d Driver) UpsertSQL(t *qb.Table, conflict []qb.Field, q qb.Query) (string,
 
 	return `ON CONFLICT (` + sql + `) DO ` + usql, values
 }
+
+// Returning ...
+func (d Driver) Returning(q qb.Query, f string) (string, []interface{}) {
+	s, v := q.SQL(d)
+	return s + `RETURNING ` + f, v
+}

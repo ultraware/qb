@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"git.ultraware.nl/NiseVoid/qb"
 	"git.ultraware.nl/NiseVoid/qb/qbdb"
 	"git.ultraware.nl/NiseVoid/qb/qc"
 	"git.ultraware.nl/NiseVoid/qb/qf"
@@ -80,10 +81,19 @@ func testUpdate(test *testing.T) {
 		Set(t.Comment, qf.Concat(t.Comment, ` v2`)).
 		Where(qc.Eq(t.OneID, 1))
 
-	err := db.Exec(q)
+	cur, err := db.Query(qb.Returning(q, t.Comment, t.Number))
 	if err != nil {
 		panic(err)
 	}
+
+	assert := assert.New(test)
+	assert.True(cur.Next())
+	assert.Equal(`Test comment v2`, t.Data.Comment)
+	assert.Equal(1, t.Data.Number)
+	assert.True(cur.Next())
+	assert.Equal(`Test comment 2 v2`, t.Data.Comment)
+	assert.Equal(2, t.Data.Number)
+	assert.NoError(cur.Error())
 }
 
 func testSelect(test *testing.T) {
