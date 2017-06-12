@@ -55,7 +55,11 @@ func (f *DataField) Empty() bool {
 }
 
 func (f *DataField) isSet() bool {
-	return f.GetValue() != f.InitialValue
+	v := f.GetValue()
+	if kind := reflect.TypeOf(v).Kind(); kind == reflect.Slice || kind == reflect.Array {
+		return reflect.ValueOf(v).Len() != reflect.ValueOf(f.InitialValue).Len()
+	}
+	return v != f.InitialValue
 }
 
 func (f *DataField) getScanTarget() interface{} {

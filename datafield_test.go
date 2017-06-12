@@ -50,6 +50,23 @@ func BenchmarkNewDataField(b *testing.B) {
 
 ///// Scan /////
 
+func TestScanWithSlice(t *testing.T) {
+	assert := assert.New(t)
+
+	var value []byte
+	f := NewDataField(testField, &value)
+
+	test := []byte(`abc`)
+
+	v := f.getScanTarget()
+	*v.(**[]byte) = &test
+	assert.Equal(0, len(value))
+
+	f.updateData(v)
+
+	assert.Equal(3, len(value))
+}
+
 func TestScanWithPointer(t *testing.T) {
 	assert := assert.New(t)
 
