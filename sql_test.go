@@ -183,6 +183,14 @@ func TestWhere(t *testing.T) {
 	checkOutput(t, ``, b.Where(), false)
 }
 
+func TestHaving(t *testing.T) {
+	b := testBuilder(false)
+
+	checkOutput(t, `HAVING a`+"\n\t"+`AND b`, b.Having(testCondition, testCondition2), true)
+
+	checkOutput(t, ``, b.Having(), false)
+}
+
 // Other
 
 func TestGroupBy(t *testing.T) {

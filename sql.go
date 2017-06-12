@@ -106,6 +106,13 @@ func (b *sqlBuilder) GroupBy(f ...Field) string {
 	return `GROUP BY ` + b.List(f, false) + NEWLINE
 }
 
+func (b *sqlBuilder) Having(c ...Condition) string {
+	if len(c) == 0 {
+		return ``
+	}
+	return `HAVING ` + b.Conditions(c, true)
+}
+
 func (b *sqlBuilder) OrderBy(o ...FieldOrder) string {
 	if len(o) == 0 {
 		return ``

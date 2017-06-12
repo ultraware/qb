@@ -45,6 +45,7 @@ type SelectBuilder struct {
 	joins  []join
 	order  []FieldOrder
 	group  []Field
+	having []Condition
 	tables []Source
 	limit  int
 	offset int
@@ -119,6 +120,12 @@ func (q SelectBuilder) GroupBy(f ...Field) SelectBuilder {
 	return q
 }
 
+// Having ...
+func (q SelectBuilder) Having(c ...Condition) SelectBuilder {
+	q.having = append(q.having, c...)
+	return q
+}
+
 // OrderBy ...
 func (q SelectBuilder) OrderBy(o ...FieldOrder) SelectBuilder {
 	q.order = o
@@ -154,6 +161,7 @@ func (q SelectBuilder) getSQL(d Driver, aliasFields bool) (string, []interface{}
 		b.Join(q.joins...) +
 		b.Where(q.where...) +
 		b.GroupBy(q.group...) +
+		b.Having(q.having...) +
 		b.OrderBy(q.order...) +
 		b.Limit(q.limit) +
 		b.Offset(q.offset)
