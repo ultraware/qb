@@ -34,8 +34,8 @@ func (q UpdateBuilder) Set(f Field, v interface{}) UpdateBuilder {
 }
 
 // Where ...
-func (q UpdateBuilder) Where(c Condition) UpdateBuilder {
-	q.c = append(q.c, c)
+func (q UpdateBuilder) Where(c ...Condition) UpdateBuilder {
+	q.c = append(q.c, c...)
 	return q
 }
 
