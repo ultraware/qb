@@ -99,15 +99,6 @@ func (b *sqlBuilder) Where(c ...Condition) string {
 	return `WHERE ` + b.Conditions(c, true)
 }
 
-func (b *sqlBuilder) WhereDataField(f []DataField) string {
-	c := []Condition{}
-	for _, v := range f {
-		c = append(c, eq(v, Value(v.GetValue())))
-	}
-
-	return b.Where(c...)
-}
-
 func (b *sqlBuilder) GroupBy(f ...Field) string {
 	if len(f) == 0 {
 		return ``

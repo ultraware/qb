@@ -183,17 +183,6 @@ func TestWhere(t *testing.T) {
 	checkOutput(t, ``, b.Where(), false)
 }
 
-func TestWhereDataField(t *testing.T) {
-	b := testBuilder(false)
-
-	f1 := NewIntField(testFieldA)
-	f2 := NewIntField(testFieldB)
-
-	checkOutput(t, `WHERE colA = ?`+"\n\t"+`AND colB = ?`, b.WhereDataField([]DataField{f1, f2}), true)
-
-	checkOutput(t, ``, b.WhereDataField(nil), false)
-}
-
 // Other
 
 func TestGroupBy(t *testing.T) {
