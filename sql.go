@@ -80,13 +80,8 @@ func (b *sqlBuilder) Join(j ...join) string {
 	s := ``
 
 	for _, v := range j {
-		s += INDENT + v.Type + ` JOIN ` + b.ToSQL(v.New) + ` ON (`
-
-		v.Conditions = append([]Condition{eq(v.Fields[0], v.Fields[1])}, v.Conditions...)
-
-		s += b.Conditions(v.Conditions, false)
-
-		s += `)` + NEWLINE
+		s += INDENT + string(v.Type) + ` JOIN ` + b.ToSQL(v.New) +
+			` ON (` + b.Conditions(v.Conditions, false) + `)` + NEWLINE
 	}
 
 	return s

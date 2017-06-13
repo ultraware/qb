@@ -244,13 +244,6 @@ func getValue(v interface{}) interface{} {
 // Condition is used in the Where function
 type Condition func(Driver, Alias, *ValueList) string
 
-type join struct {
-	Type       string
-	Fields     [2]Field
-	New        Source
-	Conditions []Condition
-}
-
 // FieldOrder specifies the order in which fields should be sorted
 type FieldOrder struct {
 	Field Field

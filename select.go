@@ -64,26 +64,36 @@ func (q SelectBuilder) Where(c ...Condition) SelectBuilder {
 
 // InnerJoin ...
 func (q SelectBuilder) InnerJoin(f1, f2 Field, c ...Condition) SelectBuilder {
-	return q.join(`INNER`, f1, f2, c)
+	return q.join(JoinInner, f1, f2, c)
 }
 
 // CrossJoin ...
 func (q SelectBuilder) CrossJoin(f1, f2 Field, c ...Condition) SelectBuilder {
-	return q.join(`CROSS`, f1, f2, c)
+	return q.join(JoinCross, f1, f2, c)
 }
 
 // LeftJoin ...
 func (q SelectBuilder) LeftJoin(f1, f2 Field, c ...Condition) SelectBuilder {
-	return q.join(`LEFT`, f1, f2, c)
+	return q.join(JoinLeft, f1, f2, c)
 }
 
 // RightJoin ...
 func (q SelectBuilder) RightJoin(f1, f2 Field, c ...Condition) SelectBuilder {
-	return q.join(`RIGHT`, f1, f2, c)
+	return q.join(JoinRight, f1, f2, c)
+}
+
+// ManualJoin manually joins a table
+// Use this only if you know what you are doing
+func (q SelectBuilder) ManualJoin(t Join, s Source, c ...Condition) SelectBuilder {
+	q.joins = append(q.joins, join{t, s, c})
+
+	q.tables = append(q.tables, s)
+
+	return q
 }
 
 // join ...
-func (q SelectBuilder) join(t string, f1, f2 Field, c []Condition) SelectBuilder {
+func (q SelectBuilder) join(t Join, f1, f2 Field, c []Condition) SelectBuilder {
 	if len(q.tables) == 0 {
 		q.tables = []Source{q.source}
 	}
@@ -108,10 +118,7 @@ func (q SelectBuilder) join(t string, f1, f2 Field, c []Condition) SelectBuilder
 		panic(`Both tables already joined`)
 	}
 
-	q.tables = append(q.tables, new)
-	q.joins = append(q.joins, join{t, [2]Field{f1, f2}, new, c})
-
-	return q
+	return q.ManualJoin(t, new, append(c, eq(f1, f2))...)
 }
 
 // GroupBy ...

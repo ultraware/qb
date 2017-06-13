@@ -112,20 +112,20 @@ func TestJoin(t *testing.T) {
 
 	checkOutput(t,
 		"\t"+`INNER JOIN tmp2 t2 ON (t1.colA = t2.colA2)`,
-		b.Join(join{`INNER`, [2]Field{testFieldA, testFieldA2}, testTable2, nil}),
+		b.Join(join{JoinInner, testTable2, []Condition{eq(testFieldA, testFieldA2)}}),
 		true,
 	)
 	checkOutput(t,
 		"\t"+`LEFT JOIN tmp2 t2 ON (t1.colA = t2.colA2 AND a AND b)`,
-		b.Join(join{`LEFT`, [2]Field{testFieldA, testFieldA2}, testTable2, []Condition{testCondition, testCondition2}}),
+		b.Join(join{JoinLeft, testTable2, []Condition{eq(testFieldA, testFieldA2), testCondition, testCondition2}}),
 		true,
 	)
 	checkOutput(t,
 		"\t"+`INNER JOIN tmp2 t2 ON (t1.colA = t2.colA2)`+"\n\t"+
 			`LEFT JOIN tmp2 t2 ON (t1.colA = t2.colA2 AND a AND b)`,
 		b.Join(
-			join{`INNER`, [2]Field{testFieldA, testFieldA2}, testTable2, nil},
-			join{`LEFT`, [2]Field{testFieldA, testFieldA2}, testTable2, []Condition{testCondition, testCondition2}},
+			join{JoinInner, testTable2, []Condition{eq(testFieldA, testFieldA2)}},
+			join{JoinLeft, testTable2, []Condition{eq(testFieldA, testFieldA2), testCondition, testCondition2}},
 		),
 		true,
 	)
