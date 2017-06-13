@@ -54,3 +54,8 @@ func (d Driver) UpsertSQL(t *qb.Table, _ []qb.Field, q qb.Query) (string, []inte
 func (d Driver) Returning(q qb.Query, f string) (string, []interface{}) {
 	panic(`mysql does not support RETURNING`)
 }
+
+// DateExtract ...
+func (d Driver) DateExtract(f string, part string) string {
+	return `EXTRACT(` + part + ` FROM ` + f + `)`
+}

@@ -35,6 +35,10 @@ func (d driver) Returning(q qb.Query, f string) (string, []interface{}) {
 	panic(`This should not be used`)
 }
 
+func (d driver) DateExtract(f string, part string) string {
+	panic(`This should not be used`)
+}
+
 var db = New(driver{}, nil)
 
 func TestPrint(t *testing.T) {

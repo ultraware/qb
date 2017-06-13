@@ -61,3 +61,8 @@ func (d Driver) Returning(q qb.Query, f string) (string, []interface{}) {
 	s, v := q.SQL(d)
 	return s + `RETURNING ` + f, v
 }
+
+// DateExtract ...
+func (d Driver) DateExtract(f string, part string) string {
+	return `EXTRACT(` + part + ` FROM ` + f + `)`
+}

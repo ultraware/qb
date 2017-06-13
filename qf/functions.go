@@ -84,6 +84,47 @@ func Now() qb.Field {
 	return newCalculatedField(`now()`)
 }
 
+func newExtractField(f qb.Field, part string) CalculatedField {
+	return func(d qb.Driver, ag qb.Alias, vl *qb.ValueList) string {
+		return d.DateExtract(f.QueryString(d, ag, vl), part)
+	}
+}
+
+// Second ...
+func Second(f qb.Field) qb.Field {
+	return newExtractField(f, `second`)
+}
+
+// Minute ...
+func Minute(f qb.Field) qb.Field {
+	return newExtractField(f, `minute`)
+}
+
+// Hour ...
+func Hour(f qb.Field) qb.Field {
+	return newExtractField(f, `hour`)
+}
+
+// Day ...
+func Day(f qb.Field) qb.Field {
+	return newExtractField(f, `day`)
+}
+
+// Week ...
+func Week(f qb.Field) qb.Field {
+	return newExtractField(f, `week`)
+}
+
+// Month ...
+func Month(f qb.Field) qb.Field {
+	return newExtractField(f, `month`)
+}
+
+// Year ...
+func Year(f qb.Field) qb.Field {
+	return newExtractField(f, `year`)
+}
+
 ///// Mathmatical functions /////
 
 // Abs ...

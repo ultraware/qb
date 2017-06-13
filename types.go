@@ -14,6 +14,7 @@ type Driver interface {
 	ConcatOperator() string
 	ExcludedField(string) string
 	Returning(Query, string) (string, []interface{})
+	DateExtract(f string, p string) string
 }
 
 // Query ...

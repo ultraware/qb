@@ -32,6 +32,14 @@ func TestAll(t *testing.T) {
 
 	check(t, Now(), `now()`)
 
+	check(t, Second(f1), `EXTRACT(second FROM A)`)
+	check(t, Minute(f1), `EXTRACT(minute FROM A)`)
+	check(t, Hour(f1), `EXTRACT(hour FROM A)`)
+	check(t, Day(f1), `EXTRACT(day FROM A)`)
+	check(t, Week(f1), `EXTRACT(week FROM A)`)
+	check(t, Month(f1), `EXTRACT(month FROM A)`)
+	check(t, Year(f1), `EXTRACT(year FROM A)`)
+
 	check(t, Abs(f1), `abs(A)`)
 	check(t, Ceil(f1), `ceil(A)`)
 	check(t, Floor(f1), `floor(A)`)
