@@ -29,3 +29,12 @@ services:
       - DB_HOST=postgres
       - POSTGRES_USER=test
       - POSTGRES_DB=test
+
+  mariadb:
+    image: mariadb:10.3
+    pull: true
+    environment:
+      - MYSQL_DATABASE=test
+      - MYSQL_USER=test
+      - MYSQL_PASSWORD=test
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
