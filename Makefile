@@ -18,8 +18,3 @@ lint:
 	@printf "Running linters ...\n"
 	@gometalinter --config .gometalinter.json ./...
 	@printf "\n\n"
-
-.PHONY:generator
-generator:
-	@printf "Building qb-generator ...\n"
-	@go build -o qb-generator ./generator

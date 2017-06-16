@@ -16,7 +16,7 @@ pipeline:
     environment:
        CGO_ENABLED: 0
     commands:
-      - make generator && mv qb-generator /go/bin
+      - go get ./qb-generator
       - make
     when:
       event: [ push, tag, pull_request ]
