@@ -9,7 +9,9 @@ setup:
 
 test:
 	@printf "Testing ...\n"
-	@go test -cover ./... | grep -vE "qb/(tests|generator)"
+	@T=$$(go test -cover ./...); C=$$?; \
+		echo -e "$$T" | grep -v "^?"; \
+		exit $$C
 	@printf "\n\n"
 
 lint:
