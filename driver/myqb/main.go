@@ -13,6 +13,7 @@ type Driver struct{}
 
 // New returns the driver
 func New(db *sql.DB) *qbdb.DB {
+	_, _ = db.Exec(`SET SESSION sql_mode = 'ANSI'`)
 	return qbdb.New(Driver{}, db)
 }
 
@@ -45,7 +46,7 @@ func (d Driver) UpsertSQL(t *qb.Table, _ []qb.Field, q qb.Query) (string, []inte
 	if !strings.HasPrefix(usql, `UPDATE `+t.Name) {
 		panic(`Update does not update the correct table`)
 	}
-	usql = strings.Replace(usql, `UPDATE `+t.Name, `UPDATE`, -1)
+	usql = strings.Replace(usql, `UPDATE `+t.Name+qb.NEWLINE+`SET`, `UPDATE`, -1)
 
 	return `ON DUPLICATE KEY ` + usql, values
 }

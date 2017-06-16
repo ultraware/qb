@@ -1,6 +1,8 @@
 package tests
 
 import (
+	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,6 +12,8 @@ import (
 	"git.ultraware.nl/NiseVoid/qb/qc"
 	"git.ultraware.nl/NiseVoid/qb/qf"
 	"git.ultraware.nl/NiseVoid/qb/tests/internal/model"
+
+	"github.com/fatih/color"
 )
 
 var db *qbdb.DB
@@ -20,19 +24,39 @@ func StartTests(t *testing.T) {
 		t.Skip("skipping test in short mode.")
 	}
 
-	db = initDB()
+	db = initPostgres()
+	runTests(t)
+	db = initMysql()
+	runTests(t)
+}
 
+func runTests(t *testing.T) {
+	driver := reflect.TypeOf(db.Driver).String()
 	if testing.Verbose() {
 		db.Debug = true
+		fmt.Println()
+		fmt.Println(color.MagentaString(`----- Testing with: %s -----`, driver))
+		fmt.Println()
 	}
 
 	testUpsert(t)
 	testInsert(t)
 	testUpsert(t)
-	testUpdate(t)
+
+	if driver == `pgqb.Driver` {
+		testUpdateReturning(t)
+	} else {
+		testUpdate(t)
+	}
+
 	testSelect(t)
 	testDelete(t)
 	testLeftJoin(t)
+
+	if testing.Verbose() {
+		fmt.Println(color.MagentaString(`----- Finished testing: %s -----`, driver))
+		fmt.Println()
+	}
 }
 
 func testUpsert(test *testing.T) {
@@ -75,6 +99,19 @@ func testInsert(test *testing.T) {
 }
 
 func testUpdate(test *testing.T) {
+	t := model.Two()
+
+	q := t.Update().
+		Set(t.Comment, qf.Concat(t.Comment, ` v2`)).
+		Where(qc.Eq(t.OneID, 1))
+
+	err := db.Exec(q)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func testUpdateReturning(test *testing.T) {
 	t := model.Two()
 
 	q := t.Update().
