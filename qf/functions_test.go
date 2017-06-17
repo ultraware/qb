@@ -30,7 +30,7 @@ func TestAll(t *testing.T) {
 	check(t, Lower(f1), `lower(A)`)
 	check(t, Concat(f3, `B`, `A`), `C || ? || ?`)
 
-	check(t, Now(), `now()`)
+	check(t, Now(), `CURRENT_TIMESTAMP`)
 
 	check(t, Second(f1), `EXTRACT(second FROM A)`)
 	check(t, Minute(f1), `EXTRACT(minute FROM A)`)

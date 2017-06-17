@@ -81,7 +81,7 @@ func Concat(i ...interface{}) qb.Field {
 
 // Now ...
 func Now() qb.Field {
-	return newCalculatedField(`now()`)
+	return newCalculatedField(`CURRENT_TIMESTAMP`)
 }
 
 func newExtractField(f qb.Field, part string) CalculatedField {

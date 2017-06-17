@@ -13,7 +13,7 @@ type Driver interface {
 	UpsertSQL(*Table, []Field, Query) (string, []interface{})
 	ConcatOperator() string
 	ExcludedField(string) string
-	Returning(Query, string) (string, []interface{})
+	Returning(Query, []Field) (string, []interface{})
 	DateExtract(f string, p string) string
 }
 

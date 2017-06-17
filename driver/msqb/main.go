@@ -1,4 +1,4 @@
-package myqb
+package msqb
 
 import (
 	"database/sql"
@@ -8,12 +8,11 @@ import (
 	"git.ultraware.nl/NiseVoid/qb/qbdb"
 )
 
-// Driver implements PostgreSQL-specific features
+// Driver implements MSSQL-specific features
 type Driver struct{}
 
 // New returns the driver
 func New(db *sql.DB) *qbdb.DB {
-	_, _ = db.Exec(`SET SESSION sql_mode = 'ANSI'`)
 	return qbdb.New(Driver{}, db)
 }
 
@@ -32,31 +31,49 @@ func (d Driver) BoolString(v bool) string {
 
 // ConcatOperator ...
 func (d Driver) ConcatOperator() string {
-	return `||`
+	return `+`
 }
 
 // ExcludedField ...
 func (d Driver) ExcludedField(f string) string {
-	return `VALUES(` + f + `)`
+	panic(`mssql does not support excluded`)
 }
 
 // UpsertSQL ...
 func (d Driver) UpsertSQL(t *qb.Table, _ []qb.Field, q qb.Query) (string, []interface{}) {
-	usql, values := q.SQL(d)
-	if !strings.HasPrefix(usql, `UPDATE `+t.Name) {
-		panic(`Update does not update the correct table`)
-	}
-	usql = strings.Replace(usql, `UPDATE `+t.Name+qb.NEWLINE+`SET`, `UPDATE`, -1)
-
-	return `ON DUPLICATE KEY ` + usql, values
+	panic(`mssql does not support upsert`)
 }
 
 // Returning ...
 func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
-	panic(`mysql does not support RETURNING`)
+	sql, v := q.SQL(d)
+
+	var t string
+	switch strings.SplitN(sql, ` `, 2)[0] {
+	case `DELETE`:
+		t = `DELETED`
+	default:
+		t = `INSERTED`
+	}
+
+	line := ``
+	for k, field := range f {
+		if k > 0 {
+			line += `, `
+		}
+		line += t + `.` + field.QueryString(d, qb.NoAlias(), nil)
+	}
+
+	index := strings.Index(sql, `WHERE`)
+	if index < 0 {
+		index = len(sql)
+	}
+	sql = sql[:index] + `OUTPUT ` + line + qb.NEWLINE + sql[index:]
+
+	return sql, v
 }
 
 // DateExtract ...
 func (d Driver) DateExtract(f string, part string) string {
-	return `EXTRACT(` + part + ` FROM ` + f + `)`
+	return `DATEPART(` + part + `, ` + f + `)`
 }

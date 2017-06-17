@@ -57,9 +57,19 @@ func (d Driver) UpsertSQL(t *qb.Table, conflict []qb.Field, q qb.Query) (string,
 }
 
 // Returning ...
-func (d Driver) Returning(q qb.Query, f string) (string, []interface{}) {
+func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
+	vl := qb.ValueList{}
 	s, v := q.SQL(d)
-	return s + `RETURNING ` + f, v
+
+	line := ``
+	for k, field := range f {
+		if k > 0 {
+			line += `, `
+		}
+		line += field.QueryString(d, qb.NoAlias(), &vl)
+	}
+
+	return s + `RETURNING ` + line + qb.NEWLINE, append(v, vl...)
 }
 
 // DateExtract ...

@@ -15,6 +15,7 @@ pipeline:
       password: ${REGISTRY_PASSWORD}
     environment:
        CGO_ENABLED: 0
+       MSSQL_TESTHOST: 172.22.0.25
     commands:
       - go get ./qb-generator
       - make
@@ -27,14 +28,14 @@ services:
     pull: true
     environment:
       - DB_HOST=postgres
-      - POSTGRES_USER=test
-      - POSTGRES_DB=test
+      - POSTGRES_USER=qb_test
+      - POSTGRES_DB=qb_test
 
   mariadb:
     image: mariadb:10.3
     pull: true
     environment:
-      - MYSQL_DATABASE=test
-      - MYSQL_USER=test
-      - MYSQL_PASSWORD=test
+      - MYSQL_DATABASE=qb_test
+      - MYSQL_USER=qb_test
+      - MYSQL_PASSWORD=qb_test
       - MYSQL_RANDOM_ROOT_PASSWORD=yes

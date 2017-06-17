@@ -25,7 +25,12 @@ func (q returningBuilder) SQL(d Driver) (string, []interface{}) {
 func (q returningBuilder) getSQL(d Driver, aliasFields bool) (string, []interface{}) {
 	b := sqlBuilder{d, NoAlias(), ValueList{}}
 
-	s, v := d.Returning(q.query, b.ListDataFields(q.fields, aliasFields)+NEWLINE)
+	f := make([]Field, len(q.fields))
+	for k, v := range q.fields {
+		f[k] = v
+	}
+
+	s, v := d.Returning(q.query, f)
 	return s, append(v, b.values...)
 }
 

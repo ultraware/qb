@@ -31,7 +31,7 @@ func (d driver) ExcludedField(string) string {
 	panic(`This should not be used`)
 }
 
-func (d driver) Returning(q qb.Query, f string) (string, []interface{}) {
+func (d driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
 	panic(`This should not be used`)
 }
 

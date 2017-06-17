@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -17,6 +18,7 @@ import (
 )
 
 var db *qbdb.DB
+var driver string
 
 // StartTests starts all the end-to-end tests
 func StartTests(t *testing.T) {
@@ -24,14 +26,15 @@ func StartTests(t *testing.T) {
 		t.Skip("skipping test in short mode.")
 	}
 
-	db = initPostgres()
-	runTests(t)
-	db = initMysql()
-	runTests(t)
+	startTests(t, initPostgres)
+	startTests(t, initMysql)
+	startTests(t, initMssql)
 }
 
-func runTests(t *testing.T) {
-	driver := reflect.TypeOf(db.Driver).String()
+func startTests(t *testing.T, f func() *qbdb.DB) {
+	db = f()
+	driver = reflect.TypeOf(db.Driver).String()
+
 	if testing.Verbose() {
 		db.Debug = true
 		fmt.Println()
@@ -39,24 +42,34 @@ func runTests(t *testing.T) {
 		fmt.Println()
 	}
 
-	testUpsert(t)
-	testInsert(t)
-	testUpsert(t)
-
-	if driver == `pgqb.Driver` {
-		testUpdateReturning(t)
-	} else {
-		testUpdate(t)
-	}
-
-	testSelect(t)
-	testDelete(t)
-	testLeftJoin(t)
+	runTests(t)
 
 	if testing.Verbose() {
 		fmt.Println(color.MagentaString(`----- Finished testing: %s -----`, driver))
 		fmt.Println()
 	}
+}
+
+func runTests(t *testing.T) {
+	if driver == `msqb.Driver` {
+		testUpsertSeperate(t)
+		testInsert(t)
+		testUpsertSeperate(t)
+	} else {
+		testUpsert(t)
+		testInsert(t)
+		testUpsert(t)
+	}
+
+	if driver == `myqb.Driver` {
+		testUpdate(t)
+	} else {
+		testUpdateReturning(t)
+	}
+
+	testSelect(t)
+	testDelete(t)
+	testLeftJoin(t)
 }
 
 func testUpsert(test *testing.T) {
@@ -73,6 +86,28 @@ func testUpsert(test *testing.T) {
 		o.ID,
 	)
 	err := db.Exec(q)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func testUpsertSeperate(test *testing.T) {
+	o := model.One()
+
+	o.Data.ID = 1
+	o.Data.Name = `Test 1`
+
+	iq := o.Insert()
+	iq.Add()
+	err := db.Exec(iq)
+	if err == nil {
+		return
+	}
+
+	uq := o.Update().
+		Set(o.Name, qf.Concat(o.Name, `.1`)).
+		Where(qc.Eq(o.ID, 1))
+	err = db.Exec(uq)
 	if err != nil {
 		panic(err)
 	}
@@ -137,7 +172,8 @@ func testSelect(test *testing.T) {
 	o := model.One()
 	t := model.Two()
 
-	q := o.Select(o.ID, o.Name, t.Number, t.Comment, t.ModifiedAt).
+	year := 0
+	q := o.Select(o.ID, o.Name, qf.Year(o.CreatedAt).New(&year), t.Number, t.Comment, t.ModifiedAt).
 		InnerJoin(t.OneID, o.ID).
 		Where(qc.Eq(o.ID, 1))
 	err := db.QueryRow(q)
@@ -150,6 +186,7 @@ func testSelect(test *testing.T) {
 	assert.Equal(1, o.Data.ID)
 	assert.False(o.ID.Empty())
 
+	assert.Equal(time.Now().Year(), year)
 	assert.Equal(`Test 1.1`, o.Data.Name)
 	assert.Equal(1, t.Data.Number)
 	assert.Equal(`Test comment v2`, t.Data.Comment)
