@@ -10,6 +10,9 @@ import (
 )
 
 func (db QueryTarget) printType(v interface{}, c *int) (string, bool) {
+	if v == nil {
+		return `NULL`, false
+	}
 	switch t := reflect.ValueOf(v); t.Type().Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return strconv.FormatInt(t.Int(), 10), false

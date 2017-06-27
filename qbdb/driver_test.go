@@ -48,6 +48,7 @@ func TestPrint(t *testing.T) {
 		4.8766:  `4.8766`,
 		true:    `t`,
 		`abc`:   `@@`,
+		nil:     `NULL`,
 	}
 
 	c := 0
@@ -57,6 +58,27 @@ func TestPrint(t *testing.T) {
 			t.Errorf(`Print failed. Expected: "%s". Got: "%s"`, v, out)
 		} else {
 			t.Logf(`Print passed. "%s"`, out)
+		}
+	}
+}
+
+func TestPrepareSQL(t *testing.T) {
+	test := `SELECT a + ?, ? FROM tbl`
+	testIn := [][]interface{}{
+		{`abc`, true},
+		{3, nil},
+	}
+	testOut := []string{
+		`SELECT a + @@, t FROM tbl`,
+		`SELECT a + 3, NULL FROM tbl`,
+	}
+
+	for k, v := range testIn {
+		out, _ := db.prepareSQL(test, v)
+		if out != testOut[k] {
+			t.Errorf(`PrepareSQL failed. Expected: "%s". Got: "%s"`, v, out)
+		} else {
+			t.Logf(`PrepareSQL passed. "%s"`, out)
 		}
 	}
 }
