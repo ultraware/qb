@@ -83,6 +83,16 @@ func Replace(f qb.Field, from, to interface{}) qb.Field {
 	return newCalculatedField(`replace(`, f, `, `, f1, `, `, f2, `)`)
 }
 
+// Substring ...
+func Substring(f qb.Field, from, length interface{}) qb.Field {
+	f1 := qb.MakeField(from)
+	if length == nil {
+		return newCalculatedField(`substring(`, f, `, `, f1, `)`)
+	}
+	f2 := qb.MakeField(length)
+	return newCalculatedField(`substring(`, f, `, `, f1, `, `, f2, `)`)
+}
+
 ///// Date functions /////
 
 // Now ...
