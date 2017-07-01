@@ -5,11 +5,13 @@
 	"Exclude": ["bindata.go"],
 
 	"Linters": {
-		"qb": "qb-lint {path}:PATH:LINE:COL:MESSAGE"
+		"qb": "qb-lint {path}:PATH:LINE:COL:MESSAGE",
+		"funlen": "funlen {path}:PATH:LINE:COL:MESSAGE"
 	},
 
 	"DisableAll": true,
 	"Enable": [
+		"funlen",
 		"qb",
 		"vet",
 		"vetshadow",

@@ -16,7 +16,7 @@ pipeline:
       - MYSQL_TESTHOST=mariadb
       - MSSQL_TESTHOST=172.22.0.25
     commands:
-      - go get ./qb-generator
+      - go get git.ultraware.nl/NiseVoid/funlen
       - make
     when:
       event: [ push, tag, pull_request ]

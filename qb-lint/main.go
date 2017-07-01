@@ -295,16 +295,26 @@ func tryField(n ast.Node) bool {
 	if sel.Sel.Name != `Data` {
 		return false
 	}
+
 	x := sel.X.(*ast.Ident)
 	if _, ok := x.Obj.Decl.(*ast.Field); ok {
-		if new, ok := translate[x.Obj.Decl]; ok {
-			x = new
-		} else {
+		new, ok := translate[x.Obj.Decl]
+		if !ok {
 			return false
 		}
+		x = new
 	}
 
-	found := false
+	if !isUsed(expr, x) && len(usedFields) > 0 {
+		if _, ok := translate[sel.X.(*ast.Ident).Obj.Decl]; currentFunc == initialFunc || ok {
+			fmt.Printf("%v:Field %s used, but it was never selected\n", fset.Position(sel.X.Pos()),
+				fmt.Sprint(sel.X, `.Data.`, expr.Sel))
+		}
+	}
+	return false
+}
+
+func isUsed(expr *ast.SelectorExpr, x *ast.Ident) bool {
 	for k := range usedFields {
 		if x.Obj.Decl != k.table.Obj.Decl || // table object doesn't match
 			expr.Sel.Name != k.column.Name || // field name doesn't match
@@ -313,16 +323,7 @@ func tryField(n ast.Node) bool {
 		}
 
 		usedFields[k] = true
-		found = true
-	}
-	if found {
-		return false
-	}
-	if len(usedFields) > 0 {
-		if _, ok := translate[sel.X.(*ast.Ident).Obj.Decl]; currentFunc == initialFunc || ok {
-			fmt.Printf("%v:Field %s used, but it was never selected\n", fset.Position(sel.X.Pos()),
-				fmt.Sprint(sel.X, `.Data.`, expr.Sel))
-		}
+		return true
 	}
 	return false
 }

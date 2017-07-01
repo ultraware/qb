@@ -1,6 +1,7 @@
 all: setup test lint
 
 setup:
+	@go install ./qb-generator
 	@printf "Running go generate ...\n"
 	@go generate ./...
 	@printf "Getting dependencies ...\n"

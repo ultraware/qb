@@ -7,7 +7,7 @@ import (
 	"git.ultraware.nl/NiseVoid/qb/driver/pgqb"
 )
 
-func TestAll(t *testing.T) {
+func TestAll(t *testing.T) { // nolint: funlen
 	tb := &qb.Table{Name: `test`}
 
 	f1 := &qb.TableField{Name: `A`, Parent: tb}
