@@ -3,8 +3,9 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
 	"html/template"
+	"io"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -23,7 +24,6 @@ type InputField struct {
 	Nullable bool   `json:"null"`
 	ReadOnly bool   `json:"read_only"`
 	Default  bool   `json:"default"`
-	Primary  bool   `json:"primary"`
 }
 
 // Table ...
@@ -41,12 +41,12 @@ type Field struct {
 	FieldType  string
 	ReadOnly   bool
 	HasDefault bool
-	Primary    bool
 }
 
 var fieldTypes = map[string]string{
 	`time`:  `time.Time`,
 	`bytes`: `[]byte`,
+	`float`: `float64`,
 }
 
 var fullUpperList = []string{
@@ -101,8 +101,8 @@ func getType(t string, null bool) string {
 	return p + t
 }
 
-func newField(name string, t string, nullable bool, readOnly bool, hasDefault bool, primary bool) Field {
-	return Field{cleanName(name), name, t, getType(t, nullable), readOnly, hasDefault, primary}
+func newField(name string, t string, nullable bool, readOnly bool, hasDefault bool) Field {
+	return Field{cleanName(name), name, t, getType(t, nullable), readOnly, hasDefault}
 }
 
 func cleanName(s string) string {
@@ -117,7 +117,7 @@ func cleanName(s string) string {
 			}
 		}
 
-		if upper || len(parts[k]) == 0 {
+		if upper || len(parts[k]) <= 1 {
 			parts[k] = strings.ToUpper(parts[k])
 			continue
 		}
@@ -127,84 +127,72 @@ func cleanName(s string) string {
 	return strings.Join(parts, ``)
 }
 
-func printError(e error) {
-	if e == nil {
-		return
+var pkg string
+
+func init() {
+	log.SetFlags(0)
+
+	flag.StringVar(&pkg, `package`, `model`, `The package name for the output file`)
+	flag.Parse()
+
+	if len(flag.Args()) != 2 {
+		log.Println(`Usage: qbgenerate [options] input.json output.go`)
+		os.Exit(2)
 	}
-	fmt.Println(e)
 }
 
 func main() {
-	p := flag.String(`package`, `model`, `The package name for the output file`)
-	flag.Parse()
-
-	args := flag.Args()
-	if len(args) != 2 {
-		fmt.Println(`Usage: qbgenerate [options] input.json output.go`)
-		os.Exit(2)
-	}
-
-	in, err := os.Open(args[0])
+	in, err := os.Open(flag.Arg(0))
 	if err != nil {
-		fmt.Println(`Failed to open input file`)
-		fmt.Printf("%v\n", err)
-		os.Exit(2)
+		log.Fatal(`Failed to open input file. `, err)
 	}
 
 	input := []InputTable{}
 
 	err = json.NewDecoder(in).Decode(&input)
 	if err != nil {
-		fmt.Println(`Failed to parse input file`)
-		fmt.Printf("%v\n", err)
-		_ = in.Close()
-		os.Exit(2)
+		log.Fatal(`Failed to parse input file. `, err)
 	}
-	printError(in.Close())
 
-	out, err := os.OpenFile(args[1], os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0600)
+	out, err := os.OpenFile(flag.Arg(1), os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0600)
 	if err != nil {
-		fmt.Println(`Failed to open output file`)
-		fmt.Printf("%v\n", err)
-		os.Exit(2)
+		log.Fatal(`Failed to open output file. `, err)
 	}
 
-	tables := []Table{}
+	err = generateCode(out, input)
+	if err != nil {
+		log.Fatal(`Failed to generate code. `, err)
+	}
 
-	for _, v := range input {
-		t := Table{
-			Table:       cleanName(v.String),
-			TableString: v.String,
-		}
+	_ = out.Close()
+	err = exec.Command(`goimports`, `-w`, out.Name()).Run()
+	if err != nil {
+		log.Fatal(`Failed to exectue goimports. `, err)
+	}
+}
+
+func generateCode(out io.Writer, input []InputTable) error {
+	tables := make([]Table, len(input))
+	for k, v := range input {
+		t := &tables[k]
+		t.Table = cleanName(v.String)
+		t.TableString = v.String
 
 		for _, f := range v.Fields {
-			t.Fields = append(t.Fields, newField(f.String, f.Type, f.Nullable, f.ReadOnly, f.Default, f.Primary))
+			t.Fields = append(t.Fields, newField(f.String, f.Type, f.Nullable, f.ReadOnly, f.Default))
 		}
-
-		tables = append(tables, t)
 	}
-
-	fmt.Fprint(out, `package `, *p, "\n\n")
 
 	t, err := template.New(`code`).Parse(codeTemplate)
 	if err != nil {
-		_ = out.Close()
-		fmt.Println(`Failed to parse template`)
-		fmt.Printf("%v\n", err)
-		os.Exit(3)
+		return err
 	}
 
+	_, _ = io.WriteString(out, `package `+pkg+"\n\n")
 	for _, v := range tables {
-		err = t.Execute(out, v)
-		if err != nil {
-			_ = out.Close()
-			fmt.Println(`Failed to execute template`)
-			fmt.Printf("%v\n", err)
-			os.Exit(3)
+		if err := t.Execute(out, v); err != nil {
+			return err
 		}
 	}
-
-	printError(out.Close())
-
-	printError(exec.Command(`goimports`, `-w`, out.Name()).Run())
+	return nil
 }

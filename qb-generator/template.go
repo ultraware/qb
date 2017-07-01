@@ -7,7 +7,6 @@ var qb{{.Table}}Table = qb.Table{Name: "{{.TableString}}"}
 var qb{{$.Table}}F{{.Name}} = qb.TableField{Parent: &qb{{$.Table}}Table, Name: "{{.String}}", 
 	{{- if .ReadOnly }}ReadOnly: true,{{end -}}
 	{{- if .HasDefault }}HasDefault: true,{{end -}}
-	{{- if .Primary }}Primary: true{{end -}}
 }
 {{end}}
 
@@ -16,7 +15,7 @@ type {{.Table}}Data struct {
 	{{- range .Fields}}
 		{{.Name}} {{.FieldType}}
 	{{- end}}
-	}
+}
 
 // {{.Table}}Type represents the table "{{.Table}}"
 type {{.Table}}Type struct {
