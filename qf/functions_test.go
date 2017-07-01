@@ -29,6 +29,7 @@ func TestAll(t *testing.T) { // nolint: funlen
 
 	check(t, Lower(f1), `lower(A)`)
 	check(t, Concat(f3, `B`, `A`), `C || ? || ?`)
+	check(t, Replace(f1, f2, `C`), `replace(A, B, ?)`)
 
 	check(t, Now(), `CURRENT_TIMESTAMP`)
 

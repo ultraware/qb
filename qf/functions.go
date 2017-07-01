@@ -77,6 +77,12 @@ func Concat(i ...interface{}) qb.Field {
 	})
 }
 
+// Replace ...
+func Replace(f qb.Field, from, to interface{}) qb.Field {
+	f1, f2 := qb.MakeField(from), qb.MakeField(to)
+	return newCalculatedField(`replace(`, f, `, `, f1, `, `, f2, `)`)
+}
+
 ///// Date functions /////
 
 // Now ...
