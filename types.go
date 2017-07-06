@@ -167,7 +167,10 @@ func (c *Cursor) Next() bool {
 
 // Close the rows object, automatically called by Next when all rows have been read
 func (c *Cursor) Close() {
-	_ = c.rows.Close()
+	err := c.rows.Close()
+	if c.err == nil {
+		c.err = err
+	}
 }
 
 // Error returns the last error
