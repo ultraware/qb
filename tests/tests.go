@@ -68,6 +68,7 @@ func runTests(t *testing.T) {
 	}
 
 	testSelect(t)
+	testSubQuery(t)
 	testDelete(t)
 	testLeftJoin(t)
 }
@@ -169,8 +170,7 @@ func testUpdateReturning(test *testing.T) {
 }
 
 func testSelect(test *testing.T) {
-	o := model.One()
-	t := model.Two()
+	o, t := model.One(), model.Two()
 
 	year := 0
 	q := o.Select(o.ID, o.Name, qf.Year(o.CreatedAt).New(&year), t.Number, t.Comment, t.ModifiedAt).
@@ -196,6 +196,28 @@ func testSelect(test *testing.T) {
 	assert.True(t.OneID.Empty())
 }
 
+func testSubQuery(test *testing.T) {
+	o, t := model.One(), model.Two()
+
+	var count int
+
+	sq := t.Select(t.OneID, qf.CountAll().New(&count)).
+		GroupBy(t.OneID).
+		SubQuery()
+
+	q := o.Select(o.ID, sq.F[1]).
+		InnerJoin(sq.F[0], o.ID)
+	err := db.QueryRow(q)
+	if err != nil {
+		panic(err)
+	}
+
+	assert := assert.New(test)
+
+	assert.Equal(1, o.Data.ID)
+	assert.Equal(2, count)
+}
+
 func testDelete(test *testing.T) {
 	t := model.Two()
 
@@ -207,8 +229,7 @@ func testDelete(test *testing.T) {
 }
 
 func testLeftJoin(test *testing.T) {
-	o := model.One()
-	t := model.Two()
+	o, t := model.One(), model.Two()
 
 	q := o.Select(o.ID, t.OneID).
 		LeftJoin(t.OneID, o.ID).

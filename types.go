@@ -84,18 +84,18 @@ func (t *Table) Insert(f []DataField) *InsertBuilder {
 
 // SubQuery ...
 type SubQuery struct {
-	query  SelectQuery
-	fields []Field
+	query SelectQuery
+	F     []DataField
 }
 
 func newSubQuery(q SelectQuery, f []DataField) *SubQuery {
-	sq := SubQuery{query: q}
+	sq := &SubQuery{query: q}
 
 	for k := range f {
-		sq.fields = append(sq.fields, TableField{Name: `f` + strconv.Itoa(k), Parent: &sq})
+		sq.F = append(sq.F, TableField{Name: `f` + strconv.Itoa(k), Parent: sq}.New(f[k].Value))
 	}
 
-	return &sq
+	return sq
 }
 
 // QueryString ...
@@ -104,8 +104,8 @@ func (t *SubQuery) QueryString(d Driver, ag Alias, vl *ValueList) string {
 	if len(alias) > 0 {
 		alias = ` ` + alias
 	}
-	sql, _ := t.query.SQL(d)
-	return `(` + sql + `)` + alias
+	sql, _ := t.query.getSQL(d, true)
+	return `(` + NEWLINE + sql + `)` + alias
 }
 
 // aliasString ...

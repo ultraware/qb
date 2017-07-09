@@ -214,6 +214,8 @@ func traverseExpr(parent ast.Expr, e ast.Expr) bool {
 	}
 	if expr, ok := e.(*ast.SelectorExpr); ok {
 		switch fmt.Sprint(expr.Sel) {
+		case `SubQuery`:
+			return false
 		case `Returning`:
 			checkFields(parent, 1)
 		case `Select`:
