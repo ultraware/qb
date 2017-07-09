@@ -210,11 +210,11 @@ func (q combinedQuery) getSQL(d Driver, aliasFields bool) (string, []interface{}
 			s += ` ` + q.combineType + ` `
 			sql, val = v.getSQL(d, false)
 		}
-		s += `(` + sql + `)`
+		s += getSubQuerySQL(sql)
 		values = append(values, val...)
 	}
 
-	return s, values
+	return s + NEWLINE, values
 }
 
 func (q combinedQuery) SQL(d Driver) (string, []interface{}) {

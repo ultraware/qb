@@ -69,6 +69,7 @@ func runTests(t *testing.T) {
 
 	testSelect(t)
 	testSubQuery(t)
+	testUnionAll(t)
 	testDelete(t)
 	testLeftJoin(t)
 }
@@ -216,6 +217,28 @@ func testSubQuery(test *testing.T) {
 
 	assert.Equal(1, o.Data.ID)
 	assert.Equal(2, count)
+}
+
+func testUnionAll(test *testing.T) {
+	o := model.One()
+
+	sq := o.Select(o.ID)
+
+	q := qb.UnionAll(sq, sq)
+	cur, err := db.Query(q)
+	if err != nil {
+		panic(err)
+	}
+
+	assert := assert.New(test)
+
+	assert.True(cur.Next())
+	assert.Equal(1, o.Data.ID)
+	assert.True(cur.Next())
+	assert.Equal(1, o.Data.ID)
+
+	assert.False(cur.Next())
+	assert.NoError(cur.Error())
 }
 
 func testDelete(test *testing.T) {
