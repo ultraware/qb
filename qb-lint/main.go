@@ -209,13 +209,10 @@ func findUsed(n ast.Node) bool {
 }
 
 func traverseExpr(parent ast.Expr, e ast.Expr) bool {
-	if e == nil {
-		return false
-	}
 	if expr, ok := e.(*ast.SelectorExpr); ok {
 		switch fmt.Sprint(expr.Sel) {
 		case `SubQuery`:
-			return false
+			break
 		case `Returning`:
 			checkFields(parent, 1)
 		case `Select`:
@@ -291,11 +288,8 @@ func tryField(n ast.Node) bool {
 	}
 
 	sel, ok := expr.X.(*ast.SelectorExpr)
-	if !ok {
+	if !ok || sel.Sel.Name != `Data` {
 		return true
-	}
-	if sel.Sel.Name != `Data` {
-		return false
 	}
 
 	x := sel.X.(*ast.Ident)
@@ -307,7 +301,7 @@ func tryField(n ast.Node) bool {
 		x = new
 	}
 
-	if !isUsed(expr, x) && len(usedFields) > 0 {
+	if !retrieved(expr, x) && len(usedFields) > 0 {
 		if _, ok := translate[sel.X.(*ast.Ident).Obj.Decl]; currentFunc == initialFunc || ok {
 			fmt.Printf("%v:Field %s used, but it was never selected\n", fset.Position(sel.X.Pos()),
 				fmt.Sprint(sel.X, `.Data.`, expr.Sel))
@@ -316,15 +310,22 @@ func tryField(n ast.Node) bool {
 	return false
 }
 
-func isUsed(expr *ast.SelectorExpr, x *ast.Ident) bool {
+func retrieved(expr *ast.SelectorExpr, x *ast.Ident) bool {
+	var target *field
 	for k := range usedFields {
-		if x.Obj.Decl != k.table.Obj.Decl || // table object doesn't match
+		if x.Obj != k.table.Obj || // table object doesn't match
 			expr.Sel.Name != k.column.Name || // field name doesn't match
 			expr.X.Pos() < k.table.Pos() { // The field was used before it was selected
 			continue
 		}
 
-		usedFields[k] = true
+		if target == nil || target.table.Pos() < k.table.Pos() {
+			t := k
+			target = &t
+		}
+	}
+	if target != nil {
+		usedFields[*target] = true
 		return true
 	}
 	return false
