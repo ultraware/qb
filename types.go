@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"strconv"
+	"strings"
 )
 
 // Driver implements databse-specific features
@@ -105,7 +106,11 @@ func (t *SubQuery) QueryString(d Driver, ag Alias, vl *ValueList) string {
 		alias = ` ` + alias
 	}
 	sql, _ := t.query.getSQL(d, true)
-	return `(` + NEWLINE + sql + `)` + alias
+	return getSubQuerySQL(sql) + alias
+}
+
+func getSubQuerySQL(sql string) string {
+	return `(` + NEWLINE + INDENT + strings.Replace(strings.TrimSuffix(sql, "\n"), "\n", "\n"+INDENT, -1) + NEWLINE + `)`
 }
 
 // aliasString ...

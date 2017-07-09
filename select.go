@@ -23,7 +23,7 @@ func (q returningBuilder) SQL(d Driver) (string, []interface{}) {
 }
 
 func (q returningBuilder) getSQL(d Driver, aliasFields bool) (string, []interface{}) {
-	b := sqlBuilder{d, NoAlias(), ValueList{}}
+	b := newSQLBuilder(d, false)
 
 	f := make([]Field, len(q.fields))
 	for k, v := range q.fields {
@@ -162,23 +162,23 @@ func (q SelectBuilder) SQL(d Driver) (string, []interface{}) {
 }
 
 func (q SelectBuilder) getSQL(d Driver, aliasFields bool) (string, []interface{}) {
-	b := sqlBuilder{d, AliasGenerator(), ValueList{}}
+	b := newSQLBuilder(d, true)
 
 	for _, v := range q.tables {
 		_ = b.alias.Get(v)
 	}
 
-	s := b.Select(aliasFields, q.fields...) +
-		b.From(q.source) +
-		b.Join(q.joins...) +
-		b.Where(q.where...) +
-		b.GroupBy(q.group...) +
-		b.Having(q.having...) +
-		b.OrderBy(q.order...) +
-		b.Limit(q.limit) +
-		b.Offset(q.offset)
+	b.Select(aliasFields, q.fields...)
+	b.From(q.source)
+	b.Join(q.joins...)
+	b.Where(q.where...)
+	b.GroupBy(q.group...)
+	b.Having(q.having...)
+	b.OrderBy(q.order...)
+	b.Limit(q.limit)
+	b.Offset(q.offset)
 
-	return s, []interface{}(b.values)
+	return b.w.String(), []interface{}(b.values)
 }
 
 // SubQuery converts the SelectQuery to a SubQuery for use in further queries

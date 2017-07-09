@@ -51,8 +51,12 @@ func (q *InsertBuilder) Upsert(query Query, conflict ...Field) {
 
 // SQL ...
 func (q *InsertBuilder) SQL(d Driver) (string, []interface{}) {
-	b := sqlBuilder{d, NoAlias(), nil}
-	sql := b.Insert(q.table, q.fields) + b.Values(q.values)
+	b := newSQLBuilder(d, false)
+
+	b.Insert(q.table, q.fields)
+	b.Values(q.values)
+
+	sql := b.w.String()
 	if q.update != nil {
 		s, v := d.UpsertSQL(q.table, q.conflict, q.update)
 		b.values.Append(v...)

@@ -24,25 +24,23 @@ func quoted(s string) string {
 	return n + `"` + str(s) + `"`
 }
 
-func checkOutput(t *testing.T, expected, out string, needsnewline bool) {
-	if needsnewline {
-		if !strings.HasSuffix(out, "\n") {
+func newCheckOutput(t *testing.T, b *sqlBuilder) func(bool, string) {
+	return func(newline bool, expected string) {
+		out := b.w.String()
+		b.w = sqlWriter{}
+
+		if newline {
+			expected += "\n"
+		}
+
+		if out != expected {
 			t.Error(warn(`FAIL!`) + "\n\n" +
 				`Got:      ` + quoted(out) + "\n" +
-				`Expected a trailing newline`,
+				`Expected: ` + quoted(expected) + "\n",
 			)
-			return
+		} else {
+			t.Log(okay(`PASS`)+`:`, quoted(strings.TrimSuffix(out, "\n")))
 		}
-		out = strings.TrimSuffix(out, "\n")
-	}
-
-	if out != expected {
-		t.Error(warn(`FAIL!`) + "\n\n" +
-			`Got:      ` + quoted(out) + "\n" +
-			`Expected: ` + quoted(expected) + "\n",
-		)
-	} else {
-		t.Log(okay(`PASS`)+`:`, quoted(out))
 	}
 }
 
@@ -50,12 +48,12 @@ func info(t *testing.T, msg string) {
 	t.Log(notice(msg))
 }
 
-func testBuilder(alias bool) sqlBuilder {
-	b := sqlBuilder{nil, NoAlias(), nil}
+func testBuilder(t *testing.T, alias bool) (*sqlBuilder, func(bool, string)) {
+	b := &sqlBuilder{sqlWriter{}, nil, NoAlias(), nil}
 	if alias {
 		b.alias = AliasGenerator()
 	}
-	return b
+	return b, newCheckOutput(t, b)
 }
 
 // Tables
@@ -74,60 +72,65 @@ func NewIntField(f Field) DataField {
 
 func TestFrom(t *testing.T) {
 	info(t, `-- Testing without alias`)
-	b := testBuilder(false)
+	b, check := testBuilder(t, false)
 
-	checkOutput(t, `FROM tmp`, b.From(testTable), true)
+	b.From(testTable)
+	check(true, `FROM tmp`)
 
 	info(t, `-- Testing with alias`)
-	b = testBuilder(true)
+	b, check = testBuilder(t, true)
 
-	checkOutput(t, `FROM tmp t1`, b.From(testTable), true)
+	b.From(testTable)
+	check(true, `FROM tmp t1`)
 }
 
 func TestDelete(t *testing.T) {
-	b := testBuilder(false)
+	b, check := testBuilder(t, false)
 
-	checkOutput(t, `DELETE FROM tmp`, b.Delete(testTable), true)
+	b.Delete(testTable)
+	check(true, `DELETE FROM tmp`)
 }
 
 func TestUpdate(t *testing.T) {
-	b := testBuilder(false)
+	b, check := testBuilder(t, false)
 
-	checkOutput(t, `UPDATE tmp`, b.Update(testTable), true)
+	b.Update(testTable)
+	check(true, `UPDATE tmp`)
 }
 
 func TestInsert(t *testing.T) {
-	b := testBuilder(false)
+	b, check := testBuilder(t, false)
 
-	checkOutput(t, `INSERT INTO tmp ()`, b.Insert(testTable, nil), true)
-	checkOutput(t, `INSERT INTO tmp (colA, colB)`,
-		b.Insert(testTable, []DataField{NewIntField(testFieldA), NewIntField(testFieldB)}),
-		true)
+	b.Insert(testTable, nil)
+	check(true, `INSERT INTO tmp ()`)
+
+	b.Insert(testTable, []DataField{NewIntField(testFieldA), NewIntField(testFieldB)})
+	check(true, `INSERT INTO tmp (colA, colB)`)
 }
 
 func TestJoin(t *testing.T) {
-	b := testBuilder(true)
+	b, check := testBuilder(t, true)
 
-	_ = b.From(testTable)
+	b.From(testTable)
+	b.w = sqlWriter{}
 
-	checkOutput(t,
+	b.Join(join{JoinInner, testTable2, []Condition{eq(testFieldA, testFieldA2)}})
+	check(true,
 		"\t"+`INNER JOIN tmp2 t2 ON (t1.colA = t2.colA2)`,
-		b.Join(join{JoinInner, testTable2, []Condition{eq(testFieldA, testFieldA2)}}),
-		true,
 	)
-	checkOutput(t,
+
+	b.Join(join{JoinLeft, testTable2, []Condition{eq(testFieldA, testFieldA2), testCondition, testCondition2}})
+	check(true,
 		"\t"+`LEFT JOIN tmp2 t2 ON (t1.colA = t2.colA2 AND a AND b)`,
-		b.Join(join{JoinLeft, testTable2, []Condition{eq(testFieldA, testFieldA2), testCondition, testCondition2}}),
-		true,
 	)
-	checkOutput(t,
+
+	b.Join(
+		join{JoinInner, testTable2, []Condition{eq(testFieldA, testFieldA2)}},
+		join{JoinLeft, testTable2, []Condition{eq(testFieldA, testFieldA2), testCondition, testCondition2}},
+	)
+	check(true,
 		"\t"+`INNER JOIN tmp2 t2 ON (t1.colA = t2.colA2)`+"\n\t"+
 			`LEFT JOIN tmp2 t2 ON (t1.colA = t2.colA2 AND a AND b)`,
-		b.Join(
-			join{JoinInner, testTable2, []Condition{eq(testFieldA, testFieldA2)}},
-			join{JoinLeft, testTable2, []Condition{eq(testFieldA, testFieldA2), testCondition, testCondition2}},
-		),
-		true,
 	)
 }
 
@@ -138,31 +141,35 @@ func TestSelect(t *testing.T) {
 	f2 := NewIntField(testFieldB)
 
 	info(t, `-- Testing without alias`)
-	b := testBuilder(false)
+	b, check := testBuilder(t, false)
 
-	checkOutput(t, `SELECT colA, colB`, b.Select(false, f1, f2), true)
+	b.Select(false, f1, f2)
+	check(true, `SELECT colA, colB`)
 
-	checkOutput(t, `SELECT colA f0, colB f1`, b.Select(true, f1, f2), true)
+	b.Select(true, f1, f2)
+	check(true, `SELECT colA f0, colB f1`)
 
 	info(t, `-- Testing with alias`)
-	b = testBuilder(true)
+	b, check = testBuilder(t, true)
 
-	checkOutput(t, `SELECT t1.colA, t1.colB`, b.Select(false, f1, f2), true)
+	b.Select(false, f1, f2)
+	check(true, `SELECT t1.colA, t1.colB`)
 
-	checkOutput(t, `SELECT t1.colA f0, t1.colB f1`, b.Select(true, f1, f2), true)
+	b.Select(true, f1, f2)
+	check(true, `SELECT t1.colA f0, t1.colB f1`)
 }
 
 func TestSet(t *testing.T) {
-	b := testBuilder(false)
+	b, check := testBuilder(t, false)
 
-	checkOutput(t, `SET `, b.Set([]set{}), true)
+	b.Set([]set{})
+	check(false, ``)
 
-	checkOutput(t, `SET colA = ?`, b.Set([]set{{testFieldA, Value(1)}}), true)
+	b.Set([]set{{testFieldA, Value(1)}})
+	check(true, `SET colA = ?`)
 
-	checkOutput(t,
-		`SET colA = ?, colB = ?`,
-		b.Set([]set{{testFieldA, Value(1)}, {testFieldB, Value(3)}}),
-		true)
+	b.Set([]set{{testFieldA, Value(1)}, {testFieldB, Value(3)}})
+	check(true, "SET\n\tcolA = ?,\n\tcolB = ?")
 }
 
 // Conditions
@@ -176,61 +183,78 @@ var testCondition2 = func(_ Driver, _ Alias, _ *ValueList) string {
 }
 
 func TestWhere(t *testing.T) {
-	b := testBuilder(false)
+	b, check := testBuilder(t, false)
 
-	checkOutput(t, `WHERE a`+"\n\t"+`AND b`, b.Where(testCondition, testCondition2), true)
+	b.Where(testCondition, testCondition2)
+	check(true, `WHERE a`+"\n\t"+`AND b`)
 
-	checkOutput(t, ``, b.Where(), false)
+	b.Where()
+	check(false, ``)
 }
 
 func TestHaving(t *testing.T) {
-	b := testBuilder(false)
+	b, check := testBuilder(t, false)
 
-	checkOutput(t, `HAVING a`+"\n\t"+`AND b`, b.Having(testCondition, testCondition2), true)
+	b.Having(testCondition, testCondition2)
+	check(true, `HAVING a`+"\n\t"+`AND b`)
 
-	checkOutput(t, ``, b.Having(), false)
+	b.Having()
+	check(false, ``)
 }
 
 // Other
 
 func TestGroupBy(t *testing.T) {
-	b := testBuilder(false)
+	b, check := testBuilder(t, false)
 
-	checkOutput(t, `GROUP BY colA, colB`, b.GroupBy(testFieldA, testFieldB), true)
-	checkOutput(t, ``, b.GroupBy(), false)
+	b.GroupBy(testFieldA, testFieldB)
+	check(true, `GROUP BY colA, colB`)
+
+	b.GroupBy()
+	check(false, ``)
 }
 
 func TestOrderBy(t *testing.T) {
-	b := testBuilder(false)
+	b, check := testBuilder(t, false)
 
-	checkOutput(t, `ORDER BY colA ASC, colB DESC`, b.OrderBy(Asc(testFieldA), Desc(testFieldB)), true)
-	checkOutput(t, ``, b.OrderBy(), false)
+	b.OrderBy(Asc(testFieldA), Desc(testFieldB))
+	check(true, `ORDER BY colA ASC, colB DESC`)
+
+	b.OrderBy()
+	check(false, ``)
 }
 
 func TestLimit(t *testing.T) {
-	b := testBuilder(false)
+	b, check := testBuilder(t, false)
 
-	checkOutput(t, `LIMIT 2`, b.Limit(2), true)
-	checkOutput(t, ``, b.Limit(0), false)
+	b.Limit(2)
+	check(true, `LIMIT 2`)
+
+	b.Limit(0)
+	check(false, ``)
 }
 
 func TestOffset(t *testing.T) {
-	b := testBuilder(false)
+	b, check := testBuilder(t, false)
 
-	checkOutput(t, `OFFSET 2`, b.Offset(2), true)
-	checkOutput(t, ``, b.Offset(0), false)
+	b.Offset(2)
+	check(true, `OFFSET 2`)
+
+	b.Offset(0)
+	check(false, ``)
 }
 
 func TestValues(t *testing.T) {
-	b := testBuilder(false)
+	b, check := testBuilder(t, false)
 
 	line := []Field{Value(1), Value(2), Value(3)}
 
-	checkOutput(t, `VALUES (?, ?, ?)`, b.Values([][]Field{line}), true)
-	checkOutput(t, `VALUES`+"\n\t"+
+	b.Values([][]Field{line})
+	check(true, `VALUES (?, ?, ?)`)
+
+	b.Values([][]Field{line, line})
+	check(true, `VALUES`+"\n\t"+
 		`(?, ?, ?),`+"\n\t"+
 		`(?, ?, ?)`,
-		b.Values([][]Field{line, line}),
-		true,
 	)
 }
