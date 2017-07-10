@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"git.ultraware.nl/NiseVoid/qb"
+	"git.ultraware.nl/NiseVoid/qb/tests/testutil"
 )
 
 type driver struct{}
@@ -54,11 +55,7 @@ func TestPrint(t *testing.T) {
 	c := 0
 	for k, v := range tests {
 		out, _ := db.printType(k, &c)
-		if out != v {
-			t.Errorf(`Print failed. Expected: "%s". Got: "%s"`, v, out)
-		} else {
-			t.Logf(`Print passed. "%s"`, out)
-		}
+		testutil.Compare(t, v, out)
 	}
 }
 
@@ -75,10 +72,6 @@ func TestPrepareSQL(t *testing.T) {
 
 	for k, v := range testIn {
 		out, _ := db.prepareSQL(test, v)
-		if out != testOut[k] {
-			t.Errorf(`PrepareSQL failed. Expected: "%s". Got: "%s"`, v, out)
-		} else {
-			t.Logf(`PrepareSQL passed. "%s"`, out)
-		}
+		testutil.Compare(t, testOut[k], out)
 	}
 }

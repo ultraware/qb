@@ -13,8 +13,7 @@ import (
 	"git.ultraware.nl/NiseVoid/qb/qc"
 	"git.ultraware.nl/NiseVoid/qb/qf"
 	"git.ultraware.nl/NiseVoid/qb/tests/internal/model"
-
-	"github.com/fatih/color"
+	"git.ultraware.nl/NiseVoid/qb/tests/testutil"
 )
 
 var db *qbdb.DB
@@ -38,14 +37,14 @@ func startTests(t *testing.T, f func() *qbdb.DB) {
 	if testing.Verbose() {
 		db.Debug = true
 		fmt.Println()
-		fmt.Println(color.MagentaString(`----- Testing with: %s -----`, driver))
+		fmt.Println(testutil.Info(`Testing with:`, driver))
 		fmt.Println()
 	}
 
 	runTests(t)
 
 	if testing.Verbose() {
-		fmt.Println(color.MagentaString(`----- Finished testing: %s -----`, driver))
+		fmt.Println(testutil.Info(`Finished testing:`, driver))
 		fmt.Println()
 	}
 }

@@ -1,28 +1,10 @@
 package qb
 
 import (
-	"strings"
 	"testing"
 
-	"github.com/fatih/color"
+	"git.ultraware.nl/NiseVoid/qb/tests/testutil"
 )
-
-var (
-	warn = color.New(color.FgHiRed).SprintFunc()
-	okay = color.New(color.FgHiGreen).SprintFunc()
-
-	str = color.New(color.FgYellow).SprintFunc()
-
-	notice = color.New(color.FgCyan).SprintFunc()
-)
-
-func quoted(s string) string {
-	var n string
-	if len(strings.Split(s, "\n")) > 1 {
-		n = "\n"
-	}
-	return n + `"` + str(s) + `"`
-}
 
 func newCheckOutput(t *testing.T, b *sqlBuilder) func(bool, string) {
 	return func(newline bool, expected string) {
@@ -33,19 +15,12 @@ func newCheckOutput(t *testing.T, b *sqlBuilder) func(bool, string) {
 			expected += "\n"
 		}
 
-		if out != expected {
-			t.Error(warn(`FAIL!`) + "\n\n" +
-				`Got:      ` + quoted(out) + "\n" +
-				`Expected: ` + quoted(expected) + "\n",
-			)
-		} else {
-			t.Log(okay(`PASS`)+`:`, quoted(strings.TrimSuffix(out, "\n")))
-		}
+		testutil.Compare(t, expected, out)
 	}
 }
 
 func info(t *testing.T, msg string) {
-	t.Log(notice(msg))
+	t.Log(testutil.Notice(msg))
 }
 
 func testBuilder(t *testing.T, alias bool) (*sqlBuilder, func(bool, string)) {

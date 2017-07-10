@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"git.ultraware.nl/NiseVoid/qb"
+	"git.ultraware.nl/NiseVoid/qb/tests/testutil"
 )
 
 func TestAll(t *testing.T) {
@@ -37,12 +38,8 @@ func TestAll(t *testing.T) {
 func check(t *testing.T, c qb.Condition, expectedSQL string) {
 	sql := c(nil, qb.NoAlias(), &qb.ValueList{})
 
-	if sql != expectedSQL {
-		t.Errorf(`Incorrect SQL. Expected: "%s". Got: "%s"`, expectedSQL, sql)
-		return
-	}
+	testutil.Compare(t, expectedSQL, sql)
 
-	t.Logf(`Success! "%s"`, sql)
 }
 
 func fails(f func()) (failed bool) {

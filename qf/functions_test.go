@@ -5,6 +5,7 @@ import (
 
 	"git.ultraware.nl/NiseVoid/qb"
 	"git.ultraware.nl/NiseVoid/qb/driver/pgqb"
+	"git.ultraware.nl/NiseVoid/qb/tests/testutil"
 )
 
 func TestAll(t *testing.T) { // nolint: funlen
@@ -59,10 +60,5 @@ func TestAll(t *testing.T) { // nolint: funlen
 func check(t *testing.T, f qb.Field, expectedSQL string) {
 	sql := f.QueryString(pgqb.Driver{}, qb.NoAlias(), &qb.ValueList{})
 
-	if sql != expectedSQL {
-		t.Errorf(`Incorrect SQL. Expected: "%s". Got: "%s"`, expectedSQL, sql)
-		return
-	}
-
-	t.Logf(`Success! "%s"`, sql)
+	testutil.Compare(t, expectedSQL, sql)
 }
