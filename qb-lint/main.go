@@ -235,7 +235,19 @@ func checkFields(e ast.Expr, skip int) {
 	call := e.(*ast.CallExpr)
 	args := call.Args[skip:]
 
-	for _, v := range args {
+argsLoop:
+	for k := range args {
+		v, ok := args[k].(*ast.SelectorExpr)
+		if !ok {
+			continue
+		}
+		for _, val := range args[:k] {
+			if prev, ok := val.(*ast.SelectorExpr); ok && compareFields(v, prev) {
+				fmt.Printf("%v:Field %s.%s selected multiple times.\n",
+					fset.Position(v.Pos()), v.X.(*ast.Ident).Name, v.Sel.Name)
+				continue argsLoop
+			}
+		}
 		field := getField(v)
 		if field == nil {
 			continue
@@ -329,4 +341,17 @@ func retrieved(expr *ast.SelectorExpr, x *ast.Ident) bool {
 		return true
 	}
 	return false
+}
+
+func compareFields(f1 *ast.SelectorExpr, f2 *ast.SelectorExpr) bool {
+	x1, ok := f1.X.(*ast.Ident)
+	if !ok {
+		return false
+	}
+	x2, ok := f2.X.(*ast.Ident)
+	if !ok {
+		return false
+	}
+
+	return x1.Obj == x2.Obj && f1.Sel.Name == f2.Sel.Name
 }
