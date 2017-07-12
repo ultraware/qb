@@ -6,6 +6,24 @@ import (
 	"git.ultraware.nl/NiseVoid/qb/tests/testutil"
 )
 
+func TestSQLWriter(t *testing.T) {
+	w := sqlWriter{}
+
+	w.WriteLine("0\n0")
+	w.AddIndent()
+	w.WriteString(`1`)
+	w.WriteString("-\n1")
+	w.AddIndent()
+	w.WriteLine(`-`)
+	w.WriteString(`2`)
+	w.SubIndent()
+	w.SubIndent()
+	w.WriteLine(`-`)
+	w.WriteString(`0`)
+
+	testutil.Compare(t, "0\n0\n\t1-\n\t1-\n\t\t2-\n0", w.String())
+}
+
 func newCheckOutput(t *testing.T, b *sqlBuilder) func(bool, string) {
 	return func(newline bool, expected string) {
 		out := b.w.String()
