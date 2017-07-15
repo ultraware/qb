@@ -11,6 +11,13 @@ func Excluded(f qb.QueryStringer) qb.Field {
 	})
 }
 
+// Cast ...
+func Cast(f qb.Field, t qb.DataType) qb.Field {
+	return CalculatedField(func(d qb.Driver, ag qb.Alias, vl *qb.ValueList) string {
+		return qb.ConcatQuery(d, ag, vl, `CAST(`, f, ` AS `, d.TypeName(t), `)`)
+	})
+}
+
 // Distinct ...
 func Distinct(f qb.Field) qb.Field {
 	return newCalculatedField(`DISTINCT `, f)

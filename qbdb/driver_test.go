@@ -21,7 +21,7 @@ func (d driver) BoolString(v bool) string {
 }
 
 func (d driver) UpsertSQL(_ *qb.Table, _ []qb.Field, _ qb.Query) (string, []interface{}) {
-	panic(`Not implemented`)
+	panic(`This should not be used`)
 }
 
 func (d driver) ConcatOperator() string {
@@ -37,6 +37,10 @@ func (d driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
 }
 
 func (d driver) DateExtract(f string, part string) string {
+	panic(`This should not be used`)
+}
+
+func (d driver) TypeName(t qb.DataType) string {
 	panic(`This should not be used`)
 }
 

@@ -15,6 +15,7 @@ type Driver interface {
 	ExcludedField(string) string
 	Returning(Query, []Field) (string, []interface{})
 	DateExtract(f string, p string) string
+	TypeName(DataType) string
 }
 
 // Query ...

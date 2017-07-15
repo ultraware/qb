@@ -17,6 +17,9 @@ func TestAll(t *testing.T) { // nolint: funlen
 
 	check(t, Excluded(f1), `EXCLUDED.A`)
 
+	check(t, Cast(f1, qb.Int), `CAST(A AS int)`)
+	check(t, Cast(f1, qb.String), `CAST(A AS text)`)
+
 	check(t, Distinct(f1), `DISTINCT A`)
 	check(t, CountAll(), `count(1)`)
 	check(t, Count(f1), `count(A)`)

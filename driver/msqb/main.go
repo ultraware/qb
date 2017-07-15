@@ -77,3 +77,23 @@ func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
 func (d Driver) DateExtract(f string, part string) string {
 	return `DATEPART(` + part + `, ` + f + `)`
 }
+
+// TypeName ...
+func (d Driver) TypeName(t qb.DataType) string {
+	switch t {
+	case qb.Int:
+		return `int`
+	case qb.String:
+		return `text`
+	case qb.Boolean:
+		return `bit`
+	case qb.Float:
+		return `float`
+	case qb.Date:
+		return `date`
+	case qb.Time:
+		return `datetime`
+	default:
+		panic(`Unknown type`)
+	}
+}
