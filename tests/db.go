@@ -4,17 +4,12 @@ import (
 	"database/sql"
 	"strings"
 
-	"git.ultraware.nl/NiseVoid/qb/driver/msqb"
-	"git.ultraware.nl/NiseVoid/qb/driver/myqb"
-	"git.ultraware.nl/NiseVoid/qb/driver/pgqb"
-	"git.ultraware.nl/NiseVoid/qb/qbdb"
-
 	_ "github.com/denisenkom/go-mssqldb" // database driver
 	_ "github.com/go-sql-driver/mysql"   // database driver
 	_ "github.com/lib/pq"                // database driver
 )
 
-func initDatabase(driverName, connectionString string, driverFunc func(*sql.DB) *qbdb.DB) *qbdb.DB {
+func initDatabase(driverName, connectionString string) *sql.DB {
 	db, err := sql.Open(driverName, connectionString)
 	if err != nil {
 		panic(err)
@@ -32,17 +27,17 @@ func initDatabase(driverName, connectionString string, driverFunc func(*sql.DB) 
 		panic(err)
 	}
 
-	return driverFunc(db)
+	return db
 }
 
-func initPostgres() *qbdb.DB {
-	return initDatabase(`postgres`, getPostgresDBString(), pgqb.New)
+func initPostgres() *sql.DB {
+	return initDatabase(`postgres`, getPostgresDBString())
 }
 
-func initMysql() *qbdb.DB {
-	return initDatabase(`mysql`, getMysqlDBString(), myqb.New)
+func initMysql() *sql.DB {
+	return initDatabase(`mysql`, getMysqlDBString())
 }
 
-func initMssql() *qbdb.DB {
-	return initDatabase(`mssql`, getMssqlDBString(), msqb.New)
+func initMssql() *sql.DB {
+	return initDatabase(`mssql`, getMssqlDBString())
 }

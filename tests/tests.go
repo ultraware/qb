@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"database/sql"
 	"fmt"
 	"reflect"
 	"testing"
@@ -9,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"git.ultraware.nl/NiseVoid/qb"
+	"git.ultraware.nl/NiseVoid/qb/driver/autoqb"
 	"git.ultraware.nl/NiseVoid/qb/qbdb"
 	"git.ultraware.nl/NiseVoid/qb/qc"
 	"git.ultraware.nl/NiseVoid/qb/qf"
@@ -25,13 +27,13 @@ func StartTests(t *testing.T) {
 		t.Skip("skipping test in short mode.")
 	}
 
-	startTests(t, initPostgres)
-	startTests(t, initMysql)
-	startTests(t, initMssql)
+	startTests(t, initPostgres())
+	startTests(t, initMysql())
+	startTests(t, initMssql())
 }
 
-func startTests(t *testing.T, f func() *qbdb.DB) {
-	db = f()
+func startTests(t *testing.T, d *sql.DB) {
+	db = autoqb.New(d)
 	driver = reflect.TypeOf(db.Driver).String()
 
 	if testing.Verbose() {
