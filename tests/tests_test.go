@@ -3,6 +3,7 @@ package tests
 import (
 	"database/sql"
 	"fmt"
+	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -21,15 +22,24 @@ import (
 var db *qbdb.DB
 var driver string
 
-// StartTests starts all the end-to-end tests
-func StartTests(t *testing.T) {
+func TestEndToEnd(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping test in short mode.")
 	}
 
-	startTests(t, initPostgres())
-	startTests(t, initMysql())
-	startTests(t, initMssql())
+	var db *sql.DB
+	switch os.Getenv(`TYPE`) {
+	case `postgres`:
+		db = initPostgres()
+	case `mysql`:
+		db = initMysql()
+	case `mssql`:
+		db = initMssql()
+	default:
+		t.Skip(`Missing TYPE`)
+	}
+
+	startTests(t, db)
 }
 
 func startTests(t *testing.T, d *sql.DB) {
