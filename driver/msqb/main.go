@@ -78,22 +78,19 @@ func (d Driver) DateExtract(f string, part string) string {
 	return `DATEPART(` + part + `, ` + f + `)`
 }
 
+var types = map[qb.DataType]string{
+	qb.Int:     `int`,
+	qb.String:  `text`,
+	qb.Boolean: `bit`,
+	qb.Float:   `float`,
+	qb.Date:    `date`,
+	qb.Time:    `datetime`,
+}
+
 // TypeName ...
 func (d Driver) TypeName(t qb.DataType) string {
-	switch t {
-	case qb.Int:
-		return `int`
-	case qb.String:
-		return `text`
-	case qb.Boolean:
-		return `bit`
-	case qb.Float:
-		return `float`
-	case qb.Date:
-		return `date`
-	case qb.Time:
-		return `datetime`
-	default:
-		panic(`Unknown type`)
+	if s, ok := types[t]; ok {
+		return s
 	}
+	panic(`Unknown type`)
 }
