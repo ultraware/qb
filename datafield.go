@@ -40,7 +40,7 @@ func NewDataField(f Field, v interface{}) DataField {
 	}
 
 	df := DataField{f, &dataState{Value: v, empty: true}}
-	df.InitialValue = df.GetValue()
+	df.InitialValue = reflect.Zero(reflect.TypeOf(df.GetValue())).Interface()
 	return df
 }
 

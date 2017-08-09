@@ -60,16 +60,22 @@ func (t *{{.Table}}Type) Insert() *qb.InsertBuilder {
 	return t.table.Insert(t.All())
 }
 
-// {{.Table}} returns a new {{.Table}}Type
-func {{.Table}}() *{{.Table}}Type {
+// {{.Table}}From returns a new {{.Table}}Type using the provided data
+func {{.Table}}From(data *{{.Table}}Data) *{{.Table}}Type {
 	table := qb{{$.Table}}Table
-	data := {{.Table}}Data{}
 	return &{{.Table}}Type{
-		&data,
+		data,
 	{{- range .Fields}}
 		qb{{$.Table}}F{{.Name}}.Copy(&table).New(&data.{{.Name}}),
 	{{- end}}
 		&table,
 	}
+
+}
+
+// {{.Table}} returns a new {{.Table}}Type
+func {{.Table}}() *{{.Table}}Type {
+	data := {{.Table}}Data{}
+	return {{.Table}}From(&data)
 }
 `
