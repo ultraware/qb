@@ -25,7 +25,7 @@ type UpdateBuilder struct {
 }
 
 // Set ...
-func (q UpdateBuilder) Set(f Field, v interface{}) UpdateBuilder {
+func (q *UpdateBuilder) Set(f Field, v interface{}) *UpdateBuilder {
 	if v, ok := f.(DataField); ok {
 		f = v.Field
 	}
@@ -34,13 +34,13 @@ func (q UpdateBuilder) Set(f Field, v interface{}) UpdateBuilder {
 }
 
 // Where ...
-func (q UpdateBuilder) Where(c ...Condition) UpdateBuilder {
+func (q *UpdateBuilder) Where(c ...Condition) *UpdateBuilder {
 	q.c = append(q.c, c...)
 	return q
 }
 
 // SQL ...
-func (q UpdateBuilder) SQL(d Driver) (string, []interface{}) {
+func (q *UpdateBuilder) SQL(d Driver) (string, []interface{}) {
 	b := newSQLBuilder(d, false)
 	b.Update(q.t)
 	b.Set(q.set)

@@ -63,7 +63,7 @@ func (t *Table) aliasString() string {
 }
 
 // Select ...
-func (t *Table) Select(f ...DataField) SelectBuilder {
+func (t *Table) Select(f ...DataField) *SelectBuilder {
 	return NewSelectBuilder(f, t)
 }
 
@@ -73,8 +73,8 @@ func (t *Table) Delete(c1 Condition, c ...Condition) Query {
 }
 
 // Update ...
-func (t *Table) Update() UpdateBuilder {
-	return UpdateBuilder{t, nil, nil}
+func (t *Table) Update() *UpdateBuilder {
+	return &UpdateBuilder{t, nil, nil}
 }
 
 // Insert ...
@@ -119,7 +119,7 @@ func (t *SubQuery) aliasString() string {
 }
 
 // Select ...
-func (t *SubQuery) Select(f ...DataField) SelectBuilder {
+func (t *SubQuery) Select(f ...DataField) *SelectBuilder {
 	return NewSelectBuilder(f, t)
 }
 

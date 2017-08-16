@@ -57,39 +57,39 @@ type SelectBuilder struct {
 }
 
 // NewSelectBuilder ...
-func NewSelectBuilder(f []DataField, src Source) SelectBuilder {
-	return SelectBuilder{fields: f, source: src}
+func NewSelectBuilder(f []DataField, src Source) *SelectBuilder {
+	return &SelectBuilder{fields: f, source: src}
 }
 
 // Where ...
-func (q SelectBuilder) Where(c ...Condition) SelectBuilder {
+func (q *SelectBuilder) Where(c ...Condition) *SelectBuilder {
 	q.where = append(q.where, c...)
 	return q
 }
 
 // InnerJoin ...
-func (q SelectBuilder) InnerJoin(f1, f2 Field, c ...Condition) SelectBuilder {
+func (q *SelectBuilder) InnerJoin(f1, f2 Field, c ...Condition) *SelectBuilder {
 	return q.join(JoinInner, f1, f2, c)
 }
 
 // CrossJoin ...
-func (q SelectBuilder) CrossJoin(f1, f2 Field, c ...Condition) SelectBuilder {
+func (q *SelectBuilder) CrossJoin(f1, f2 Field, c ...Condition) *SelectBuilder {
 	return q.join(JoinCross, f1, f2, c)
 }
 
 // LeftJoin ...
-func (q SelectBuilder) LeftJoin(f1, f2 Field, c ...Condition) SelectBuilder {
+func (q *SelectBuilder) LeftJoin(f1, f2 Field, c ...Condition) *SelectBuilder {
 	return q.join(JoinLeft, f1, f2, c)
 }
 
 // RightJoin ...
-func (q SelectBuilder) RightJoin(f1, f2 Field, c ...Condition) SelectBuilder {
+func (q *SelectBuilder) RightJoin(f1, f2 Field, c ...Condition) *SelectBuilder {
 	return q.join(JoinRight, f1, f2, c)
 }
 
 // ManualJoin manually joins a table
 // Use this only if you know what you are doing
-func (q SelectBuilder) ManualJoin(t Join, s Source, c ...Condition) SelectBuilder {
+func (q *SelectBuilder) ManualJoin(t Join, s Source, c ...Condition) *SelectBuilder {
 	q.joins = append(q.joins, join{t, s, c})
 
 	q.tables = append(q.tables, s)
@@ -98,7 +98,7 @@ func (q SelectBuilder) ManualJoin(t Join, s Source, c ...Condition) SelectBuilde
 }
 
 // join ...
-func (q SelectBuilder) join(t Join, f1, f2 Field, c []Condition) SelectBuilder {
+func (q *SelectBuilder) join(t Join, f1, f2 Field, c []Condition) *SelectBuilder {
 	if len(q.tables) == 0 {
 		q.tables = []Source{q.source}
 	}
@@ -127,41 +127,41 @@ func (q SelectBuilder) join(t Join, f1, f2 Field, c []Condition) SelectBuilder {
 }
 
 // GroupBy ...
-func (q SelectBuilder) GroupBy(f ...Field) SelectBuilder {
+func (q *SelectBuilder) GroupBy(f ...Field) *SelectBuilder {
 	q.group = f
 	return q
 }
 
 // Having ...
-func (q SelectBuilder) Having(c ...Condition) SelectBuilder {
+func (q *SelectBuilder) Having(c ...Condition) *SelectBuilder {
 	q.having = append(q.having, c...)
 	return q
 }
 
 // OrderBy ...
-func (q SelectBuilder) OrderBy(o ...FieldOrder) SelectBuilder {
+func (q *SelectBuilder) OrderBy(o ...FieldOrder) *SelectBuilder {
 	q.order = o
 	return q
 }
 
 // Limit ...
-func (q SelectBuilder) Limit(i int) SelectBuilder {
+func (q *SelectBuilder) Limit(i int) *SelectBuilder {
 	q.limit = i
 	return q
 }
 
 // Offset ...
-func (q SelectBuilder) Offset(i int) SelectBuilder {
+func (q *SelectBuilder) Offset(i int) *SelectBuilder {
 	q.offset = i
 	return q
 }
 
 // SQL ...
-func (q SelectBuilder) SQL(d Driver) (string, []interface{}) {
+func (q *SelectBuilder) SQL(d Driver) (string, []interface{}) {
 	return q.getSQL(d, false)
 }
 
-func (q SelectBuilder) getSQL(d Driver, aliasFields bool) (string, []interface{}) {
+func (q *SelectBuilder) getSQL(d Driver, aliasFields bool) (string, []interface{}) {
 	b := newSQLBuilder(d, true)
 
 	for _, v := range q.tables {
@@ -182,12 +182,12 @@ func (q SelectBuilder) getSQL(d Driver, aliasFields bool) (string, []interface{}
 }
 
 // SubQuery converts the SelectQuery to a SubQuery for use in further queries
-func (q SelectBuilder) SubQuery() *SubQuery {
+func (q *SelectBuilder) SubQuery() *SubQuery {
 	return newSubQuery(q, q.fields)
 }
 
 // Fields ...
-func (q SelectBuilder) Fields() []DataField {
+func (q *SelectBuilder) Fields() []DataField {
 	return q.fields
 }
 
