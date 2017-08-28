@@ -105,7 +105,10 @@ func (t *SubQuery) QueryString(d Driver, ag Alias, vl *ValueList) string {
 	if len(alias) > 0 {
 		alias = ` ` + alias
 	}
-	sql, _ := t.query.getSQL(d, true)
+
+	sql, v := t.query.getSQL(d, true)
+	vl.Append(v...)
+
 	return getSubQuerySQL(sql) + alias
 }
 
