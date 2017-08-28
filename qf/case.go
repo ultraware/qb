@@ -58,6 +58,6 @@ func (f CaseField) QueryString(d qb.Driver, ag qb.Alias, vl *qb.ValueList) strin
 }
 
 // New returns a new DataField using the given value
-func (f *CaseField) New(v interface{}) qb.DataField {
+func (f CaseField) New(v interface{}) qb.DataField {
 	return qb.NewDataField(f, v)
 }
