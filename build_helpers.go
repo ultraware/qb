@@ -21,12 +21,12 @@ func MakeField(i interface{}) Field {
 }
 
 // ConcatQuery ...
-func ConcatQuery(d Driver, ag Alias, vl *ValueList, values ...interface{}) string {
+func ConcatQuery(c *Context, values ...interface{}) string {
 	s := ``
 	for _, val := range values {
 		switch v := val.(type) {
 		case (Field):
-			s += v.QueryString(d, ag, vl)
+			s += v.QueryString(c)
 		case (string):
 			s += v
 		}
@@ -69,14 +69,4 @@ func (g *aliasGenerator) Get(src Source) string {
 	g.counter++
 	g.list[src] = src.aliasString() + strconv.Itoa(g.counter)
 	return g.list[src]
-}
-
-///// Value list /////
-
-// ValueList is a list of static values used in a query
-type ValueList []interface{}
-
-// Append adds the given values to the list
-func (list *ValueList) Append(v ...interface{}) {
-	*list = append(*list, v...)
 }

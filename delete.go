@@ -9,7 +9,9 @@ type DeleteBuilder struct {
 // SQL ...
 func (q DeleteBuilder) SQL(d Driver) (string, []interface{}) {
 	b := newSQLBuilder(d, false)
+
 	b.Delete(q.table)
 	b.Where(q.c...)
-	return b.w.String(), b.values
+
+	return b.w.String(), b.Context.Values
 }

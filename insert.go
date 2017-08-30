@@ -4,7 +4,7 @@ package qb
 type defaultField struct{}
 
 // QueryString ...
-func (f defaultField) QueryString(_ Driver, ag Alias, _ *ValueList) string {
+func (f defaultField) QueryString(_ *Context) string {
 	return `DEFAULT`
 }
 
@@ -59,9 +59,9 @@ func (q *InsertBuilder) SQL(d Driver) (string, []interface{}) {
 	sql := b.w.String()
 	if q.update != nil {
 		s, v := d.UpsertSQL(q.table, q.conflict, q.update)
-		b.values.Append(v...)
+		b.Context.Add(v...)
 		sql += s
 	}
 
-	return sql, b.values
+	return sql, b.Context.Values
 }

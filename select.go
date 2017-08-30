@@ -31,7 +31,7 @@ func (q returningBuilder) getSQL(d Driver, aliasFields bool) (string, []interfac
 	}
 
 	s, v := d.Returning(q.query, f)
-	return s, append(v, b.values...)
+	return s, append(v, b.Context.Values...)
 }
 
 func (q returningBuilder) Fields() []DataField {
@@ -165,7 +165,7 @@ func (q *SelectBuilder) getSQL(d Driver, aliasFields bool) (string, []interface{
 	b := newSQLBuilder(d, true)
 
 	for _, v := range q.tables {
-		_ = b.alias.Get(v)
+		_ = b.Context.Alias(v)
 	}
 
 	b.Select(aliasFields, q.fields...)
@@ -178,7 +178,7 @@ func (q *SelectBuilder) getSQL(d Driver, aliasFields bool) (string, []interface{
 	b.Limit(q.limit)
 	b.Offset(q.offset)
 
-	return b.w.String(), []interface{}(b.values)
+	return b.w.String(), b.Context.Values
 }
 
 // SubQuery converts the SelectQuery to a SubQuery for use in further queries

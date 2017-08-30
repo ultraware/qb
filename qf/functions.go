@@ -6,15 +6,15 @@ import "git.ultraware.nl/NiseVoid/qb"
 
 // Excluded ...
 func Excluded(f qb.QueryStringer) qb.Field {
-	return CalculatedField(func(d qb.Driver, ag qb.Alias, vl *qb.ValueList) string {
-		return d.ExcludedField(f.QueryString(d, ag, vl))
+	return CalculatedField(func(c *qb.Context) string {
+		return c.Driver.ExcludedField(f.QueryString(c))
 	})
 }
 
 // Cast ...
 func Cast(f qb.Field, t qb.DataType) qb.Field {
-	return CalculatedField(func(d qb.Driver, ag qb.Alias, vl *qb.ValueList) string {
-		return qb.ConcatQuery(d, ag, vl, `CAST(`, f, ` AS `, d.TypeName(t), `)`)
+	return CalculatedField(func(c *qb.Context) string {
+		return qb.ConcatQuery(c, `CAST(`, f, ` AS `, c.Driver.TypeName(t), `)`)
 	})
 }
 
@@ -68,11 +68,11 @@ func Lower(f qb.Field) qb.Field {
 
 // Concat ...
 func Concat(i ...interface{}) qb.Field {
-	return CalculatedField(func(d qb.Driver, ag qb.Alias, vl *qb.ValueList) string {
+	return CalculatedField(func(c *qb.Context) string {
 		s := make([]interface{}, len(i)*2-1)
 		for k, v := range i {
 			if k > 0 {
-				s[k*2-1] = ` ` + d.ConcatOperator() + ` `
+				s[k*2-1] = ` ` + c.Driver.ConcatOperator() + ` `
 			}
 
 			f := qb.MakeField(v)
@@ -80,7 +80,7 @@ func Concat(i ...interface{}) qb.Field {
 			s[k*2] = f
 		}
 
-		return qb.ConcatQuery(d, ag, vl, s...)
+		return qb.ConcatQuery(c, s...)
 	})
 }
 
@@ -108,8 +108,8 @@ func Now() qb.Field {
 }
 
 func newExtractField(f qb.Field, part string) CalculatedField {
-	return func(d qb.Driver, ag qb.Alias, vl *qb.ValueList) string {
-		return d.DateExtract(f.QueryString(d, ag, vl), part)
+	return func(c *qb.Context) string {
+		return c.Driver.DateExtract(f.QueryString(c), part)
 	}
 }
 

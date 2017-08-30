@@ -42,10 +42,8 @@ func (w *sqlWriter) String() string {
 }
 
 type sqlBuilder struct {
-	w      sqlWriter
-	driver Driver
-	alias  Alias
-	values ValueList
+	w       sqlWriter
+	Context *Context
 }
 
 func newSQLBuilder(d Driver, useAlias bool) sqlBuilder {
@@ -53,13 +51,13 @@ func newSQLBuilder(d Driver, useAlias bool) sqlBuilder {
 	if useAlias {
 		alias = AliasGenerator()
 	}
-	return sqlBuilder{sqlWriter{}, d, alias, nil}
+	return sqlBuilder{sqlWriter{}, NewContext(d, alias)}
 }
 
 ///// Non-statements /////
 
 func (b *sqlBuilder) ToSQL(qs QueryStringer) string {
-	return qs.QueryString(b.driver, b.alias, &b.values)
+	return qs.QueryString(b.Context)
 }
 
 // List lists the given fields
@@ -94,10 +92,10 @@ func (b *sqlBuilder) Conditions(c []Condition, newline bool) {
 		fn = b.w.WriteLine
 	}
 
-	fn(c[0](b.driver, b.alias, &b.values))
 	if len(c) == 0 {
 		return
 	}
+	fn(c[0](b.Context))
 
 	if newline {
 		b.w.AddIndent()
@@ -108,13 +106,13 @@ func (b *sqlBuilder) Conditions(c []Condition, newline bool) {
 		if !newline {
 			fn(` `)
 		}
-		fn(`AND ` + v(b.driver, b.alias, &b.values))
+		fn(`AND ` + v(b.Context))
 	}
 }
 
 func eq(f1, f2 Field) Condition {
-	return func(d Driver, ag Alias, vl *ValueList) string {
-		return ConcatQuery(d, ag, vl, f1, ` = `, f2)
+	return func(c *Context) string {
+		return ConcatQuery(c, f1, ` = `, f2)
 	}
 }
 
@@ -212,7 +210,7 @@ func (b *sqlBuilder) Set(sets []set) {
 		if k == len(sets)-1 {
 			comma = ``
 		}
-		b.w.WriteLine(eq(v.Field, v.Value)(b.driver, b.alias, &b.values) + comma)
+		b.w.WriteLine(eq(v.Field, v.Value)(b.Context) + comma)
 	}
 }
 

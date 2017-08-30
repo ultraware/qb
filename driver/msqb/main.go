@@ -46,6 +46,7 @@ func (d Driver) UpsertSQL(t *qb.Table, _ []qb.Field, q qb.Query) (string, []inte
 
 // Returning ...
 func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
+	c := qb.NewContext(d, qb.NoAlias())
 	sql, v := q.SQL(d)
 
 	var t string
@@ -61,7 +62,7 @@ func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
 		if k > 0 {
 			line += `, `
 		}
-		line += t + `.` + field.QueryString(d, qb.NoAlias(), nil)
+		line += t + `.` + field.QueryString(c)
 	}
 
 	index := strings.Index(sql, `WHERE`)

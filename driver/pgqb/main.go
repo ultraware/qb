@@ -39,12 +39,13 @@ func (d Driver) ExcludedField(f string) string {
 
 // UpsertSQL ...
 func (d Driver) UpsertSQL(t *qb.Table, conflict []qb.Field, q qb.Query) (string, []interface{}) {
+	c := qb.NewContext(d, qb.NoAlias())
 	sql := ``
 	for k, v := range conflict {
 		if k > 0 {
 			sql += qb.COMMA
 		}
-		sql += v.QueryString(d, qb.NoAlias(), nil)
+		sql += v.QueryString(c)
 	}
 
 	usql, values := q.SQL(d)
@@ -58,7 +59,8 @@ func (d Driver) UpsertSQL(t *qb.Table, conflict []qb.Field, q qb.Query) (string,
 
 // Returning ...
 func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
-	vl := qb.ValueList{}
+	c := qb.NewContext(d, qb.NoAlias())
+
 	s, v := q.SQL(d)
 
 	line := ``
@@ -66,10 +68,10 @@ func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
 		if k > 0 {
 			line += `, `
 		}
-		line += field.QueryString(d, qb.NoAlias(), &vl)
+		line += field.QueryString(c)
 	}
 
-	return s + `RETURNING ` + line + qb.NEWLINE, append(v, vl...)
+	return s + `RETURNING ` + line + qb.NEWLINE, append(v, c.Values...)
 }
 
 // DateExtract ...

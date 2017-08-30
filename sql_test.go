@@ -42,9 +42,9 @@ func info(t *testing.T, msg string) {
 }
 
 func testBuilder(t *testing.T, alias bool) (*sqlBuilder, func(bool, string)) {
-	b := &sqlBuilder{sqlWriter{}, nil, NoAlias(), nil}
+	b := &sqlBuilder{sqlWriter{}, NewContext(nil, NoAlias())}
 	if alias {
-		b.alias = AliasGenerator()
+		b.Context.alias = AliasGenerator()
 	}
 	return b, newCheckOutput(t, b)
 }
@@ -167,11 +167,11 @@ func TestSet(t *testing.T) {
 
 // Conditions
 
-var testCondition = func(_ Driver, _ Alias, _ *ValueList) string {
+var testCondition = func(_ *Context) string {
 	return `a`
 }
 
-var testCondition2 = func(_ Driver, _ Alias, _ *ValueList) string {
+var testCondition2 = func(_ *Context) string {
 	return `b`
 }
 

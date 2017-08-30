@@ -30,7 +30,7 @@ type Alias interface {
 
 // QueryStringer ...
 type QueryStringer interface {
-	QueryString(Driver, Alias, *ValueList) string
+	QueryString(*Context) string
 }
 
 ///
@@ -49,8 +49,8 @@ type Table struct {
 }
 
 // QueryString ...
-func (t *Table) QueryString(_ Driver, ag Alias, _ *ValueList) string {
-	alias := ag.Get(t)
+func (t *Table) QueryString(c *Context) string {
+	alias := c.Alias(t)
 	if len(alias) > 0 {
 		alias = ` ` + alias
 	}
@@ -100,14 +100,14 @@ func newSubQuery(q SelectQuery, f []DataField) *SubQuery {
 }
 
 // QueryString ...
-func (t *SubQuery) QueryString(d Driver, ag Alias, vl *ValueList) string {
-	alias := ag.Get(t)
+func (t *SubQuery) QueryString(c *Context) string {
+	alias := c.Alias(t)
 	if len(alias) > 0 {
 		alias = ` ` + alias
 	}
 
-	sql, v := t.query.getSQL(d, true)
-	vl.Append(v...)
+	sql, v := t.query.getSQL(c.Driver, true)
+	c.Add(v...)
 
 	return getSubQuerySQL(sql) + alias
 }
@@ -146,8 +146,8 @@ type TableField struct {
 }
 
 // QueryString ...
-func (f TableField) QueryString(_ Driver, ag Alias, _ *ValueList) string {
-	alias := ag.Get(f.Parent)
+func (f TableField) QueryString(c *Context) string {
+	alias := c.Alias(f.Parent)
 	if alias != `` {
 		alias += `.`
 	}
@@ -180,8 +180,8 @@ type valueField struct {
 	Value interface{}
 }
 
-func (f valueField) QueryString(_ Driver, _ Alias, vl *ValueList) string {
-	vl.Append(f.Value)
+func (f valueField) QueryString(c *Context) string {
+	c.Add(f.Value)
 	return VALUE
 }
 
@@ -209,7 +209,7 @@ func getValue(v interface{}) interface{} {
 ///
 
 // Condition is used in the Where function
-type Condition func(Driver, Alias, *ValueList) string
+type Condition func(c *Context) string
 
 // FieldOrder specifies the order in which fields should be sorted
 type FieldOrder struct {
@@ -225,4 +225,26 @@ func Asc(f Field) FieldOrder {
 // Desc is used to sort in descending order
 func Desc(f Field) FieldOrder {
 	return FieldOrder{Field: f, Order: `DESC`}
+}
+
+// Context contains all the data needed to build parts of a query
+type Context struct {
+	Driver Driver
+	alias  Alias
+	Values []interface{}
+}
+
+// Add adds a value to Values
+func (c *Context) Add(v ...interface{}) {
+	c.Values = append(c.Values, v...)
+}
+
+// Alias returns an alias for the given Source
+func (c *Context) Alias(src Source) string {
+	return c.alias.Get(src)
+}
+
+// NewContext returns a new *Context
+func NewContext(d Driver, a Alias) *Context {
+	return &Context{d, a, nil}
 }

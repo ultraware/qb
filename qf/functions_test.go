@@ -60,8 +60,10 @@ func TestAll(t *testing.T) { // nolint: funlen
 	check(t, Pow(f1, f2), `A ^ B`)
 }
 
+var c = qb.NewContext(pgqb.Driver{}, qb.NoAlias())
+
 func check(t *testing.T, f qb.Field, expectedSQL string) {
-	sql := f.QueryString(pgqb.Driver{}, qb.NoAlias(), &qb.ValueList{})
+	sql := f.QueryString(c)
 
 	testutil.Compare(t, expectedSQL, sql)
 }

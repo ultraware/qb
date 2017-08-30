@@ -42,8 +42,10 @@ func (q *UpdateBuilder) Where(c ...Condition) *UpdateBuilder {
 // SQL ...
 func (q *UpdateBuilder) SQL(d Driver) (string, []interface{}) {
 	b := newSQLBuilder(d, false)
+
 	b.Update(q.t)
 	b.Set(q.set)
 	b.Where(q.c...)
-	return b.w.String(), b.values
+
+	return b.w.String(), b.Context.Values
 }

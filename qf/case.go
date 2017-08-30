@@ -48,12 +48,12 @@ type CaseField struct {
 }
 
 // QueryString returns a string for use in queries
-func (f CaseField) QueryString(d qb.Driver, ag qb.Alias, vl *qb.ValueList) string {
+func (f CaseField) QueryString(c *qb.Context) string {
 	s := `CASE`
 	for _, v := range f.When {
-		s += ` WHEN ` + v.C(d, ag, vl) + ` THEN ` + v.F.QueryString(d, ag, vl)
+		s += ` WHEN ` + v.C(c) + ` THEN ` + v.F.QueryString(c)
 	}
-	s += ` ELSE ` + f.Else.QueryString(d, ag, vl) + ` END`
+	s += ` ELSE ` + f.Else.QueryString(c) + ` END`
 	return s
 }
 

@@ -35,8 +35,10 @@ func TestAll(t *testing.T) {
 	}
 }
 
+var ctx = qb.NewContext(nil, qb.NoAlias())
+
 func check(t *testing.T, c qb.Condition, expectedSQL string) {
-	sql := c(nil, qb.NoAlias(), &qb.ValueList{})
+	sql := c(ctx)
 
 	testutil.Compare(t, expectedSQL, sql)
 

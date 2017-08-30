@@ -71,28 +71,28 @@ func In(f1 qb.Field, in ...interface{}) qb.Condition {
 		panic(`Cannot call qc.In with zero in values`)
 	}
 	list := strings.TrimSuffix(strings.Repeat(`?, `, len(in)), `, `)
-	return func(d qb.Driver, ag qb.Alias, vl *qb.ValueList) string {
-		vl.Append(in...)
-		return qb.ConcatQuery(d, ag, vl, f1, ` IN (`+list+`)`)
+	return func(c *qb.Context) string {
+		c.Add(in...)
+		return qb.ConcatQuery(c, f1, ` IN (`+list+`)`)
 	}
 }
 
 // Not ...
 func Not(c qb.Condition) qb.Condition {
-	return func(d qb.Driver, ag qb.Alias, vl *qb.ValueList) string {
-		return `NOT (` + c(d, ag, vl) + `)`
+	return func(ctx *qb.Context) string {
+		return `NOT (` + c(ctx) + `)`
 	}
 }
 
 // createLogicalCondition ...
 func createLogicalCondition(operator string, conditions ...qb.Condition) qb.Condition {
-	return func(d qb.Driver, ag qb.Alias, vl *qb.ValueList) string {
+	return func(ctx *qb.Context) string {
 		s := `(`
 		for k, c := range conditions {
 			if k > 0 {
 				s += ` ` + operator + ` `
 			}
-			s += c(d, ag, vl)
+			s += c(ctx)
 		}
 		s += `)`
 		return s
