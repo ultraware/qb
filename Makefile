@@ -10,21 +10,22 @@ setup:
 
 test:
 	@printf "Testing ...\n"
-	@T=$$(go test -short -cover ./... $$VERBOSE); C=$$?; \
-		echo -e "$$T" | grep -v "^?" | grep -v " 0.0%"; \
+	@T=$$(go test -v -short -cover ./...); C=$$?; \
+		echo -e "$$T" | grep -vE "^(ok|fail|\?|coverage|PASS)"; echo; \
+		echo -e "$$T" | grep -E "^(ok|FAIL)[^$$]"; \
 		exit $$C
 	@printf "\n\n"
 
 test_all: test_postgres test_mysql test_mssql
 
 test_postgres:
-	@TYPE=postgres go test ./tests $$VERBOSE
+	@TYPE=postgres go test ./tests -v
 
 test_mysql:
-	@TYPE=mysql go test ./tests $$VERBOSE
+	@TYPE=mysql go test ./tests -v
 
 test_mssql:
-	@TYPE=mssql go test ./tests $$VERBOSE
+	@TYPE=mssql go test ./tests -v
 
 lint:
 	@printf "Running linters ...\n"

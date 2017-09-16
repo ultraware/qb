@@ -10,13 +10,10 @@ pipeline:
   test:
     image: registry.ultraware.nl/go-build:latest
     pull: true
-    environment:
-      - CGO_ENABLED=0
     commands:
       - make setup
       - go get git.ultraware.nl/NiseVoid/funlen
       - make test
-      - VERBOSE="-v" make test
       - make lint
     when:
       event: [ push, tag, pull_request ]
@@ -25,11 +22,10 @@ pipeline:
     image: registry.ultraware.nl/go-build:latest
     pull: true
     environment:
-      - CGO_ENABLED=0
       - POSTGRES_TESTHOST=pgsql
     commands:
       - make setup
-      - VERBOSE="-v" make test_postgres
+      - make test_postgres
     when:
       event: [ push, tag, pull_request ]
 
@@ -37,11 +33,10 @@ pipeline:
     image: registry.ultraware.nl/go-build:latest
     pull: true
     environment:
-      - CGO_ENABLED=0
       - MYSQL_TESTHOST=mariadb
     commands:
       - make setup
-      - VERBOSE="-v" make test_mysql
+      - make test_mysql
     when:
       event: [ push, tag, pull_request ]
 
@@ -49,11 +44,10 @@ pipeline:
     image: registry.ultraware.nl/go-build:latest
     pull: true
     environment:
-      - CGO_ENABLED=0
       - MSSQL_TESTHOST=172.22.0.25
     commands:
       - make setup
-      - VERBOSE="-v" make test_mssql
+      - make test_mssql
     when:
       event: [ push, tag, pull_request ]
 
