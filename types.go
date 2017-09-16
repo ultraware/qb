@@ -59,7 +59,7 @@ func (t *Table) QueryString(c *Context) string {
 
 // aliasString ...
 func (t *Table) aliasString() string {
-	return `t`
+	return strings.ToLower(t.Name[0:1])
 }
 
 // Select ...

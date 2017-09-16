@@ -74,7 +74,7 @@ func TestFrom(t *testing.T) {
 	b, check = testBuilder(t, true)
 
 	b.From(testTable)
-	check(true, `FROM tmp t1`)
+	check(true, `FROM tmp t`)
 }
 
 func TestDelete(t *testing.T) {
@@ -109,12 +109,12 @@ func TestJoin(t *testing.T) {
 
 	b.Join(join{JoinInner, testTable2, []Condition{eq(testFieldA, testFieldA2)}})
 	check(true,
-		"\t"+`INNER JOIN tmp2 t2 ON (t1.colA = t2.colA2)`,
+		"\t"+`INNER JOIN tmp2 t2 ON (t.colA = t2.colA2)`,
 	)
 
 	b.Join(join{JoinLeft, testTable2, []Condition{eq(testFieldA, testFieldA2), testCondition, testCondition2}})
 	check(true,
-		"\t"+`LEFT JOIN tmp2 t2 ON (t1.colA = t2.colA2 AND a AND b)`,
+		"\t"+`LEFT JOIN tmp2 t2 ON (t.colA = t2.colA2 AND a AND b)`,
 	)
 
 	b.Join(
@@ -122,8 +122,8 @@ func TestJoin(t *testing.T) {
 		join{JoinLeft, testTable2, []Condition{eq(testFieldA, testFieldA2), testCondition, testCondition2}},
 	)
 	check(true,
-		"\t"+`INNER JOIN tmp2 t2 ON (t1.colA = t2.colA2)`+"\n\t"+
-			`LEFT JOIN tmp2 t2 ON (t1.colA = t2.colA2 AND a AND b)`,
+		"\t"+`INNER JOIN tmp2 t2 ON (t.colA = t2.colA2)`+"\n\t"+
+			`LEFT JOIN tmp2 t2 ON (t.colA = t2.colA2 AND a AND b)`,
 	)
 }
 
@@ -146,10 +146,10 @@ func TestSelect(t *testing.T) {
 	b, check = testBuilder(t, true)
 
 	b.Select(false, f1, f2)
-	check(true, `SELECT t1.colA, t1.colB`)
+	check(true, `SELECT t.colA, t.colB`)
 
 	b.Select(true, f1, f2)
-	check(true, `SELECT t1.colA f0, t1.colB f1`)
+	check(true, `SELECT t.colA f0, t.colB f1`)
 }
 
 func TestSet(t *testing.T) {

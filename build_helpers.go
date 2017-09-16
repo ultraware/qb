@@ -48,13 +48,13 @@ func NoAlias() Alias {
 }
 
 type aliasGenerator struct {
-	counter int
-	list    map[Source]string
+	cache    map[Source]string
+	counters map[string]int
 }
 
 // AliasGenerator returns an incrementing alias for each new Source
 func AliasGenerator() Alias {
-	return &aliasGenerator{0, make(map[Source]string)}
+	return &aliasGenerator{make(map[Source]string), make(map[string]int)}
 }
 
 func (g *aliasGenerator) Get(src Source) string {
@@ -62,11 +62,23 @@ func (g *aliasGenerator) Get(src Source) string {
 		return ``
 	}
 
-	if v, ok := g.list[src]; ok {
+	if v, ok := g.cache[src]; ok {
 		return v
 	}
 
-	g.counter++
-	g.list[src] = src.aliasString() + strconv.Itoa(g.counter)
-	return g.list[src]
+	new := g.new(src)
+	g.cache[src] = new
+	return new
+}
+
+func (g *aliasGenerator) new(src Source) string {
+	a := src.aliasString()
+
+	g.counters[a]++
+
+	if g.counters[a] == 1 {
+		return a
+	}
+
+	return a + strconv.Itoa(g.counters[a])
 }
