@@ -14,6 +14,7 @@ import (
 // InputTable ...
 type InputTable struct {
 	String string       `json:"name"`
+	Alias  string       `json:"alias"`
 	Fields []InputField `json:"fields"`
 }
 
@@ -30,6 +31,7 @@ type InputField struct {
 type Table struct {
 	Table       string
 	TableString string
+	Alias       string
 	Fields      []Field
 }
 
@@ -101,8 +103,8 @@ func getType(t string, null bool) string {
 	return p + t
 }
 
-func newField(name string, t string, nullable bool, readOnly bool, hasDefault bool) Field {
-	return Field{cleanName(name), name, t, getType(t, nullable), readOnly, hasDefault}
+func newField(f InputField) Field {
+	return Field{cleanName(f.String), f.String, f.Type, getType(f.Type, f.Nullable), f.ReadOnly, f.Default}
 }
 
 func cleanName(s string) string {
@@ -176,10 +178,11 @@ func generateCode(out io.Writer, input []InputTable) error {
 	for k, v := range input {
 		t := &tables[k]
 		t.Table = cleanName(v.String)
+		t.Alias = v.Alias
 		t.TableString = v.String
 
 		for _, f := range v.Fields {
-			t.Fields = append(t.Fields, newField(f.String, f.Type, f.Nullable, f.ReadOnly, f.Default))
+			t.Fields = append(t.Fields, newField(f))
 		}
 	}
 

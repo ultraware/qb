@@ -45,7 +45,8 @@ type Source interface {
 
 // Table ...
 type Table struct {
-	Name string
+	Name  string
+	Alias string
 }
 
 // QueryString ...
@@ -59,6 +60,9 @@ func (t *Table) QueryString(c *Context) string {
 
 // aliasString ...
 func (t *Table) aliasString() string {
+	if t.Alias != `` {
+		return t.Alias
+	}
 	return strings.ToLower(t.Name[0:1])
 }
 

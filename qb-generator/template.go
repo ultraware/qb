@@ -1,7 +1,7 @@
 package main
 
 var codeTemplate = `///// {{.Table}} /////
-var qb{{.Table}}Table = qb.Table{Name: "{{.TableString}}"}
+var qb{{.Table}}Table = qb.Table{Name: "{{.TableString}}"{{- if .Alias }}, Alias: "{{.Alias}}"{{end -}}}
 
 {{range .Fields -}}
 var qb{{$.Table}}F{{.Name}} = qb.TableField{Parent: &qb{{$.Table}}Table, Name: "{{.String}}", 

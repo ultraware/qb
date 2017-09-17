@@ -9,6 +9,7 @@
 	},
 	{
 		"name": "two",
+		"alias": "tw",
 		"fields": [
 			{"name": "OneID", "type": "int", "primary": true},
 			{"name": "Number", "type": "int", "primary": true},
