@@ -58,11 +58,6 @@ var testFieldB = &TableField{Name: `colB`, Parent: testTable}
 var testTable2 = &Table{Name: `tmp2`}
 var testFieldA2 = &TableField{Name: `colA2`, Parent: testTable2}
 
-func NewIntField(f Field) DataField {
-	i := 0
-	return NewDataField(f, &i)
-}
-
 func TestFrom(t *testing.T) {
 	info(t, `-- Testing without alias`)
 	b, check := testBuilder(t, false)
@@ -97,7 +92,7 @@ func TestInsert(t *testing.T) {
 	b.Insert(testTable, nil)
 	check(true, `INSERT INTO tmp ()`)
 
-	b.Insert(testTable, []DataField{NewIntField(testFieldA), NewIntField(testFieldB)})
+	b.Insert(testTable, []Field{testFieldA, testFieldB})
 	check(true, `INSERT INTO tmp (colA, colB)`)
 }
 
@@ -130,8 +125,8 @@ func TestJoin(t *testing.T) {
 // Fields
 
 func TestSelect(t *testing.T) {
-	f1 := NewIntField(testFieldA)
-	f2 := NewIntField(testFieldB)
+	f1 := testFieldA
+	f2 := testFieldB
 
 	info(t, `-- Testing without alias`)
 	b, check := testBuilder(t, false)

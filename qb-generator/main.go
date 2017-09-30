@@ -21,10 +21,8 @@ type InputTable struct {
 // InputField ...
 type InputField struct {
 	String   string `json:"name"`
-	Type     string `json:"type"`
 	Nullable bool   `json:"null"`
 	ReadOnly bool   `json:"read_only"`
-	Default  bool   `json:"default"`
 	DataType string `json:"data_type"`
 	Size     int    `json:"size"`
 }
@@ -39,19 +37,10 @@ type Table struct {
 
 // Field ...
 type Field struct { //nolint: aligncheck
-	Name       string
-	String     string
-	Type       string
-	FieldType  string
-	ReadOnly   bool
-	HasDefault bool
-	DataType   dataType
-}
-
-var fieldTypes = map[string]string{
-	`time`:  `time.Time`,
-	`bytes`: `[]byte`,
-	`float`: `float64`,
+	Name     string
+	String   string
+	ReadOnly bool
+	DataType dataType
 }
 
 var fullUpperList = []string{
@@ -95,17 +84,6 @@ var fullUpperList = []string{
 	`xss`,
 }
 
-func getType(t string, null bool) string {
-	p := ``
-	if null {
-		p = `*`
-	}
-	if v, ok := fieldTypes[t]; ok {
-		return p + v
-	}
-	return p + t
-}
-
 type dataType struct {
 	Name string
 	Size int
@@ -143,7 +121,7 @@ func getDataType(t string, size int, null bool) dataType {
 }
 
 func newField(f InputField) Field {
-	return Field{cleanName(f.String), f.String, f.Type, getType(f.Type, f.Nullable), f.ReadOnly, f.Default, getDataType(f.DataType, f.Size, f.Nullable)}
+	return Field{cleanName(f.String), f.String, f.ReadOnly, getDataType(f.DataType, f.Size, f.Nullable)}
 }
 
 func cleanName(s string) string {

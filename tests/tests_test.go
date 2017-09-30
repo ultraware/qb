@@ -88,11 +88,8 @@ func runTests(t *testing.T) {
 func testUpsert(test *testing.T) {
 	o := model.One()
 
-	o.Data.ID = 1
-	o.Data.Name = `Test 1`
-
-	q := o.Insert()
-	q.Add()
+	q := o.Insert(o.ID, o.Name)
+	q.Values(1, `Test 1`)
 	q.Upsert(
 		o.Update().
 			Set(o.Name, qf.Concat(qf.Excluded(o.Name), `.1`)),
@@ -107,11 +104,8 @@ func testUpsert(test *testing.T) {
 func testUpsertSeperate(test *testing.T) {
 	o := model.One()
 
-	o.Data.ID = 1
-	o.Data.Name = `Test 1`
-
-	iq := o.Insert()
-	iq.Add()
+	iq := o.Insert(o.ID, o.Name)
+	iq.Values(1, `Test 1`)
 	err := db.Exec(iq)
 	if err == nil {
 		return
@@ -129,16 +123,9 @@ func testUpsertSeperate(test *testing.T) {
 func testInsert(test *testing.T) {
 	t := model.Two()
 
-	q := t.Insert()
-
-	t.Data.OneID = 1
-	t.Data.Number = 1
-	t.Data.Comment = `Test comment`
-	q.Add()
-
-	t.Data.Number = 2
-	t.Data.Comment += ` 2`
-	q.Add()
+	q := t.Insert(t.OneID, t.Number, t.Comment).
+		Values(1, 1, `Test comment`).
+		Values(1, 2, `Test comment 2`)
 
 	err := db.Exec(q)
 	if err != nil {
@@ -166,67 +153,83 @@ func testUpdateReturning(test *testing.T) {
 		Set(t.Comment, qf.Concat(t.Comment, ` v2`)).
 		Where(qc.Eq(t.OneID, 1))
 
-	cur, err := db.Query(qb.Returning(q, t.Comment, t.Number))
+	r, err := db.Query(qb.Returning(q, t.Comment, t.Number))
 	if err != nil {
 		panic(err)
 	}
 
-	assert := assert.New(test)
-	assert.True(cur.Next())
-	assert.Equal(`Test comment v2`, t.Data.Comment)
-	assert.Equal(1, t.Data.Number)
-	assert.True(cur.Next())
-	assert.Equal(`Test comment 2 v2`, t.Data.Comment)
-	assert.Equal(2, t.Data.Number)
-	assert.NoError(cur.Error())
+	var (
+		comment = ``
+		number  = 0
+		assert  = assert.New(test)
+	)
+
+	assert.True(r.Next())
+	assert.NoError(r.Scan(&comment, &number))
+	assert.Equal(`Test comment v2`, comment)
+	assert.Equal(1, number)
+
+	assert.True(r.Next())
+	assert.NoError(r.Scan(&comment, &number))
+	assert.Equal(`Test comment 2 v2`, comment)
+	assert.Equal(2, number)
+
+	assert.False(r.Next())
 }
 
 func testSelect(test *testing.T) {
 	o, t := model.One(), model.Two()
 
-	year := 0
-	q := o.Select(o.ID, o.Name, qf.Year(o.CreatedAt).New(&year), t.Number, t.Comment, t.ModifiedAt).
+	q := o.Select(o.ID, o.Name, qf.Year(o.CreatedAt), t.Number, t.Comment, t.ModifiedAt).
 		InnerJoin(t.OneID, o.ID).
 		Where(qc.Eq(o.ID, 1))
-	err := db.QueryRow(q)
+	r := db.QueryRow(q)
+
+	var (
+		id           int
+		name         string
+		year, number int
+		comment      string
+		modified     *time.Time
+		assert       = assert.New(test)
+	)
+
+	err := r.Scan(&id, &name, &year, &number, &comment, &modified)
 	if err != nil {
 		panic(err)
 	}
 
-	assert := assert.New(test)
-
-	assert.Equal(1, o.Data.ID)
-	assert.False(o.ID.Empty())
+	assert.Equal(1, id)
 
 	assert.Equal(time.Now().Year(), year)
-	assert.Equal(`Test 1.1`, o.Data.Name)
-	assert.Equal(1, t.Data.Number)
-	assert.Equal(`Test comment v2`, t.Data.Comment)
+	assert.Equal(`Test 1.1`, name)
+	assert.Equal(1, number)
+	assert.Equal(`Test comment v2`, comment)
 
-	assert.Nil(t.Data.ModifiedAt)
-	assert.True(t.ModifiedAt.Empty())
-	assert.True(t.OneID.Empty())
+	assert.Nil(modified)
 }
 
 func testSubQuery(test *testing.T) {
 	o, t := model.One(), model.Two()
 
-	var count int
-
-	sq := t.Select(t.OneID, qf.CountAll().New(&count)).
+	sq := t.Select(t.OneID, qf.CountAll()).
 		GroupBy(t.OneID).
 		SubQuery()
 
 	q := o.Select(o.ID, sq.F[1]).
 		InnerJoin(sq.F[0], o.ID)
-	err := db.QueryRow(q)
+	r := db.QueryRow(q)
+
+	var id, count int
+
+	err := r.Scan(&id, &count)
 	if err != nil {
 		panic(err)
 	}
 
 	assert := assert.New(test)
 
-	assert.Equal(1, o.Data.ID)
+	assert.Equal(1, id)
 	assert.Equal(2, count)
 }
 
@@ -236,20 +239,25 @@ func testUnionAll(test *testing.T) {
 	sq := o.Select(o.ID)
 
 	q := qb.UnionAll(sq, sq)
-	cur, err := db.Query(q)
+	r, err := db.Query(q)
 	if err != nil {
 		panic(err)
 	}
 
-	assert := assert.New(test)
+	var (
+		id     int
+		assert = assert.New(test)
+	)
 
-	assert.True(cur.Next())
-	assert.Equal(1, o.Data.ID)
-	assert.True(cur.Next())
-	assert.Equal(1, o.Data.ID)
+	assert.True(r.Next())
+	assert.NoError(r.Scan(&id))
+	assert.Equal(1, id)
 
-	assert.False(cur.Next())
-	assert.NoError(cur.Error())
+	assert.True(r.Next())
+	assert.NoError(r.Scan(&id))
+	assert.Equal(1, id)
+
+	assert.False(r.Next())
 }
 
 func testDelete(test *testing.T) {
@@ -268,16 +276,15 @@ func testLeftJoin(test *testing.T) {
 	q := o.Select(o.ID, t.OneID).
 		LeftJoin(t.OneID, o.ID).
 		Where(qc.Eq(o.ID, 1))
-	err := db.QueryRow(q)
-	if err != nil {
-		panic(err)
-	}
+	r := db.QueryRow(q)
 
-	assert := assert.New(test)
+	var (
+		id     int
+		oneid  *int
+		assert = assert.New(test)
+	)
 
-	assert.Equal(1, o.Data.ID)
-	assert.False(o.ID.Empty())
-
-	assert.Equal(0, t.Data.OneID)
-	assert.True(t.OneID.Empty())
+	assert.NoError(r.Scan(&id, &oneid))
+	assert.Equal(1, id)
+	assert.Nil(oneid)
 }

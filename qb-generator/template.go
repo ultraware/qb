@@ -4,34 +4,25 @@ var codeTemplate = `///// {{.Table}} /////
 var qb{{.Table}}Table = qb.Table{Name: "{{.TableString}}"{{- if .Alias }}, Alias: "{{.Alias}}"{{end -}}}
 
 {{range .Fields -}}
-var qb{{$.Table}}F{{.Name}} = qb.TableField{Parent: &qb{{$.Table}}Table, Name: "{{.String}}", 
+var qb{{$.Table}}F{{.Name}} = qb.TableField{Parent: &qb{{$.Table}}Table, Name: "{{.String}}",
 	{{- if .ReadOnly }}ReadOnly: true,{{end -}}
-	{{- if .HasDefault }}HasDefault: true,{{end -}}
 	{{- if .DataType.Name }}Type: qb.{{.DataType.Name}},{{end -}}
 	{{- if .DataType.Size }}Size: {{.DataType.Size}},{{end -}}
 	{{- if .DataType.Null }}Nullable: true,{{end -}}
 }
 {{end}}
 
-// {{.Table}}Data represents the data of a single row of table "{{.Table}}"
-type {{.Table}}Data struct {
-	{{- range .Fields}}
-		{{.Name}} {{.FieldType}}
-	{{- end}}
-}
-
 // {{.Table}}Type represents the table "{{.Table}}"
 type {{.Table}}Type struct {
-	Data *{{.Table}}Data
 {{- range .Fields}}
-	{{.Name}} qb.DataField
+	{{.Name}} qb.Field
 {{- end}}
 	table *qb.Table
 }
 
 // All returns every field as an array
-func (t *{{.Table}}Type) All() []qb.DataField {
-	return []qb.DataField{
+func (t *{{.Table}}Type) All() []qb.Field {
+	return []qb.Field{
 		{{- range .Fields -}}
 			t.{{.Name}},
 		{{- end -}}
@@ -44,8 +35,8 @@ func (t *{{.Table}}Type) GetTable() *qb.Table {
 }
 
 // Select starts a SELECT query
-func (t *{{.Table}}Type) Select(f ...qb.DataField) *qb.SelectBuilder {
-	return t.table.Select(f...)
+func (t *{{.Table}}Type) Select(f ...qb.Field) *qb.SelectBuilder {
+	return t.table.Select(f)
 }
 
 // Delete creates a DELETE query
@@ -59,26 +50,18 @@ func (t *{{.Table}}Type) Update() *qb.UpdateBuilder {
 }
 
 // Insert starts an INSERT query
-func (t *{{.Table}}Type) Insert() *qb.InsertBuilder {
-	return t.table.Insert(t.All())
-}
-
-// {{.Table}}From returns a new {{.Table}}Type using the provided data
-func {{.Table}}From(data *{{.Table}}Data) *{{.Table}}Type {
-	table := qb{{$.Table}}Table
-	return &{{.Table}}Type{
-		data,
-	{{- range .Fields}}
-		qb{{$.Table}}F{{.Name}}.Copy(&table).New(&data.{{.Name}}),
-	{{- end}}
-		&table,
-	}
-
+func (t *{{.Table}}Type) Insert(f ...qb.Field) *qb.InsertBuilder {
+	return t.table.Insert(f)
 }
 
 // {{.Table}} returns a new {{.Table}}Type
 func {{.Table}}() *{{.Table}}Type {
-	data := {{.Table}}Data{}
-	return {{.Table}}From(&data)
+	table := qb{{$.Table}}Table
+	return &{{.Table}}Type{
+	{{- range .Fields}}
+		qb{{$.Table}}F{{.Name}}.Copy(&table),
+	{{- end}}
+		&table,
+	}
 }
 `

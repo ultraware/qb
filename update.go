@@ -26,9 +26,6 @@ type UpdateBuilder struct {
 
 // Set ...
 func (q *UpdateBuilder) Set(f Field, v interface{}) *UpdateBuilder {
-	if v, ok := f.(DataField); ok {
-		f = v.Field
-	}
 	q.set = append(q.set, newSet(f, v))
 	return q
 }

@@ -76,15 +76,6 @@ func (b *sqlBuilder) List(f []Field, withAlias bool) string {
 	return s
 }
 
-// ListDataFields casts DataFields to Field and returns the output of List
-func (b *sqlBuilder) ListDataFields(f []DataField, withAlias bool) string {
-	fields := make([]Field, len(f))
-	for k, v := range f {
-		fields[k] = v
-	}
-	return b.List(fields, withAlias)
-}
-
 // Conditions generates valid SQL for the given list of conditions
 func (b *sqlBuilder) Conditions(c []Condition, newline bool) {
 	fn := b.w.WriteString
@@ -118,8 +109,8 @@ func eq(f1, f2 Field) Condition {
 
 ///// SQL statements /////
 
-func (b *sqlBuilder) Select(withAlias bool, f ...DataField) {
-	b.w.WriteLine(`SELECT ` + b.ListDataFields(f, withAlias))
+func (b *sqlBuilder) Select(withAlias bool, f ...Field) {
+	b.w.WriteLine(`SELECT ` + b.List(f, withAlias))
 }
 
 func (b *sqlBuilder) From(src Source) {
@@ -219,7 +210,7 @@ func (b *sqlBuilder) Delete(t *Table) {
 	b.w.WriteLine(`DELETE FROM ` + b.ToSQL(t))
 }
 
-func (b *sqlBuilder) Insert(t *Table, f []DataField) {
+func (b *sqlBuilder) Insert(t *Table, f []Field) {
 	_ = t.Name
 	s := ``
 	for k, v := range f {

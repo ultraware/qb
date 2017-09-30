@@ -56,8 +56,3 @@ func (f CaseField) QueryString(c *qb.Context) string {
 	s += ` ELSE ` + f.Else.QueryString(c) + ` END`
 	return s
 }
-
-// New returns a new DataField using the given value
-func (f CaseField) New(v interface{}) qb.DataField {
-	return qb.NewDataField(f, v)
-}

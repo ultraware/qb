@@ -67,7 +67,7 @@ func (t *Table) aliasString() string {
 }
 
 // Select ...
-func (t *Table) Select(f ...DataField) *SelectBuilder {
+func (t *Table) Select(f []Field) *SelectBuilder {
 	return NewSelectBuilder(f, t)
 }
 
@@ -82,7 +82,7 @@ func (t *Table) Update() *UpdateBuilder {
 }
 
 // Insert ...
-func (t *Table) Insert(f []DataField) *InsertBuilder {
+func (t *Table) Insert(f []Field) *InsertBuilder {
 	q := InsertBuilder{table: t, fields: f}
 	return &q
 }
@@ -90,14 +90,14 @@ func (t *Table) Insert(f []DataField) *InsertBuilder {
 // SubQuery ...
 type SubQuery struct {
 	query SelectQuery
-	F     []DataField
+	F     []Field
 }
 
-func newSubQuery(q SelectQuery, f []DataField) *SubQuery {
+func newSubQuery(q SelectQuery, f []Field) *SubQuery {
 	sq := &SubQuery{query: q}
 
 	for k := range f {
-		sq.F = append(sq.F, TableField{Name: `f` + strconv.Itoa(k), Parent: sq}.New(f[k].Value))
+		sq.F = append(sq.F, &TableField{Name: `f` + strconv.Itoa(k), Parent: sq})
 	}
 
 	return sq
@@ -126,7 +126,7 @@ func (t *SubQuery) aliasString() string {
 }
 
 // Select ...
-func (t *SubQuery) Select(f ...DataField) *SelectBuilder {
+func (t *SubQuery) Select(f ...Field) *SelectBuilder {
 	return NewSelectBuilder(f, t)
 }
 
@@ -137,19 +137,16 @@ func (t *SubQuery) Select(f ...DataField) *SelectBuilder {
 // Field represents a field in a query
 type Field interface {
 	QueryStringer
-	New(interface{}) DataField
 }
 
 // TableField represents a real field in a table
 type TableField struct {
-	Parent     Source
-	Name       string
-	ReadOnly   bool
-	HasDefault bool
-	Primary    bool
-	Nullable   bool
-	Type       DataType
-	Size       int
+	Parent   Source
+	Name     string
+	ReadOnly bool
+	Nullable bool
+	Type     DataType
+	Size     int
 }
 
 // QueryString ...
@@ -167,20 +164,11 @@ func (f TableField) Copy(src Source) *TableField {
 	return &f
 }
 
-// New returns a new DataField using this field
-func (f TableField) New(v interface{}) DataField {
-	return NewDataField(&f, v)
-}
-
 func getParent(f Field) Source {
-	if v, ok := f.(DataField); ok {
-		f = v.Field
+	if v, ok := f.(*TableField); ok {
+		return v.Parent
 	}
-	v, ok := f.(*TableField)
-	if !ok {
-		panic(`Invalid use of a non-TableField field`)
-	}
-	return v.Parent
+	panic(`Invalid use of a non-TableField field`)
 }
 
 type valueField struct {
@@ -190,10 +178,6 @@ type valueField struct {
 func (f valueField) QueryString(c *Context) string {
 	c.Add(f.Value)
 	return VALUE
-}
-
-func (f valueField) New(_ interface{}) DataField {
-	panic(`Cannot call New on a value`)
 }
 
 // Value creats a new Field

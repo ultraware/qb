@@ -5,16 +5,16 @@ type SelectQuery interface {
 	SQL(Driver) (string, []interface{})
 	getSQL(Driver, bool) (string, []interface{})
 	SubQuery() *SubQuery
-	Fields() []DataField
+	Fields() []Field
 }
 
 type returningBuilder struct {
 	query  Query
-	fields []DataField
+	fields []Field
 }
 
 // Returning creates a RETURNING or OUTPUT query
-func Returning(q Query, f ...DataField) SelectQuery {
+func Returning(q Query, f ...Field) SelectQuery {
 	return returningBuilder{q, f}
 }
 
@@ -25,16 +25,11 @@ func (q returningBuilder) SQL(d Driver) (string, []interface{}) {
 func (q returningBuilder) getSQL(d Driver, aliasFields bool) (string, []interface{}) {
 	b := newSQLBuilder(d, false)
 
-	f := make([]Field, len(q.fields))
-	for k, v := range q.fields {
-		f[k] = v
-	}
-
-	s, v := d.Returning(q.query, f)
+	s, v := d.Returning(q.query, q.fields)
 	return s, append(v, b.Context.Values...)
 }
 
-func (q returningBuilder) Fields() []DataField {
+func (q returningBuilder) Fields() []Field {
 	return q.fields
 }
 
@@ -45,7 +40,7 @@ func (q returningBuilder) SubQuery() *SubQuery {
 // SelectBuilder ...
 type SelectBuilder struct {
 	source Source
-	fields []DataField
+	fields []Field
 	where  []Condition
 	joins  []join
 	order  []FieldOrder
@@ -57,7 +52,7 @@ type SelectBuilder struct {
 }
 
 // NewSelectBuilder ...
-func NewSelectBuilder(f []DataField, src Source) *SelectBuilder {
+func NewSelectBuilder(f []Field, src Source) *SelectBuilder {
 	return &SelectBuilder{fields: f, source: src}
 }
 
@@ -187,7 +182,7 @@ func (q *SelectBuilder) SubQuery() *SubQuery {
 }
 
 // Fields ...
-func (q *SelectBuilder) Fields() []DataField {
+func (q *SelectBuilder) Fields() []Field {
 	return q.fields
 }
 
@@ -221,7 +216,7 @@ func (q combinedQuery) SQL(d Driver) (string, []interface{}) {
 	return q.getSQL(d, false)
 }
 
-func (q combinedQuery) Fields() []DataField {
+func (q combinedQuery) Fields() []Field {
 	return q.queries[0].Fields()
 }
 

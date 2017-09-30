@@ -1,6 +1,7 @@
 package qbdb
 
 import (
+	"database/sql"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -72,27 +73,21 @@ func (db QueryTarget) log(s string, v []interface{}) {
 }
 
 // Query executes the given SelectQuery on the database
-func (db QueryTarget) Query(q qb.SelectQuery) (*qb.Cursor, error) {
+func (db QueryTarget) Query(q qb.SelectQuery) (*sql.Rows, error) {
 	s, v := db.prepare(q)
-	r, err := db.src.Query(s, v...)
-
-	return qb.NewCursor(q.Fields(), r), err
+	return db.src.Query(s, v...)
 }
 
 // QueryRow executes the given SelectQuery on the database, only returns one row
-func (db QueryTarget) QueryRow(q qb.SelectQuery) error {
+func (db QueryTarget) QueryRow(q qb.SelectQuery) *sql.Row {
 	s, v := db.prepare(q)
-	r := db.src.QueryRow(s, v...)
-
-	return qb.ScanToFields(q.Fields(), r)
+	return db.src.QueryRow(s, v...)
 }
 
 // Exec executes the given query, returns only an error
 func (db QueryTarget) Exec(q qb.Query) error {
 	s, v := db.prepare(q)
-	_, err := db.src.Exec(s, v...)
-
-	return err
+	return db.RawExec(s, v...)
 }
 
 // RawExec executes the given SQL with the given params directly on the database

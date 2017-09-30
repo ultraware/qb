@@ -2,19 +2,19 @@
 	{
 		"name": "one",
 		"fields": [
-			{"name": "ID", "type": "int", "primary": true, "read_only": true, "data_type": "int"},
-			{"name": "Name", "type": "string", "data_type": "varchar", "size": 50},
-			{"name": "CreatedAt", "type": "time", "read_only": true, "default": true, "data_type": "timestamp"}
+			{"name": "ID", "read_only": true, "data_type": "int"},
+			{"name": "Name", "data_type": "varchar", "size": 50},
+			{"name": "CreatedAt", "read_only": true, "data_type": "timestamp"}
 		]
 	},
 	{
 		"name": "two",
 		"alias": "tw",
 		"fields": [
-			{"name": "OneID", "type": "int", "primary": true, "data_type": "int"},
-			{"name": "Number", "type": "int", "primary": true, "data_type": "int"},
-			{"name": "Comment", "type": "string", "data_type": "varchar", "size": 100},
-			{"name": "ModifiedAt", "type": "time", "null": true, "data_type": "timestamp"}
+			{"name": "OneID", "data_type": "int"},
+			{"name": "Number", "data_type": "int"},
+			{"name": "Comment", "data_type": "varchar", "size": 100},
+			{"name": "ModifiedAt", "null": true, "data_type": "timestamp"}
 		]
 	}
 ]

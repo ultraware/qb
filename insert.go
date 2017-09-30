@@ -3,50 +3,47 @@ package qb
 // defaultField ...
 type defaultField struct{}
 
+// Default ...
+func Default() Field {
+	return defaultField{}
+}
+
 // QueryString ...
 func (f defaultField) QueryString(_ *Context) string {
 	return `DEFAULT`
 }
 
-// New ...
-func (f defaultField) New(_ interface{}) DataField {
-	panic(`Cannot call New on defaultField`)
-}
-
-func shoulddefaultField(v DataField) bool {
-	field, ok := v.Field.(*TableField)
-	if !ok {
-		panic(`Cannot use non-TableField field in insert`)
-	}
-	return !v.isSet() && field.HasDefault
-}
-
 // InsertBuilder is used to create a SQL INSERT query
 type InsertBuilder struct {
 	table    *Table
-	fields   []DataField
+	fields   []Field
 	values   [][]Field
 	update   Query
 	conflict []Field
 }
 
-// Add adds a single row to the list of rows
-func (q *InsertBuilder) Add() {
-	list := make([]Field, len(q.fields))
-	for k, v := range q.fields {
-		if shoulddefaultField(v) {
-			list[k] = defaultField{}
-			continue
-		}
-		list[k] = Value(v.GetValue())
+// Values adds the given values to the query
+func (q *InsertBuilder) Values(values ...interface{}) *InsertBuilder {
+	if len(values) != len(q.fields) {
+		panic(`Number of values has to match the number of fields`)
 	}
+
+	list := make([]Field, len(values))
+	for k, v := range values {
+		list[k] = MakeField(v)
+	}
+
 	q.values = append(q.values, list)
+
+	return q
 }
 
 // Upsert ...
-func (q *InsertBuilder) Upsert(query Query, conflict ...Field) {
+func (q *InsertBuilder) Upsert(query Query, conflict ...Field) *InsertBuilder {
 	q.update = query
 	q.conflict = conflict
+
+	return q
 }
 
 // SQL ...

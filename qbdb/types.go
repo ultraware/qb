@@ -49,9 +49,3 @@ func (db *DB) Begin() (Tx, error) {
 func New(driver qb.Driver, db *sql.DB) *DB {
 	return &DB{QueryTarget{db, driver, false}, db}
 }
-
-// Savable has all methods needed to run Insert/Update/Delete
-type Savable interface {
-	All() []qb.DataField
-	GetTable() *qb.Table
-}
