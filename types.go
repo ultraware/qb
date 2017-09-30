@@ -147,6 +147,9 @@ type TableField struct {
 	ReadOnly   bool
 	HasDefault bool
 	Primary    bool
+	Nullable   bool
+	Type       DataType
+	Size       int
 }
 
 // QueryString ...

@@ -7,6 +7,9 @@ var qb{{.Table}}Table = qb.Table{Name: "{{.TableString}}"{{- if .Alias }}, Alias
 var qb{{$.Table}}F{{.Name}} = qb.TableField{Parent: &qb{{$.Table}}Table, Name: "{{.String}}", 
 	{{- if .ReadOnly }}ReadOnly: true,{{end -}}
 	{{- if .HasDefault }}HasDefault: true,{{end -}}
+	{{- if .DataType.Name }}Type: qb.{{.DataType.Name}},{{end -}}
+	{{- if .DataType.Size }}Size: {{.DataType.Size}},{{end -}}
+	{{- if .DataType.Null }}Nullable: true,{{end -}}
 }
 {{end}}
 

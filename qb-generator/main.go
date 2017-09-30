@@ -25,6 +25,8 @@ type InputField struct {
 	Nullable bool   `json:"null"`
 	ReadOnly bool   `json:"read_only"`
 	Default  bool   `json:"default"`
+	DataType string `json:"data_type"`
+	Size     int    `json:"size"`
 }
 
 // Table ...
@@ -36,13 +38,14 @@ type Table struct {
 }
 
 // Field ...
-type Field struct {
+type Field struct { //nolint: aligncheck
 	Name       string
 	String     string
 	Type       string
 	FieldType  string
 	ReadOnly   bool
 	HasDefault bool
+	DataType   dataType
 }
 
 var fieldTypes = map[string]string{
@@ -103,8 +106,44 @@ func getType(t string, null bool) string {
 	return p + t
 }
 
+type dataType struct {
+	Name string
+	Size int
+	Null bool
+}
+
+var dataTypes = map[string]dataType{
+	`char`:      {`String`, 0, false},
+	`varchar`:   {`String`, 0, false},
+	`tinyint`:   {`Int`, 8, false},
+	`smallint`:  {`Int`, 16, false},
+	`int`:       {`Int`, 32, false},
+	`integer`:   {`Int`, 32, false},
+	`bigint`:    {`Int`, 64, false},
+	`real`:      {`Float`, 32, false},
+	`float`:     {`Float`, 64, false},
+	`double`:    {`Float`, 64, false},
+	`time`:      {`Time`, 0, false},
+	`date`:      {`Date`, 0, false},
+	`datetime`:  {`Time`, 0, false},
+	`timestamp`: {`Time`, 0, false},
+	`boolean`:   {`Bool`, 0, false},
+	`bool`:      {`Bool`, 0, false},
+}
+
+func getDataType(t string, size int, null bool) dataType {
+	if v, ok := dataTypes[strings.Split(t, ` `)[0]]; ok {
+		if v.Size == 0 {
+			v.Size = size
+		}
+		v.Null = null
+		return v
+	}
+	return dataType{t, size, null}
+}
+
 func newField(f InputField) Field {
-	return Field{cleanName(f.String), f.String, f.Type, getType(f.Type, f.Nullable), f.ReadOnly, f.Default}
+	return Field{cleanName(f.String), f.String, f.Type, getType(f.Type, f.Nullable), f.ReadOnly, f.Default, getDataType(f.DataType, f.Size, f.Nullable)}
 }
 
 func cleanName(s string) string {
