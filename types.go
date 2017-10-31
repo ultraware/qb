@@ -1,7 +1,6 @@
 package qb
 
 import (
-	"database/sql/driver"
 	"strconv"
 	"strings"
 )
@@ -182,17 +181,7 @@ func (f valueField) QueryString(c *Context) string {
 
 // Value creats a new Field
 func Value(v interface{}) Field {
-	return valueField{getValue(v)}
-}
-
-func getValue(v interface{}) interface{} {
-	if val, ok := v.(driver.Valuer); ok {
-		new, err := val.Value()
-		if err == nil {
-			v = new
-		}
-	}
-	return v
+	return valueField{v}
 }
 
 ///

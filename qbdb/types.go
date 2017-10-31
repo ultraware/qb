@@ -28,6 +28,7 @@ type QueryTarget struct {
 		Exec(string, ...interface{}) (sql.Result, error)
 		Query(string, ...interface{}) (*sql.Rows, error)
 		QueryRow(string, ...interface{}) *sql.Row
+		Prepare(string) (*sql.Stmt, error)
 	}
 	Driver qb.Driver
 	Debug  bool

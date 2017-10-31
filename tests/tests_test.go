@@ -79,6 +79,7 @@ func runTests(t *testing.T) {
 	}
 
 	testSelect(t)
+	testPrepare(t)
 	testSubQuery(t)
 	testUnionAll(t)
 	testDelete(t)
@@ -207,6 +208,32 @@ func testSelect(test *testing.T) {
 	assert.Equal(`Test comment v2`, comment)
 
 	assert.Nil(modified)
+}
+
+func testPrepare(test *testing.T) {
+	o := model.One()
+
+	oneid := 0
+
+	q := o.Select(o.ID).
+		Where(qc.Eq(o.ID, &oneid))
+
+	stmt, err := db.Prepare(q)
+	if err != nil {
+		panic(err)
+	}
+
+	assert := assert.New(test)
+	out := 0
+
+	assert.Equal(sql.ErrNoRows, stmt.QueryRow().Scan(&out))
+
+	oneid = 1
+	assert.NoError(stmt.QueryRow().Scan(&out))
+	assert.Equal(oneid, out)
+
+	oneid = 2
+	assert.Equal(sql.ErrNoRows, stmt.QueryRow().Scan(&out))
 }
 
 func testSubQuery(test *testing.T) {

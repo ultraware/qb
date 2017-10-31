@@ -95,3 +95,15 @@ func (db QueryTarget) RawExec(s string, v ...interface{}) error {
 	_, err := db.src.Exec(s, v...)
 	return err
 }
+
+// Prepare prepares a query for efficient repeated executions
+func (db QueryTarget) Prepare(q qb.Query) (*Stmt, error) {
+	s, v := db.prepare(q)
+
+	stmt, err := db.src.Prepare(s)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Stmt{stmt, v}, nil
+}
