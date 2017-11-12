@@ -17,26 +17,26 @@ func newSet(f Field, v interface{}) set {
 	return set{f1, f2}
 }
 
-// UpdateBuilder ...
+// UpdateBuilder builds an UPDATE query
 type UpdateBuilder struct {
 	t   *Table
 	c   []Condition
 	set []set
 }
 
-// Set ...
+// Set adds an update to the SET clause
 func (q *UpdateBuilder) Set(f Field, v interface{}) *UpdateBuilder {
 	q.set = append(q.set, newSet(f, v))
 	return q
 }
 
-// Where ...
+// Where adds conditions to the WHERE clause
 func (q *UpdateBuilder) Where(c ...Condition) *UpdateBuilder {
 	q.c = append(q.c, c...)
 	return q
 }
 
-// SQL ...
+// SQL returns a query string and a list of values
 func (q *UpdateBuilder) SQL(d Driver) (string, []interface{}) {
 	b := newSQLBuilder(d, false)
 

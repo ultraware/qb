@@ -1,6 +1,6 @@
 package qb
 
-// SelectQuery ...
+// SelectQuery represents a query that returns data
 type SelectQuery interface {
 	SQL(Driver) (string, []interface{})
 	getSQL(Driver, bool) (string, []interface{})
@@ -37,7 +37,7 @@ func (q returningBuilder) SubQuery() *SubQuery {
 	return newSubQuery(q, q.fields)
 }
 
-// SelectBuilder ...
+// SelectBuilder builds a SELECT query
 type SelectBuilder struct {
 	source Source
 	fields []Field
@@ -51,39 +51,39 @@ type SelectBuilder struct {
 	offset int
 }
 
-// NewSelectBuilder ...
+// NewSelectBuilder retruns a new SelectBuilder
 func NewSelectBuilder(f []Field, src Source) *SelectBuilder {
 	return &SelectBuilder{fields: f, source: src}
 }
 
-// Where ...
+// Where adds conditions to the WHERE clause
 func (q *SelectBuilder) Where(c ...Condition) *SelectBuilder {
 	q.where = append(q.where, c...)
 	return q
 }
 
-// InnerJoin ...
+// InnerJoin adds an INNER JOIN clause to the query
 func (q *SelectBuilder) InnerJoin(f1, f2 Field, c ...Condition) *SelectBuilder {
 	return q.join(JoinInner, f1, f2, c)
 }
 
-// CrossJoin ...
+// CrossJoin adds a CROSS JOIN clause to the query
 func (q *SelectBuilder) CrossJoin(f1, f2 Field, c ...Condition) *SelectBuilder {
 	return q.join(JoinCross, f1, f2, c)
 }
 
-// LeftJoin ...
+// LeftJoin adds a LEFT JOIN clause to the query
 func (q *SelectBuilder) LeftJoin(f1, f2 Field, c ...Condition) *SelectBuilder {
 	return q.join(JoinLeft, f1, f2, c)
 }
 
-// RightJoin ...
+// RightJoin adds a RIGHT JOIN clause to the query
 func (q *SelectBuilder) RightJoin(f1, f2 Field, c ...Condition) *SelectBuilder {
 	return q.join(JoinRight, f1, f2, c)
 }
 
 // ManualJoin manually joins a table
-// Use this only if you know what you are doing
+// Only use this if you know what you are doing
 func (q *SelectBuilder) ManualJoin(t Join, s Source, c ...Condition) *SelectBuilder {
 	q.joins = append(q.joins, join{t, s, c})
 
@@ -92,7 +92,6 @@ func (q *SelectBuilder) ManualJoin(t Join, s Source, c ...Condition) *SelectBuil
 	return q
 }
 
-// join ...
 func (q *SelectBuilder) join(t Join, f1, f2 Field, c []Condition) *SelectBuilder {
 	if len(q.tables) == 0 {
 		q.tables = []Source{q.source}
@@ -121,37 +120,37 @@ func (q *SelectBuilder) join(t Join, f1, f2 Field, c []Condition) *SelectBuilder
 	return q.ManualJoin(t, new, append(c, eq(f1, f2))...)
 }
 
-// GroupBy ...
+// GroupBy adds a GROUP BY clause to the query
 func (q *SelectBuilder) GroupBy(f ...Field) *SelectBuilder {
 	q.group = f
 	return q
 }
 
-// Having ...
+// Having adds a HAVING clause to the query
 func (q *SelectBuilder) Having(c ...Condition) *SelectBuilder {
 	q.having = append(q.having, c...)
 	return q
 }
 
-// OrderBy ...
+// OrderBy adds a ORDER BY clause to the query
 func (q *SelectBuilder) OrderBy(o ...FieldOrder) *SelectBuilder {
 	q.order = o
 	return q
 }
 
-// Limit ...
+// Limit adds a LIMIT clause to the query
 func (q *SelectBuilder) Limit(i int) *SelectBuilder {
 	q.limit = i
 	return q
 }
 
-// Offset ...
+// Offset adds a OFFSET clause to the query
 func (q *SelectBuilder) Offset(i int) *SelectBuilder {
 	q.offset = i
 	return q
 }
 
-// SQL ...
+// SQL returns a query string and a list of values
 func (q *SelectBuilder) SQL(d Driver) (string, []interface{}) {
 	return q.getSQL(d, false)
 }
@@ -181,7 +180,7 @@ func (q *SelectBuilder) SubQuery() *SubQuery {
 	return newSubQuery(q, q.fields)
 }
 
-// Fields ...
+// Fields returns a list of the fields used in the query
 func (q *SelectBuilder) Fields() []Field {
 	return q.fields
 }
@@ -226,32 +225,32 @@ func (q combinedQuery) SubQuery() *SubQuery {
 
 ////////////////////////
 
-// UnionAll ...
+// UnionAll combines queries with an UNION ALL
 func UnionAll(q ...SelectQuery) SelectQuery {
 	return combinedQuery{combineType: `UNION ALL`, queries: q}
 }
 
-// Union ...
+// Union combines queries with an UNION
 func Union(q ...SelectQuery) SelectQuery {
 	return combinedQuery{combineType: `UNION`, queries: q}
 }
 
-// ExceptAll ...
+// ExceptAll combines queries with an EXCEPT ALL
 func ExceptAll(q1, q2 SelectQuery) SelectQuery {
 	return combinedQuery{combineType: `EXCEPT ALL`, queries: []SelectQuery{q1, q2}}
 }
 
-// Except ...
+// Except combines queries with an EXCEPT
 func Except(q1, q2 SelectQuery) SelectQuery {
 	return combinedQuery{combineType: `EXCEPT`, queries: []SelectQuery{q1, q2}}
 }
 
-// IntersectAll ...
+// IntersectAll combines queries with an INTERSECT ALL
 func IntersectAll(q1, q2 SelectQuery) SelectQuery {
 	return combinedQuery{combineType: `INTERSECT ALL`, queries: []SelectQuery{q1, q2}}
 }
 
-// Intersect ...
+// Intersect combines queries with an INTERSECT
 func Intersect(q1, q2 SelectQuery) SelectQuery {
 	return combinedQuery{combineType: `INTERSECT`, queries: []SelectQuery{q1, q2}}
 }

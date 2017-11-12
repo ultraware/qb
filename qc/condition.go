@@ -13,7 +13,7 @@ func createOperatorCondition(i1, i2 interface{}, operator string) qb.Condition {
 	return NewCondition(f1, ` `+operator+` `, f2)
 }
 
-// Eq ...
+// Eq checks if the values are equal (=)
 func Eq(i1, i2 interface{}) qb.Condition {
 	return useOverride(eq, i1, i2)
 }
@@ -21,7 +21,7 @@ func eq(i1, i2 interface{}) qb.Condition {
 	return createOperatorCondition(i1, i2, `=`)
 }
 
-// Ne ...
+// Ne checks if the values are unequal (!=)
 func Ne(i1, i2 interface{}) qb.Condition {
 	return useOverride(ne, i1, i2)
 }
@@ -29,7 +29,7 @@ func ne(i1, i2 interface{}) qb.Condition {
 	return createOperatorCondition(i1, i2, `!=`)
 }
 
-// Gt ...
+// Gt checks if i1 is greater than i2 (>)
 func Gt(i1, i2 interface{}) qb.Condition {
 	return useOverride(gt, i1, i2)
 }
@@ -37,7 +37,7 @@ func gt(i1, i2 interface{}) qb.Condition {
 	return createOperatorCondition(i1, i2, `>`)
 }
 
-// Gte ...
+// Gte checks if i1 is greater or equal to i2 (>=)
 func Gte(i1, i2 interface{}) qb.Condition {
 	return useOverride(gte, i1, i2)
 }
@@ -45,7 +45,7 @@ func gte(i1, i2 interface{}) qb.Condition {
 	return createOperatorCondition(i1, i2, `>=`)
 }
 
-// Lt ...
+// Lt checks if i1 is less than i2 (<)
 func Lt(i1, i2 interface{}) qb.Condition {
 	return useOverride(lt, i1, i2)
 }
@@ -53,7 +53,7 @@ func lt(i1, i2 interface{}) qb.Condition {
 	return createOperatorCondition(i1, i2, `<`)
 }
 
-// Lte ...
+// Lte checks if i1 is less than or equal to i2 (<=)
 func Lte(i1, i2 interface{}) qb.Condition {
 	return useOverride(lte, i1, i2)
 }
@@ -61,7 +61,7 @@ func lte(i1, i2 interface{}) qb.Condition {
 	return createOperatorCondition(i1, i2, `<=`)
 }
 
-// Between ...
+// Between checks if f1 is between i1 and i2
 func Between(f1 qb.Field, i1, i2 interface{}) qb.Condition {
 	return useOverride(between, f1, i1, i2)
 }
@@ -71,7 +71,7 @@ func between(f1 qb.Field, i1, i2 interface{}) qb.Condition {
 	return NewCondition(f1, ` BETWEEN `, f2, ` AND `, f3)
 }
 
-// IsNull ...
+// IsNull checks if the field is NULL
 func IsNull(f1 qb.Field) qb.Condition {
 	return useOverride(isNull, f1)
 }
@@ -79,7 +79,7 @@ func isNull(f1 qb.Field) qb.Condition {
 	return NewCondition(f1, ` IS NULL`)
 }
 
-// NotNull ...
+// NotNull checks if the field is not NULL
 func NotNull(f1 qb.Field) qb.Condition {
 	return useOverride(notNull, f1)
 }
@@ -87,7 +87,7 @@ func notNull(f1 qb.Field) qb.Condition {
 	return NewCondition(f1, ` IS NOT NULL`)
 }
 
-// Like ...
+// Like checks if the f1 is like s
 func Like(f1 qb.Field, s string) qb.Condition {
 	return useOverride(like, f1, s)
 }
@@ -96,7 +96,7 @@ func like(f1 qb.Field, s string) qb.Condition {
 	return NewCondition(f1, ` LIKE `, f2)
 }
 
-// In ...
+// In checks if f1 is in the list
 func In(f1 qb.Field, args ...interface{}) qb.Condition {
 	if len(args) == 0 {
 		panic(`Cannot call qc.In with zero in values`)
@@ -112,7 +112,7 @@ func in(f1 qb.Field, args ...interface{}) qb.Condition {
 	}
 }
 
-// Not ...
+// Not reverses a boolean (!)
 func Not(c qb.Condition) qb.Condition {
 	return useOverride(not, c)
 }
@@ -122,7 +122,6 @@ func not(c qb.Condition) qb.Condition {
 	}
 }
 
-// createLogicalCondition ...
 func createLogicalCondition(operator string, conditions ...qb.Condition) qb.Condition {
 	return func(ctx *qb.Context) string {
 		s := `(`
@@ -137,7 +136,7 @@ func createLogicalCondition(operator string, conditions ...qb.Condition) qb.Cond
 	}
 }
 
-// And ...
+// And requires both conditions to be true
 func And(c ...qb.Condition) qb.Condition {
 	list := make([]interface{}, len(c))
 	for k, v := range c {
@@ -150,7 +149,7 @@ func and(c ...qb.Condition) qb.Condition {
 	return createLogicalCondition(`AND`, c...)
 }
 
-// Or ...
+// Or requires one of the conditions to be true
 func Or(c ...qb.Condition) qb.Condition {
 	list := make([]interface{}, len(c))
 	for k, v := range c {

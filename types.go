@@ -15,17 +15,17 @@ type Driver interface {
 	Override() OverrideMap
 }
 
-// Query ...
+// Query generates SQL
 type Query interface {
 	SQL(Driver) (string, []interface{})
 }
 
-// Alias ...
+// Alias generates table aliasses
 type Alias interface {
 	Get(Source) string
 }
 
-// QueryStringer ...
+// QueryStringer returns a part of a query string
 type QueryStringer interface {
 	QueryString(*Context) string
 }
@@ -34,19 +34,19 @@ type QueryStringer interface {
 /// Source
 ///
 
-// Source ...
+// Source represents a table or a subquery
 type Source interface {
 	QueryStringer
 	aliasString() string
 }
 
-// Table ...
+// Table represents a table in the database
 type Table struct {
 	Name  string
 	Alias string
 }
 
-// QueryString ...
+// QueryString implements QueryStringer
 func (t *Table) QueryString(c *Context) string {
 	alias := c.Alias(t)
 	if len(alias) > 0 {
@@ -55,7 +55,6 @@ func (t *Table) QueryString(c *Context) string {
 	return t.Name + alias
 }
 
-// aliasString ...
 func (t *Table) aliasString() string {
 	if t.Alias != `` {
 		return t.Alias
@@ -63,28 +62,28 @@ func (t *Table) aliasString() string {
 	return strings.ToLower(t.Name[0:1])
 }
 
-// Select ...
+// Select starts a SELECT query
 func (t *Table) Select(f []Field) *SelectBuilder {
 	return NewSelectBuilder(f, t)
 }
 
-// Delete ...
+// Delete starts a DELETE query
 func (t *Table) Delete(c1 Condition, c ...Condition) Query {
 	return DeleteBuilder{t, append(c, c1)}
 }
 
-// Update ...
+// Update starts an UPDATE query
 func (t *Table) Update() *UpdateBuilder {
 	return &UpdateBuilder{t, nil, nil}
 }
 
-// Insert ...
+// Insert starts an INSERT query
 func (t *Table) Insert(f []Field) *InsertBuilder {
 	q := InsertBuilder{table: t, fields: f}
 	return &q
 }
 
-// SubQuery ...
+// SubQuery represents a subquery
 type SubQuery struct {
 	query SelectQuery
 	F     []Field
@@ -100,7 +99,7 @@ func newSubQuery(q SelectQuery, f []Field) *SubQuery {
 	return sq
 }
 
-// QueryString ...
+// QueryString implements QueryStringer
 func (t *SubQuery) QueryString(c *Context) string {
 	alias := c.Alias(t)
 	if len(alias) > 0 {
@@ -117,12 +116,11 @@ func getSubQuerySQL(sql string) string {
 	return `(` + NEWLINE + INDENT + strings.Replace(strings.TrimSuffix(sql, "\n"), "\n", "\n"+INDENT, -1) + NEWLINE + `)`
 }
 
-// aliasString ...
 func (t *SubQuery) aliasString() string {
 	return `sq`
 }
 
-// Select ...
+// Select starts a SELECT query
 func (t *SubQuery) Select(f ...Field) *SelectBuilder {
 	return NewSelectBuilder(f, t)
 }
@@ -136,7 +134,7 @@ type Field interface {
 	QueryStringer
 }
 
-// TableField represents a real field in a table
+// TableField represents a field in a table
 type TableField struct {
 	Parent   Source
 	Name     string
@@ -146,7 +144,7 @@ type TableField struct {
 	Size     int
 }
 
-// QueryString ...
+// QueryString implements QueryStringer
 func (f TableField) QueryString(c *Context) string {
 	alias := c.Alias(f.Parent)
 	if alias != `` {

@@ -14,7 +14,7 @@ var (
 
 ///// Field /////
 
-// MakeField ...
+// MakeField returns the value as a Field, no operation performed when the value is already a field
 func MakeField(i interface{}) Field {
 	if f, ok := i.(Field); ok {
 		return f
@@ -22,7 +22,7 @@ func MakeField(i interface{}) Field {
 	return Value(i)
 }
 
-// ConcatQuery ...
+// ConcatQuery combines strings and QueryStringers into string
 func ConcatQuery(c *Context, values ...interface{}) string {
 	s := ``
 	for _, val := range values {
@@ -36,7 +36,7 @@ func ConcatQuery(c *Context, values ...interface{}) string {
 	return s
 }
 
-// JoinQuery ...
+// JoinQuery joins fields or values into a string separated by sep
 func JoinQuery(c *Context, sep string, values []interface{}) string {
 	s := make([]interface{}, len(values)*2-1)
 	for k, v := range values {
