@@ -5,7 +5,9 @@ import (
 	"strings"
 
 	"git.ultraware.nl/NiseVoid/qb"
+	"git.ultraware.nl/NiseVoid/qb/driver/myqb/myqf"
 	"git.ultraware.nl/NiseVoid/qb/qbdb"
+	"git.ultraware.nl/NiseVoid/qb/qf"
 )
 
 // Driver implements PostgreSQL-specific features
@@ -30,16 +32,6 @@ func (d Driver) BoolString(v bool) string {
 	return `0`
 }
 
-// ConcatOperator ...
-func (d Driver) ConcatOperator() string {
-	return `||`
-}
-
-// ExcludedField ...
-func (d Driver) ExcludedField(f string) string {
-	return `VALUES(` + f + `)`
-}
-
 // UpsertSQL ...
 func (d Driver) UpsertSQL(t *qb.Table, _ []qb.Field, q qb.Query) (string, []interface{}) {
 	usql, values := q.SQL(d)
@@ -54,11 +46,6 @@ func (d Driver) UpsertSQL(t *qb.Table, _ []qb.Field, q qb.Query) (string, []inte
 // Returning ...
 func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
 	panic(`mysql does not support RETURNING`)
-}
-
-// DateExtract ...
-func (d Driver) DateExtract(f string, part string) string {
-	return `EXTRACT(` + part + ` FROM ` + f + `)`
 }
 
 var types = map[qb.DataType]string{
@@ -76,4 +63,15 @@ func (d Driver) TypeName(t qb.DataType) string {
 		return s
 	}
 	panic(`Unknown type`)
+}
+
+var override = qb.OverrideMap{}
+
+func init() {
+	override.Add(qf.Excluded, myqf.Values)
+}
+
+// Override ...
+func (d Driver) Override() qb.OverrideMap {
+	return override
 }

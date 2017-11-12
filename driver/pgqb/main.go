@@ -6,7 +6,11 @@ import (
 	"strings"
 
 	"git.ultraware.nl/NiseVoid/qb"
+	"git.ultraware.nl/NiseVoid/qb/driver/pgqb/pgqc"
+	"git.ultraware.nl/NiseVoid/qb/driver/pgqb/pgqf"
 	"git.ultraware.nl/NiseVoid/qb/qbdb"
+	"git.ultraware.nl/NiseVoid/qb/qc"
+	"git.ultraware.nl/NiseVoid/qb/qf"
 )
 
 // Driver implements PostgreSQL-specific features
@@ -25,16 +29,6 @@ func (d Driver) ValueString(c int) string {
 // BoolString formats a boolean in a format supported by PostgreSQL
 func (d Driver) BoolString(v bool) string {
 	return strconv.FormatBool(v)
-}
-
-// ConcatOperator ...
-func (d Driver) ConcatOperator() string {
-	return `||`
-}
-
-// ExcludedField ...
-func (d Driver) ExcludedField(f string) string {
-	return `EXCLUDED.` + f
 }
 
 // UpsertSQL ...
@@ -74,11 +68,6 @@ func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
 	return s + `RETURNING ` + line + qb.NEWLINE, append(v, c.Values...)
 }
 
-// DateExtract ...
-func (d Driver) DateExtract(f string, part string) string {
-	return `EXTRACT(` + part + ` FROM ` + f + `)`
-}
-
 var types = map[qb.DataType]string{
 	qb.Int:     `int`,
 	qb.String:  `text`,
@@ -94,4 +83,17 @@ func (d Driver) TypeName(t qb.DataType) string {
 		return s
 	}
 	panic(`Unknown type`)
+}
+
+var override = qb.OverrideMap{}
+
+func init() {
+	override.Add(qf.Excluded, pgqf.Excluded)
+
+	override.Add(qc.Like, pgqc.ILike)
+}
+
+// Override ...
+func (d Driver) Override() qb.OverrideMap {
+	return override
 }

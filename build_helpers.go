@@ -1,6 +1,8 @@
 package qb
 
-import "strconv"
+import (
+	"strconv"
+)
 
 // Values used when building queries
 var (
@@ -32,6 +34,19 @@ func ConcatQuery(c *Context, values ...interface{}) string {
 		}
 	}
 	return s
+}
+
+// JoinQuery ...
+func JoinQuery(c *Context, sep string, values []interface{}) string {
+	s := make([]interface{}, len(values)*2-1)
+	for k, v := range values {
+		if k > 0 {
+			s[k*2-1] = sep
+		}
+		s[k*2] = MakeField(v)
+	}
+
+	return ConcatQuery(c, s...)
 }
 
 ///// Alias /////

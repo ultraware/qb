@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"git.ultraware.nl/NiseVoid/qb"
+	"git.ultraware.nl/NiseVoid/qb/qbdb"
 	"git.ultraware.nl/NiseVoid/qb/tests/testutil"
 )
 
@@ -35,7 +36,7 @@ func TestAll(t *testing.T) {
 	}
 }
 
-var ctx = qb.NewContext(nil, qb.NoAlias())
+var ctx = qb.NewContext(qbdb.Driver{}, qb.NoAlias())
 
 func check(t *testing.T, c qb.Condition, expectedSQL string) {
 	sql := c(ctx)

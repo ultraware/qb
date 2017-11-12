@@ -10,11 +10,9 @@ type Driver interface {
 	ValueString(int) string
 	BoolString(bool) string
 	UpsertSQL(*Table, []Field, Query) (string, []interface{})
-	ConcatOperator() string
-	ExcludedField(string) string
 	Returning(Query, []Field) (string, []interface{})
-	DateExtract(f string, p string) string
 	TypeName(DataType) string
+	Override() OverrideMap
 }
 
 // Query ...

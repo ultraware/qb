@@ -5,7 +5,9 @@ import (
 	"strings"
 
 	"git.ultraware.nl/NiseVoid/qb"
+	"git.ultraware.nl/NiseVoid/qb/driver/msqb/msqf"
 	"git.ultraware.nl/NiseVoid/qb/qbdb"
+	"git.ultraware.nl/NiseVoid/qb/qf"
 )
 
 // Driver implements MSSQL-specific features
@@ -27,16 +29,6 @@ func (d Driver) BoolString(v bool) string {
 		return `1`
 	}
 	return `0`
-}
-
-// ConcatOperator ...
-func (d Driver) ConcatOperator() string {
-	return `+`
-}
-
-// ExcludedField ...
-func (d Driver) ExcludedField(f string) string {
-	panic(`mssql does not support excluded`)
 }
 
 // UpsertSQL ...
@@ -74,11 +66,6 @@ func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
 	return sql, v
 }
 
-// DateExtract ...
-func (d Driver) DateExtract(f string, part string) string {
-	return `DATEPART(` + part + `, ` + f + `)`
-}
-
 var types = map[qb.DataType]string{
 	qb.Int:     `int`,
 	qb.String:  `text`,
@@ -94,4 +81,17 @@ func (d Driver) TypeName(t qb.DataType) string {
 		return s
 	}
 	panic(`Unknown type`)
+}
+
+var override = qb.OverrideMap{}
+
+func init() {
+	override.Add(qf.Concat, msqf.Concat)
+	override.Add(qf.Extract, msqf.DatePart)
+	override.Add(qf.Now, msqf.GetDate)
+}
+
+// Override ...
+func (d Driver) Override() qb.OverrideMap {
+	return override
 }

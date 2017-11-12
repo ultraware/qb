@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"git.ultraware.nl/NiseVoid/qb"
-	"git.ultraware.nl/NiseVoid/qb/driver/pgqb"
+	"git.ultraware.nl/NiseVoid/qb/qbdb"
 	"git.ultraware.nl/NiseVoid/qb/tests/testutil"
 )
 
@@ -15,10 +15,8 @@ func TestAll(t *testing.T) { // nolint: funlen
 	f2 := &qb.TableField{Name: `B`, Parent: tb}
 	f3 := &qb.TableField{Name: `C`, Parent: tb}
 
-	check(t, Excluded(f1), `EXCLUDED.A`)
-
 	check(t, Cast(f1, qb.Int), `CAST(A AS int)`)
-	check(t, Cast(f1, qb.String), `CAST(A AS text)`)
+	check(t, Cast(f1, qb.String), `CAST(A AS string)`)
 
 	check(t, Distinct(f1), `DISTINCT A`)
 	check(t, CountAll(), `count(1)`)
@@ -37,7 +35,7 @@ func TestAll(t *testing.T) { // nolint: funlen
 	check(t, Substring(f1, 1, 4), `substring(A, ?, ?)`)
 	check(t, Substring(f1, 1, nil), `substring(A, ?)`)
 
-	check(t, Now(), `CURRENT_TIMESTAMP`)
+	check(t, Now(), `now()`)
 
 	check(t, Second(f1), `EXTRACT(second FROM A)`)
 	check(t, Minute(f1), `EXTRACT(minute FROM A)`)
@@ -58,12 +56,28 @@ func TestAll(t *testing.T) { // nolint: funlen
 	check(t, Div(f1, f2), `A / B`)
 	check(t, Mod(f1, f2), `A % B`)
 	check(t, Pow(f1, f2), `A ^ B`)
+
+	fails(func() {
+		Excluded(f1)
+	})
 }
 
-var c = qb.NewContext(pgqb.Driver{}, qb.NoAlias())
+var c = qb.NewContext(qbdb.Driver{}, qb.NoAlias())
 
 func check(t *testing.T, f qb.Field, expectedSQL string) {
 	sql := f.QueryString(c)
 
 	testutil.Compare(t, expectedSQL, sql)
+}
+
+func fails(f func()) (failed bool) {
+	defer func() {
+		if recover() != nil {
+			failed = true
+		}
+	}()
+
+	f()
+
+	return
 }

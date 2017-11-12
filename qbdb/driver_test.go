@@ -3,48 +3,10 @@ package qbdb
 import (
 	"testing"
 
-	"git.ultraware.nl/NiseVoid/qb"
 	"git.ultraware.nl/NiseVoid/qb/tests/testutil"
 )
 
-type driver struct{}
-
-func (d driver) ValueString(c int) string {
-	return `@@`
-}
-
-func (d driver) BoolString(v bool) string {
-	if v {
-		return `t`
-	}
-	return `f`
-}
-
-func (d driver) UpsertSQL(_ *qb.Table, _ []qb.Field, _ qb.Query) (string, []interface{}) {
-	panic(`This should not be used`)
-}
-
-func (d driver) ConcatOperator() string {
-	panic(`This should not be used`)
-}
-
-func (d driver) ExcludedField(string) string {
-	panic(`This should not be used`)
-}
-
-func (d driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
-	panic(`This should not be used`)
-}
-
-func (d driver) DateExtract(f string, part string) string {
-	panic(`This should not be used`)
-}
-
-func (d driver) TypeName(t qb.DataType) string {
-	panic(`This should not be used`)
-}
-
-var db = New(driver{}, nil)
+var db = New(Driver{}, nil)
 
 func TestPrint(t *testing.T) {
 	tests := map[interface{}]string{
