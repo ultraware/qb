@@ -13,6 +13,6 @@ type Join string
 const (
 	JoinInner Join = `INNER`
 	JoinLeft       = `LEFT`
-	JoinRight      = `RIGH`
+	JoinRight      = `RIGHT`
 	JoinCross      = `CROSS`
 )
