@@ -12,7 +12,6 @@
 	"DisableAll": true,
 	"Enable": [
 		"funlen",
-		"qb",
 		"vet",
 		"vetshadow",
 		"deadcode",
