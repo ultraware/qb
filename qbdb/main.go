@@ -2,6 +2,7 @@ package qbdb
 
 import (
 	"database/sql"
+	"database/sql/driver"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -11,6 +12,10 @@ import (
 )
 
 func (db QueryTarget) printType(v interface{}, c *int) (string, bool) {
+	if _, ok := v.(driver.Valuer); ok {
+		(*c)++
+		return db.Driver.ValueString(*c), true
+	}
 	if v == nil {
 		return `NULL`, false
 	}
