@@ -1,5 +1,11 @@
 package qb
 
+// SubSelectQuery is a SelectQuery that can be used as a subquery
+type SubSelectQuery interface {
+	SelectQuery
+	subSQL(Driver, Alias) (string, []interface{})
+}
+
 // SelectQuery represents a query that returns data
 type SelectQuery interface {
 	SQL(Driver) (string, []interface{})
@@ -39,6 +45,7 @@ func (q returningBuilder) SubQuery() *SubQuery {
 
 // SelectBuilder builds a SELECT query
 type SelectBuilder struct {
+	alias  Alias
 	source Source
 	fields []Field
 	where  []Condition
@@ -150,6 +157,11 @@ func (q *SelectBuilder) Offset(i int) *SelectBuilder {
 	return q
 }
 
+func (q *SelectBuilder) subSQL(d Driver, a Alias) (string, []interface{}) {
+	q.alias = a
+	return q.SQL(d)
+}
+
 // SQL returns a query string and a list of values
 func (q *SelectBuilder) SQL(d Driver) (string, []interface{}) {
 	return q.getSQL(d, false)
@@ -157,6 +169,10 @@ func (q *SelectBuilder) SQL(d Driver) (string, []interface{}) {
 
 func (q *SelectBuilder) getSQL(d Driver, aliasFields bool) (string, []interface{}) {
 	b := newSQLBuilder(d, true)
+
+	if q.alias != nil {
+		b.Context.alias = q.alias
+	}
 
 	for _, v := range q.tables {
 		_ = b.Context.Alias(v)

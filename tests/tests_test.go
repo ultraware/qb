@@ -79,6 +79,8 @@ func runTests(t *testing.T) {
 	}
 
 	testSelect(t)
+	testInQuery(t)
+	testExists(t)
 	testPrepare(t)
 	testSubQuery(t)
 	testUnionAll(t)
@@ -89,8 +91,9 @@ func runTests(t *testing.T) {
 func testUpsert(test *testing.T) {
 	o := model.One()
 
-	q := o.Insert(o.ID, o.Name)
-	q.Values(1, `Test 1`)
+	q := o.Insert(o.ID, o.Name).
+		Values(1, `Test 1`).
+		Values(2, `Test 2`)
 	q.Upsert(
 		o.Update().
 			Set(o.Name, qf.Concat(qf.Excluded(o.Name), `.1`)),
@@ -105,8 +108,9 @@ func testUpsert(test *testing.T) {
 func testUpsertSeperate(test *testing.T) {
 	o := model.One()
 
-	iq := o.Insert(o.ID, o.Name)
-	iq.Values(1, `Test 1`)
+	iq := o.Insert(o.ID, o.Name).
+		Values(1, `Test 1`).
+		Values(2, `Test 2`)
 	err := db.Exec(iq)
 	if err == nil {
 		return
@@ -210,6 +214,46 @@ func testSelect(test *testing.T) {
 	assert.Nil(modified)
 }
 
+func testInQuery(test *testing.T) {
+	o, o2 := model.One(), model.One()
+
+	sq := o2.Select(o2.ID).Where(qc.Eq(o2.ID, 1))
+
+	q := o.Select(o.Name).
+		Where(qc.InQuery(o.ID, sq))
+	row := db.QueryRow(q)
+
+	var name string
+	err := row.Scan(&name)
+	if err != nil {
+		panic(err)
+	}
+
+	assert := assert.New(test)
+	assert.Equal(`Test 1.1`, name)
+}
+
+func testExists(test *testing.T) {
+	o, t, t2 := model.One(), model.Two(), model.Two()
+
+	sq := t2.Select(t2.OneID).Where(qc.Eq(t2.OneID, o.ID))
+
+	q := o.Select(qf.Count(qf.Distinct(o.Name)), qf.Count(t.OneID)).
+		LeftJoin(t.OneID, o.ID).
+		Where(qc.Exists(sq))
+	row := db.QueryRow(q)
+
+	var names, count int
+	err := row.Scan(&names, &count)
+	if err != nil {
+		panic(err)
+	}
+
+	assert := assert.New(test)
+	assert.Equal(1, names)
+	assert.Equal(2, count)
+}
+
 func testPrepare(test *testing.T) {
 	o := model.One()
 
@@ -233,6 +277,10 @@ func testPrepare(test *testing.T) {
 	assert.Equal(oneid, out)
 
 	oneid = 2
+	assert.NoError(stmt.QueryRow().Scan(&out))
+	assert.Equal(oneid, out)
+
+	oneid = 3
 	assert.Equal(sql.ErrNoRows, stmt.QueryRow().Scan(&out))
 }
 
@@ -263,7 +311,7 @@ func testSubQuery(test *testing.T) {
 func testUnionAll(test *testing.T) {
 	o := model.One()
 
-	sq := o.Select(o.ID)
+	sq := o.Select(o.ID).Where(qc.Eq(o.ID, 1))
 
 	q := qb.UnionAll(sq, sq)
 	r, err := db.Query(q)
