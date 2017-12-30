@@ -20,8 +20,8 @@ func TestCase(t *testing.T) {
 
 	sql := c.QueryString(ctx)
 
-	if len(ctx.Values) != 3 || ctx.Values[0] != 1 || ctx.Values[1] != 2 || ctx.Values[2] != 3 {
-		t.Errorf(`Expected values [1, 2, 3]. Got: %v`, ctx.Values)
+	if len(*ctx.Values) != 3 || (*ctx.Values)[0] != 1 || (*ctx.Values)[1] != 2 || (*ctx.Values)[2] != 3 {
+		t.Errorf(`Expected values [1, 2, 3]. Got: %v`, *ctx.Values)
 	}
 
 	testutil.Compare(t, expected, sql)

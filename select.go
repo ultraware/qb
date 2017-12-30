@@ -1,15 +1,9 @@
 package qb
 
-// SubSelectQuery is a SelectQuery that can be used as a subquery
-type SubSelectQuery interface {
-	SelectQuery
-	subSQL(Driver, Alias) (string, []interface{})
-}
-
 // SelectQuery represents a query that returns data
 type SelectQuery interface {
-	SQL(Driver) (string, []interface{})
-	getSQL(Driver, bool) (string, []interface{})
+	Query
+	getSQL(SQLBuilder, bool) (string, []interface{})
 	SubQuery() *SubQuery
 	Fields() []Field
 }
@@ -24,15 +18,13 @@ func Returning(q Query, f ...Field) SelectQuery {
 	return returningBuilder{q, f}
 }
 
-func (q returningBuilder) SQL(d Driver) (string, []interface{}) {
-	return q.getSQL(d, false)
+func (q returningBuilder) SQL(b SQLBuilder) (string, []interface{}) {
+	return q.getSQL(b, false)
 }
 
-func (q returningBuilder) getSQL(d Driver, aliasFields bool) (string, []interface{}) {
-	b := newSQLBuilder(d, false)
-
-	s, v := d.Returning(q.query, q.fields)
-	return s, append(v, b.Context.Values...)
+func (q returningBuilder) getSQL(b SQLBuilder, aliasFields bool) (string, []interface{}) {
+	s, v := b.Context.Driver.Returning(q.query, q.fields)
+	return s, append(v, *b.Context.Values...)
 }
 
 func (q returningBuilder) Fields() []Field {
@@ -45,7 +37,6 @@ func (q returningBuilder) SubQuery() *SubQuery {
 
 // SelectBuilder builds a SELECT query
 type SelectBuilder struct {
-	alias  Alias
 	source Source
 	fields []Field
 	where  []Condition
@@ -60,7 +51,7 @@ type SelectBuilder struct {
 
 // NewSelectBuilder retruns a new SelectBuilder
 func NewSelectBuilder(f []Field, src Source) *SelectBuilder {
-	return &SelectBuilder{fields: f, source: src}
+	return &SelectBuilder{fields: f, source: src, tables: []Source{src}}
 }
 
 // Where adds conditions to the WHERE clause
@@ -100,10 +91,6 @@ func (q *SelectBuilder) ManualJoin(t Join, s Source, c ...Condition) *SelectBuil
 }
 
 func (q *SelectBuilder) join(t Join, f1, f2 Field, c []Condition) *SelectBuilder {
-	if len(q.tables) == 0 {
-		q.tables = []Source{q.source}
-	}
-
 	var new Source
 	exists := 0
 	for _, v := range q.tables {
@@ -157,21 +144,20 @@ func (q *SelectBuilder) Offset(i int) *SelectBuilder {
 	return q
 }
 
-func (q *SelectBuilder) subSQL(d Driver, a Alias) (string, []interface{}) {
-	q.alias = a
-	return q.SQL(d)
+// CTE creates a new CTE (WITH) Query
+func (q *SelectBuilder) CTE() *CTE {
+	return newCTE(q)
 }
 
 // SQL returns a query string and a list of values
-func (q *SelectBuilder) SQL(d Driver) (string, []interface{}) {
-	return q.getSQL(d, false)
+func (q *SelectBuilder) SQL(b SQLBuilder) (string, []interface{}) {
+	return q.getSQL(b, false)
 }
 
-func (q *SelectBuilder) getSQL(d Driver, aliasFields bool) (string, []interface{}) {
-	b := newSQLBuilder(d, true)
-
-	if q.alias != nil {
-		b.Context.alias = q.alias
+func (q *SelectBuilder) getSQL(b SQLBuilder, aliasFields bool) (string, []interface{}) {
+	oldAlias := b.Context.alias
+	if _, ok := oldAlias.(*noAlias); ok {
+		b.Context.alias = AliasGenerator()
 	}
 
 	for _, v := range q.tables {
@@ -188,7 +174,9 @@ func (q *SelectBuilder) getSQL(d Driver, aliasFields bool) (string, []interface{
 	b.Limit(q.limit)
 	b.Offset(q.offset)
 
-	return b.w.String(), b.Context.Values
+	b.Context.alias = oldAlias
+
+	return b.w.String(), *b.Context.Values
 }
 
 // SubQuery converts the SelectQuery to a SubQuery for use in further queries
@@ -208,17 +196,17 @@ type combinedQuery struct {
 	queries     []SelectQuery
 }
 
-func (q combinedQuery) getSQL(d Driver, aliasFields bool) (string, []interface{}) {
+func (q combinedQuery) getSQL(b SQLBuilder, aliasFields bool) (string, []interface{}) {
 	s := ``
 	values := []interface{}{}
 	for k, v := range q.queries {
 		var sql string
 		var val []interface{}
 		if k == 0 {
-			sql, val = v.getSQL(d, aliasFields)
+			sql, val = v.getSQL(b, aliasFields)
 		} else {
 			s += ` ` + q.combineType + ` `
-			sql, val = v.getSQL(d, false)
+			sql, val = v.getSQL(b, false)
 		}
 		s += getSubQuerySQL(sql)
 		values = append(values, val...)
@@ -227,8 +215,8 @@ func (q combinedQuery) getSQL(d Driver, aliasFields bool) (string, []interface{}
 	return s + NEWLINE, values
 }
 
-func (q combinedQuery) SQL(d Driver) (string, []interface{}) {
-	return q.getSQL(d, false)
+func (q combinedQuery) SQL(b SQLBuilder) (string, []interface{}) {
+	return q.getSQL(b, false)
 }
 
 func (q combinedQuery) Fields() []Field {

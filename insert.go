@@ -47,18 +47,16 @@ func (q *InsertBuilder) Upsert(query Query, conflict ...Field) *InsertBuilder {
 }
 
 // SQL returns a query string and a list of values
-func (q *InsertBuilder) SQL(d Driver) (string, []interface{}) {
-	b := newSQLBuilder(d, false)
-
+func (q *InsertBuilder) SQL(b SQLBuilder) (string, []interface{}) {
 	b.Insert(q.table, q.fields)
 	b.Values(q.values)
 
 	sql := b.w.String()
 	if q.update != nil {
-		s, v := d.UpsertSQL(q.table, q.conflict, q.update)
+		s, v := b.Context.Driver.UpsertSQL(q.table, q.conflict, q.update)
 		b.Context.Add(v...)
 		sql += s
 	}
 
-	return sql, b.Context.Values
+	return sql, *b.Context.Values
 }

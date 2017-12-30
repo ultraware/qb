@@ -29,8 +29,8 @@ func ConcatQuery(c *Context, values ...interface{}) string {
 		switch v := val.(type) {
 		case (Field):
 			s += v.QueryString(c)
-		case (SubSelectQuery):
-			sql, vals := v.subSQL(c.Driver, c.alias.(*aliasGenerator).copy())
+		case (SelectQuery):
+			sql, vals := v.SQL(SQLBuilder{Context: c.clone(c.alias.(*aliasGenerator).copy())})
 			s += getSubQuerySQL(sql)
 			c.Add(vals...)
 		case (string):

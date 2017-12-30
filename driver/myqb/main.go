@@ -34,7 +34,7 @@ func (d Driver) BoolString(v bool) string {
 
 // UpsertSQL ...
 func (d Driver) UpsertSQL(t *qb.Table, _ []qb.Field, q qb.Query) (string, []interface{}) {
-	usql, values := q.SQL(d)
+	usql, values := q.SQL(qb.NewSQLBuilder(d))
 	if !strings.HasPrefix(usql, `UPDATE `+t.Name) {
 		panic(`Update does not update the correct table`)
 	}

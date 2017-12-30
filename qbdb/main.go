@@ -34,8 +34,53 @@ func (db QueryTarget) printType(v interface{}, c *int) (string, bool) {
 	}
 }
 
+// Render returns the generated SQL and values without executing the query
+func (db QueryTarget) Render(q qb.Query) (string, []interface{}) {
+	return db.prepare(q)
+}
+
+func (db QueryTarget) ctes(ctes []*qb.CTE, done map[*qb.CTE]bool, b qb.SQLBuilder) []string {
+	var list []string
+
+	for _, v := range ctes {
+		if _, ok := done[v]; ok {
+			continue
+		}
+		done[v] = true
+
+		tmp := b.Context.Values
+
+		newValues, newCTEs := []interface{}{}, []*qb.CTE{}
+		b.Context.Values, b.Context.CTEs = &newValues, &newCTEs
+
+		new := v.With(b)
+
+		b.Context.Values = tmp
+		list = append(append(list, db.ctes(*b.Context.CTEs, done, b)...), new)
+
+		b.Context.Add(newValues...)
+	}
+
+	return list
+}
+
 func (db QueryTarget) prepare(q qb.Query) (string, []interface{}) {
-	s, v := q.SQL(db.Driver)
+	b := qb.NewSQLBuilder(db.Driver)
+
+	s, v := q.SQL(b)
+
+	if _, ok := q.(qb.SelectQuery); ok {
+		ctes := b.Context.CTEs
+
+		newList := []interface{}{}
+		b.Context.Values = &newList
+		if len(*ctes) > 0 {
+			done := make(map[*qb.CTE]bool)
+
+			s = `WITH ` + strings.Join(db.ctes(*ctes, done, b), `, `) + "\n\n" + s
+		}
+		v = append(*b.Context.Values, v...)
+	}
 
 	return db.prepareSQL(s, v)
 }

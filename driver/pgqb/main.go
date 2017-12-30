@@ -42,7 +42,7 @@ func (d Driver) UpsertSQL(t *qb.Table, conflict []qb.Field, q qb.Query) (string,
 		sql += v.QueryString(c)
 	}
 
-	usql, values := q.SQL(d)
+	usql, values := q.SQL(qb.NewSQLBuilder(d))
 	if !strings.HasPrefix(usql, `UPDATE `+t.Name) {
 		panic(`Update does not update the correct table`)
 	}
@@ -53,19 +53,19 @@ func (d Driver) UpsertSQL(t *qb.Table, conflict []qb.Field, q qb.Query) (string,
 
 // Returning ...
 func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
-	c := qb.NewContext(d, qb.NoAlias())
+	b := qb.NewSQLBuilder(d)
 
-	s, v := q.SQL(d)
+	s, v := q.SQL(b)
 
 	line := ``
 	for k, field := range f {
 		if k > 0 {
 			line += `, `
 		}
-		line += field.QueryString(c)
+		line += field.QueryString(b.Context)
 	}
 
-	return s + `RETURNING ` + line + qb.NEWLINE, append(v, c.Values...)
+	return s + `RETURNING ` + line + qb.NEWLINE, append(v, *b.Context.Values...)
 }
 
 var types = map[qb.DataType]string{

@@ -24,7 +24,7 @@ func TestSQLWriter(t *testing.T) {
 	testutil.Compare(t, "0\n0\n\t1-\n\t1-\n\t\t2-\n0", w.String())
 }
 
-func newCheckOutput(t *testing.T, b *sqlBuilder) func(bool, string) {
+func newCheckOutput(t *testing.T, b *SQLBuilder) func(bool, string) {
 	return func(newline bool, expected string) {
 		out := b.w.String()
 		b.w = sqlWriter{}
@@ -41,8 +41,8 @@ func info(t *testing.T, msg string) {
 	t.Log(testutil.Notice(msg))
 }
 
-func testBuilder(t *testing.T, alias bool) (*sqlBuilder, func(bool, string)) {
-	b := &sqlBuilder{sqlWriter{}, NewContext(nil, NoAlias())}
+func testBuilder(t *testing.T, alias bool) (*SQLBuilder, func(bool, string)) {
+	b := &SQLBuilder{sqlWriter{}, NewContext(nil, NoAlias())}
 	if alias {
 		b.Context.alias = AliasGenerator()
 	}

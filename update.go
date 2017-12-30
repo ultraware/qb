@@ -37,12 +37,10 @@ func (q *UpdateBuilder) Where(c ...Condition) *UpdateBuilder {
 }
 
 // SQL returns a query string and a list of values
-func (q *UpdateBuilder) SQL(d Driver) (string, []interface{}) {
-	b := newSQLBuilder(d, false)
-
+func (q *UpdateBuilder) SQL(b SQLBuilder) (string, []interface{}) {
 	b.Update(q.t)
 	b.Set(q.set)
 	b.Where(q.c...)
 
-	return b.w.String(), b.Context.Values
+	return b.w.String(), *b.Context.Values
 }

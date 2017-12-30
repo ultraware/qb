@@ -17,7 +17,7 @@ type Driver interface {
 
 // Query generates SQL
 type Query interface {
-	SQL(Driver) (string, []interface{})
+	SQL(b SQLBuilder) (string, []interface{})
 }
 
 // Alias generates table aliasses
@@ -83,6 +83,47 @@ func (t *Table) Insert(f []Field) *InsertBuilder {
 	return &q
 }
 
+// CTE is a type of subqueries
+type CTE struct {
+	query SelectQuery
+	F     []Field
+}
+
+func newCTE(q SelectQuery) *CTE {
+	cte := &CTE{query: q}
+
+	for k := range q.Fields() {
+		cte.F = append(cte.F, &TableField{Name: `f` + strconv.Itoa(k), Parent: cte})
+	}
+
+	return cte
+}
+
+func (cte *CTE) aliasString() string {
+	return `ct`
+}
+
+// QueryString implements QueryStringer
+func (cte *CTE) QueryString(c *Context) string {
+	alias := c.Alias(cte)
+	if len(alias) > 0 {
+		alias = ` ` + alias
+	}
+
+	return c.cteName(cte) + alias
+}
+
+// With generates the SQL for a WITH statement
+func (cte *CTE) With(b SQLBuilder) string {
+	s, _ := cte.query.getSQL(b, true)
+	return b.Context.cteName(cte) + ` AS ` + getSubQuerySQL(s)
+}
+
+// Select starts a SELECT query
+func (cte *CTE) Select(f ...Field) *SelectBuilder {
+	return NewSelectBuilder(f, cte)
+}
+
 // SubQuery represents a subquery
 type SubQuery struct {
 	query SelectQuery
@@ -106,7 +147,7 @@ func (t *SubQuery) QueryString(c *Context) string {
 		alias = ` ` + alias
 	}
 
-	sql, v := t.query.getSQL(c.Driver, true)
+	sql, v := t.query.getSQL(SQLBuilder{Context: c.clone(AliasGenerator())}, true)
 	c.Add(v...)
 
 	return getSubQuerySQL(sql) + alias
@@ -205,14 +246,29 @@ func Desc(f Field) FieldOrder {
 
 // Context contains all the data needed to build parts of a query
 type Context struct {
-	Driver Driver
-	alias  Alias
-	Values []interface{}
+	Driver   Driver
+	alias    Alias
+	Values   *[]interface{}
+	cteNames map[*CTE]string
+	cteCount *int
+	CTEs     *[]*CTE
+}
+
+func (c *Context) cteName(cte *CTE) string {
+	if v, ok := c.cteNames[cte]; ok {
+		return v
+	}
+
+	*c.CTEs = append(*c.CTEs, cte)
+	*c.cteCount++
+
+	c.cteNames[cte] = `cte` + strconv.Itoa(*c.cteCount)
+	return c.cteNames[cte]
 }
 
 // Add adds a value to Values
 func (c *Context) Add(v ...interface{}) {
-	c.Values = append(c.Values, v...)
+	*c.Values = append(*c.Values, v...)
 }
 
 // Alias returns an alias for the given Source
@@ -220,7 +276,18 @@ func (c *Context) Alias(src Source) string {
 	return c.alias.Get(src)
 }
 
+func (c *Context) clone(alias Alias) *Context {
+	new := *c
+	new.alias = alias
+
+	var values []interface{}
+	new.Values = &values
+
+	return &new
+}
+
 // NewContext returns a new *Context
 func NewContext(d Driver, a Alias) *Context {
-	return &Context{d, a, nil}
+	values, count, ctes := []interface{}{}, 0, []*CTE{}
+	return &Context{d, a, &values, make(map[*CTE]string), &count, &ctes}
 }

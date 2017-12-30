@@ -113,20 +113,20 @@ func in(f1 qb.Field, args ...interface{}) qb.Condition {
 }
 
 // InQuery checks if f1 is in the subquery's result
-func InQuery(f qb.Field, q qb.SubSelectQuery) qb.Condition {
+func InQuery(f qb.Field, q qb.SelectQuery) qb.Condition {
 	return useOverride(inQuery, f, q)
 }
-func inQuery(f qb.Field, q qb.SubSelectQuery) qb.Condition {
+func inQuery(f qb.Field, q qb.SelectQuery) qb.Condition {
 	return func(c *qb.Context) string {
 		return qb.ConcatQuery(c, f, ` IN `, q)
 	}
 }
 
 // Exists checks if the subquery returns rows
-func Exists(q qb.SubSelectQuery) qb.Condition {
+func Exists(q qb.SelectQuery) qb.Condition {
 	return useOverride(exists, q)
 }
-func exists(q qb.SubSelectQuery) qb.Condition {
+func exists(q qb.SelectQuery) qb.Condition {
 	return func(c *qb.Context) string {
 		return qb.ConcatQuery(c, `EXISTS `, q)
 	}

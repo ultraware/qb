@@ -41,27 +41,28 @@ func (w *sqlWriter) String() string {
 	return w.sql
 }
 
-type sqlBuilder struct {
+// SQLBuilder contains data and methods to generate SQL
+type SQLBuilder struct {
 	w       sqlWriter
 	Context *Context
 }
 
-func newSQLBuilder(d Driver, useAlias bool) sqlBuilder {
+// NewSQLBuilder returns a new SQLBuilder
+func NewSQLBuilder(d Driver) SQLBuilder {
 	alias := NoAlias()
-	if useAlias {
-		alias = AliasGenerator()
-	}
-	return sqlBuilder{sqlWriter{}, NewContext(d, alias)}
+
+	return SQLBuilder{sqlWriter{}, NewContext(d, alias)}
 }
 
 ///// Non-statements /////
 
-func (b *sqlBuilder) ToSQL(qs QueryStringer) string {
+// ToSQL converts a QueryStringer to a string
+func (b *SQLBuilder) ToSQL(qs QueryStringer) string {
 	return qs.QueryString(b.Context)
 }
 
 // List lists the given fields
-func (b *sqlBuilder) List(f []Field, withAlias bool) string {
+func (b *SQLBuilder) List(f []Field, withAlias bool) string {
 	s := ``
 	for k, v := range f {
 		if k > 0 {
@@ -77,7 +78,7 @@ func (b *sqlBuilder) List(f []Field, withAlias bool) string {
 }
 
 // Conditions generates valid SQL for the given list of conditions
-func (b *sqlBuilder) Conditions(c []Condition, newline bool) {
+func (b *SQLBuilder) Conditions(c []Condition, newline bool) {
 	fn := b.w.WriteString
 	if newline {
 		fn = b.w.WriteLine
@@ -109,15 +110,18 @@ func eq(f1, f2 Field) Condition {
 
 ///// SQL statements /////
 
-func (b *sqlBuilder) Select(withAlias bool, f ...Field) {
+// Select generates a SQL SELECT line
+func (b *SQLBuilder) Select(withAlias bool, f ...Field) {
 	b.w.WriteLine(`SELECT ` + b.List(f, withAlias))
 }
 
-func (b *sqlBuilder) From(src Source) {
+// From generates a SQL FROM line
+func (b *SQLBuilder) From(src Source) {
 	b.w.WriteLine(`FROM ` + b.ToSQL(src))
 }
 
-func (b *sqlBuilder) Join(j ...join) {
+// Join generates SQL JOIN lines
+func (b *SQLBuilder) Join(j ...join) {
 	b.w.AddIndent()
 	defer b.w.SubIndent()
 
@@ -128,7 +132,8 @@ func (b *sqlBuilder) Join(j ...join) {
 	}
 }
 
-func (b *sqlBuilder) Where(c ...Condition) {
+// Where generates SQL WHERE/AND lines
+func (b *SQLBuilder) Where(c ...Condition) {
 	if len(c) == 0 {
 		return
 	}
@@ -136,14 +141,16 @@ func (b *sqlBuilder) Where(c ...Condition) {
 	b.Conditions(c, true)
 }
 
-func (b *sqlBuilder) GroupBy(f ...Field) {
+// GroupBy generates a SQL GROUP BY line
+func (b *SQLBuilder) GroupBy(f ...Field) {
 	if len(f) == 0 {
 		return
 	}
 	b.w.WriteLine(`GROUP BY ` + b.List(f, false))
 }
 
-func (b *sqlBuilder) Having(c ...Condition) {
+// Having generates a SQL HAVING line
+func (b *SQLBuilder) Having(c ...Condition) {
 	if len(c) == 0 {
 		return
 	}
@@ -151,7 +158,8 @@ func (b *sqlBuilder) Having(c ...Condition) {
 	b.Conditions(c, true)
 }
 
-func (b *sqlBuilder) OrderBy(o ...FieldOrder) {
+// OrderBy generates a SQL ORDER BY line
+func (b *SQLBuilder) OrderBy(o ...FieldOrder) {
 	if len(o) == 0 {
 		return
 	}
@@ -165,26 +173,30 @@ func (b *sqlBuilder) OrderBy(o ...FieldOrder) {
 	b.w.WriteLine(s)
 }
 
-func (b *sqlBuilder) Limit(i int) {
+// Limit generates a SQL LIMIT line
+func (b *SQLBuilder) Limit(i int) {
 	if i == 0 {
 		return
 	}
 	b.w.WriteLine(`LIMIT ` + strconv.Itoa(i))
 }
 
-func (b *sqlBuilder) Offset(i int) {
+// Offset generates a SQL OFFSET line
+func (b *SQLBuilder) Offset(i int) {
 	if i == 0 {
 		return
 	}
 	b.w.WriteLine(`OFFSET ` + strconv.Itoa(i))
 }
 
-func (b *sqlBuilder) Update(t *Table) {
+// Update generates a SQL UPDATE line
+func (b *SQLBuilder) Update(t *Table) {
 	_ = t.Name
 	b.w.WriteLine(`UPDATE ` + b.ToSQL(t))
 }
 
-func (b *sqlBuilder) Set(sets []set) {
+// Set generates a SQL SET line
+func (b *SQLBuilder) Set(sets []set) {
 	if len(sets) == 0 {
 		return
 	}
@@ -205,12 +217,14 @@ func (b *sqlBuilder) Set(sets []set) {
 	}
 }
 
-func (b *sqlBuilder) Delete(t *Table) {
+// Delete generates a SQL DELETE FROM line
+func (b *SQLBuilder) Delete(t *Table) {
 	_ = t.Name
 	b.w.WriteLine(`DELETE FROM ` + b.ToSQL(t))
 }
 
-func (b *sqlBuilder) Insert(t *Table, f []Field) {
+// Insert generates a SQL INSERT line
+func (b *SQLBuilder) Insert(t *Table, f []Field) {
 	_ = t.Name
 	s := ``
 	for k, v := range f {
@@ -222,7 +236,8 @@ func (b *sqlBuilder) Insert(t *Table, f []Field) {
 	b.w.WriteLine(`INSERT INTO ` + b.ToSQL(t) + ` (` + s + `)`)
 }
 
-func (b *sqlBuilder) Values(f [][]Field) {
+// Values generates a SQL VALUES line
+func (b *SQLBuilder) Values(f [][]Field) {
 	if len(f) > 1 {
 		b.w.WriteLine(`VALUES`)
 		b.w.AddIndent()
@@ -232,11 +247,11 @@ func (b *sqlBuilder) Values(f [][]Field) {
 	}
 
 	for k, v := range f {
-		b.ValueLine(v, k != len(f)-1)
+		b.valueLine(v, k != len(f)-1)
 	}
 }
 
-func (b *sqlBuilder) ValueLine(f []Field, addComma bool) {
+func (b *SQLBuilder) valueLine(f []Field, addComma bool) {
 	comma := `,`
 	if !addComma {
 		comma = ``
