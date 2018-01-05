@@ -3,12 +3,8 @@ workspace:
   path: src/git.ultraware.nl/NiseVoid/qb
 
 pipeline:
-  clone:
-    image: plugins/git
-    tags: true
-
   test:
-    image: registry.ultraware.nl/go-build:latest
+    image: registry.ultraware.nl/ultraware/go-build:latest
     pull: true
     commands:
       - make setup
@@ -19,7 +15,7 @@ pipeline:
       event: [ push, tag, pull_request ]
 
   PostgreSQL:
-    image: registry.ultraware.nl/go-build:latest
+    image: registry.ultraware.nl/ultraware/go-build:latest
     pull: true
     environment:
       - POSTGRES_TESTHOST=pgsql
@@ -30,7 +26,7 @@ pipeline:
       event: [ push, tag, pull_request ]
 
   MySQL:
-    image: registry.ultraware.nl/go-build:latest
+    image: registry.ultraware.nl/ultraware/go-build:latest
     pull: true
     environment:
       - MYSQL_TESTHOST=mariadb
@@ -41,7 +37,7 @@ pipeline:
       event: [ push, tag, pull_request ]
 
   MSSQL:
-    image: registry.ultraware.nl/go-build:latest
+    image: registry.ultraware.nl/ultraware/go-build:latest
     pull: true
     environment:
       - MSSQL_TESTHOST=172.22.0.25
@@ -53,7 +49,7 @@ pipeline:
 
 services:
   pgsql:
-    image: postgres:9.6.3-alpine
+    image: postgres:10.1-alpine
     pull: true
     environment:
       - DB_HOST=postgres
