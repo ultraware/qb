@@ -6,6 +6,14 @@ import (
 	"git.ultraware.nl/NiseVoid/qb/tests/testutil"
 )
 
+func BenchmarkSQLWrite(b *testing.B) {
+	w := sqlWriter{}
+
+	for i := 0; i < b.N; i++ {
+		w.WriteLine("Test")
+	}
+}
+
 func TestSQLWriter(t *testing.T) {
 	w := sqlWriter{}
 

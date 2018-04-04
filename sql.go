@@ -1,27 +1,28 @@
 package qb
 
 import (
+	"bytes"
 	"strconv"
 	"strings"
 )
 
 type sqlWriter struct {
-	sql    string
+	sql    bytes.Buffer
 	indent int
 }
 
 func (w *sqlWriter) WriteString(s string) {
-	if w.sql == `` || w.sql[len(w.sql)-1] == '\n' {
-		w.sql += strings.Repeat(INDENT, w.indent)
+	if w.sql.Len() == 0 || w.sql.Bytes()[w.sql.Len()-1] == '\n' {
+		w.sql.WriteString(strings.Repeat(INDENT, w.indent))
 	}
 	for k, v := range strings.Split(s, "\n") {
 		if k > 0 && v != `` {
-			w.sql += NEWLINE + strings.Repeat(INDENT, w.indent)
+			w.sql.WriteString(NEWLINE + strings.Repeat(INDENT, w.indent))
 		}
-		w.sql += v
+		w.sql.WriteString(v)
 	}
 	if s[len(s)-1] == '\n' {
-		w.sql += NEWLINE
+		w.sql.WriteString(NEWLINE)
 	}
 }
 
@@ -38,7 +39,7 @@ func (w *sqlWriter) SubIndent() {
 }
 
 func (w *sqlWriter) String() string {
-	return w.sql
+	return w.sql.String()
 }
 
 // SQLBuilder contains data and methods to generate SQL
