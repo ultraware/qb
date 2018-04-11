@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
+	assertpkg "github.com/stretchr/testify/assert"
 
 	"git.ultraware.nl/NiseVoid/qb"
 	"git.ultraware.nl/NiseVoid/qb/driver/autoqb"
@@ -166,7 +166,7 @@ func testUpdateReturning(test *testing.T) {
 	var (
 		comment = ``
 		number  = 0
-		assert  = assert.New(test)
+		assert  = assertpkg.New(test)
 	)
 
 	assert.True(r.Next())
@@ -196,7 +196,7 @@ func testSelect(test *testing.T) {
 		year, number int
 		comment      string
 		modified     *time.Time
-		assert       = assert.New(test)
+		assert       = assertpkg.New(test)
 	)
 
 	err := r.Scan(&id, &name, &year, &number, &comment, &modified)
@@ -229,7 +229,7 @@ func testInQuery(test *testing.T) {
 		panic(err)
 	}
 
-	assert := assert.New(test)
+	assert := assertpkg.New(test)
 	assert.Equal(`Test 1.1`, name)
 }
 
@@ -249,7 +249,7 @@ func testExists(test *testing.T) {
 		panic(err)
 	}
 
-	assert := assert.New(test)
+	assert := assertpkg.New(test)
 	assert.Equal(1, names)
 	assert.Equal(2, count)
 }
@@ -267,7 +267,7 @@ func testPrepare(test *testing.T) {
 		panic(err)
 	}
 
-	assert := assert.New(test)
+	assert := assertpkg.New(test)
 	out := 0
 
 	assert.Equal(sql.ErrNoRows, stmt.QueryRow().Scan(&out))
@@ -302,7 +302,7 @@ func testSubQuery(test *testing.T) {
 		panic(err)
 	}
 
-	assert := assert.New(test)
+	assert := assertpkg.New(test)
 
 	assert.Equal(1, id)
 	assert.Equal(2, count)
@@ -321,7 +321,7 @@ func testUnionAll(test *testing.T) {
 
 	var (
 		id     int
-		assert = assert.New(test)
+		assert = assertpkg.New(test)
 	)
 
 	assert.True(r.Next())
@@ -356,7 +356,7 @@ func testLeftJoin(test *testing.T) {
 	var (
 		id     int
 		oneid  *int
-		assert = assert.New(test)
+		assert = assertpkg.New(test)
 	)
 
 	assert.NoError(r.Scan(&id, &oneid))
