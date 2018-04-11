@@ -3,6 +3,7 @@ package autoqb
 import (
 	"database/sql"
 	"reflect"
+	"strings"
 
 	"git.ultraware.nl/NiseVoid/qb/driver/msqb"
 	"git.ultraware.nl/NiseVoid/qb/driver/myqb"
@@ -28,5 +29,7 @@ func getPkgName(db *sql.DB) string {
 	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
 	}
-	return t.PkgPath()
+	path := t.PkgPath()
+	parts := strings.Split(path, `/vendor/`)
+	return parts[len(parts)-1]
 }
