@@ -17,6 +17,14 @@ func (t Tx) Commit() error {
 	return t.tx.Commit()
 }
 
+// MustCommit is the same as Commit, but it panics if an error occurred
+func (t Tx) MustCommit() {
+	err := t.Commit()
+	if err != nil {
+		panic(err)
+	}
+}
+
 // Rollback reverts all the changes from the transaction
 func (t Tx) Rollback() error {
 	return t.tx.Rollback()
@@ -44,6 +52,15 @@ type DB struct {
 func (db *DB) Begin() (Tx, error) {
 	tx, err := db.DB.Begin()
 	return Tx{QueryTarget{tx, db.QueryTarget.Driver, db.QueryTarget.Debug}, tx}, err
+}
+
+// MustBegin is the same as Begin, but it panics if an error occurred
+func (db *DB) MustBegin() Tx {
+	tx, err := db.Begin()
+	if err != nil {
+		panic(err)
+	}
+	return tx
 }
 
 // New returns a new DB
