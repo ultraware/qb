@@ -18,12 +18,12 @@ func (d Driver) BoolString(v bool) string {
 	return `f`
 }
 
-// UpsertSQL ...
+// UpsertSQL implements qb.Driver
 func (d Driver) UpsertSQL(_ *qb.Table, _ []qb.Field, _ qb.Query) (string, []interface{}) {
 	panic(`This should not be used`)
 }
 
-// Returning ...
+// Returning implements qb.Driver
 func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
 	panic(`This should not be used`)
 }

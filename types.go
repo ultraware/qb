@@ -20,7 +20,8 @@ type Query interface {
 	SQL(b SQLBuilder) (string, []interface{})
 }
 
-// Alias generates table aliasses
+// Alias generates table aliasses.
+// This type is not intended to be used directly
 type Alias interface {
 	Get(Source) string
 }
@@ -40,7 +41,8 @@ type Source interface {
 	aliasString() string
 }
 
-// Table represents a table in the database
+// Table represents a table in the database.
+// This type is used by qb-generator's generated code and is not intended to be used manually
 type Table struct {
 	Name  string
 	Alias string
@@ -113,7 +115,8 @@ func (cte *CTE) QueryString(c *Context) string {
 	return c.cteName(cte) + alias
 }
 
-// With generates the SQL for a WITH statement
+// With generates the SQL for a WITH statement.
+// This function is not intended to be called directly
 func (cte *CTE) With(b SQLBuilder) string {
 	s, _ := cte.query.getSQL(b, true)
 	return b.Context.cteName(cte) + ` AS ` + getSubQuerySQL(s)
@@ -175,7 +178,8 @@ type Field interface {
 	QueryStringer
 }
 
-// TableField represents a field in a table
+// TableField represents a field in a table.
+// This type is used by qb-generator's generated code and is not intended to be used manually
 type TableField struct {
 	Parent   Source
 	Name     string
@@ -244,7 +248,8 @@ func Desc(f Field) FieldOrder {
 	return FieldOrder{Field: f, Order: `DESC`}
 }
 
-// Context contains all the data needed to build parts of a query
+// Context contains all the data needed to build parts of a query.
+// This type is not intended to be used directly
 type Context struct {
 	Driver   Driver
 	alias    Alias
