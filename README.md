@@ -2,11 +2,11 @@
 
 qb is a library that allows you to build queries without using strings. This offers some unique advantages:
 
-- When changing your database you won't be able to compile queries that refer to old fields
-- You can't misspell keywords or fieldnames, this saves a lot of time
+- When changing your database queries that refer to old fields or tables won't compile until you update them
+- You can't misspell keywords or fieldnames, this saves a lot of time and many bugs
 - You can use tab completion
 - You can easily port a query to a different database
-- The order of your query does not matter, this makes building queries in parts easier
+- The order of your query does not matter, this makes building queries in parts or adding optional statements easier
 
 ## Installation
 
@@ -55,6 +55,11 @@ You can create a db.json manually, but you can also use tools to generate this f
 ```bash
 qb-generate db.json tables.go
 ```
+
+#### Recommendations
+
+- Don't commit qb-generator's generated code to your repo
+- Use a go generate command to run qb-generator
 
 ### 3. Make a qbdb.DB
 
@@ -109,9 +114,9 @@ for rows.Next() {
 one := model.One()
 
 q := one.Insert(one.Field1, one.Field2).
-	Values(1, `Record 1`).
-	Values(2, `Record 2`).
-	Values(4, `Record 4`)
+	Values(1, "Record 1").
+	Values(2, "Record 2").
+	Values(4, "Record 4")
 
 err := db.Exec(q)
 if err != nil {
@@ -125,7 +130,7 @@ if err != nil {
 one := model.One()
 
 q := one.Update().
-	Set(one.Field2, `Record 3`).
+	Set(one.Field2, "Record 3").
 	Where(qc.Eq(one.Field1, 4))
 
 err := db.Exec(q)
@@ -158,9 +163,67 @@ q := one.Select(one.Field1, one.Field2).
 
 for _, v := range []int{1,2,3,4,5} {
 	id = v
-	err := db.QueryRow(q)
+
+	row := db.QueryRow(q)
+
+	f1, f2 := 0, ""
+	err := row.Scan(&field1, &field2)
 	if err != nil {
 		panic(err)
 	}
+
+	fmt.Println(f1, f2)
 }
+```
+
+### Subqueries
+
+```golang
+one := model.One()
+
+sq := one.Select(one.Field1).SubQuery()
+
+q := sq.Select(sq.F[0])
+
+rows, err := db.Query(q)
+if err != nil {
+	panic(err)
+}
+
+for rows.Next() {
+	f1 := 0
+	err := rows.Scan(&f1)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(f1)
+}
+```
+
+Alternatively, `.CTE()` can be used instead of `.SubQuery()` to use a CTE instead of a subquery
+
+### Custom functions
+
+```golang
+func dbfunc(f qb.Field) qb.Field {
+    return qf.NewCalculatedField("dbfunc(", f, ")")
+}
+```
+
+```golang
+q := one.Select(dbfunc(one.Field1))
+```
+
+### Custom conditions
+
+```golang
+func dbcond(f qb.Field) qb.Condition {
+	return qc.NewCondition("dbcond(", f, ")")
+}
+```
+
+```golang
+q := one.Select(one.Field1).
+	Where(dbcond(one.Field1))
 ```
