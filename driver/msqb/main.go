@@ -31,12 +31,12 @@ func (d Driver) BoolString(v bool) string {
 	return `0`
 }
 
-// UpsertSQL ...
+// UpsertSQL implements qb.Driver
 func (d Driver) UpsertSQL(t *qb.Table, _ []qb.Field, q qb.Query) (string, []interface{}) {
 	panic(`mssql does not support upsert`)
 }
 
-// Returning ...
+// Returning implements qb.Driver
 func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
 	b := qb.NewSQLBuilder(d)
 	sql, v := q.SQL(b)
@@ -75,7 +75,7 @@ var types = map[qb.DataType]string{
 	qb.Time:    `datetime`,
 }
 
-// TypeName ...
+// TypeName implements qb.Driver
 func (d Driver) TypeName(t qb.DataType) string {
 	if s, ok := types[t]; ok {
 		return s
@@ -91,7 +91,7 @@ func init() {
 	override.Add(qf.Now, msqf.GetDate)
 }
 
-// Override ...
+// Override implements qb.Driver
 func (d Driver) Override() qb.OverrideMap {
 	return override
 }

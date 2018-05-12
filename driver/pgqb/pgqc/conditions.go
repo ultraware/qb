@@ -5,7 +5,7 @@ import (
 	"git.ultraware.nl/NiseVoid/qb/qc"
 )
 
-// ILike ...
+// ILike is a postgres-specific version of qf.Like
 func ILike(f1 qb.Field, s string) qb.Condition {
 	f2 := qb.MakeField(s)
 	return qc.NewCondition(f1, ` ILIKE `, f2)

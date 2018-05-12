@@ -5,7 +5,8 @@ import (
 	"runtime"
 )
 
-// OverrideMap allows a driver to override functions from qf and qc
+// OverrideMap allows a driver to override functions from qf and qc.
+// This type is not intended to be used directly
 type OverrideMap map[*runtime.Func]interface{}
 
 // Add adds an override to the map

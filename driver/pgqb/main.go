@@ -31,7 +31,7 @@ func (d Driver) BoolString(v bool) string {
 	return strconv.FormatBool(v)
 }
 
-// UpsertSQL ...
+// UpsertSQL implements qb.Driver
 func (d Driver) UpsertSQL(t *qb.Table, conflict []qb.Field, q qb.Query) (string, []interface{}) {
 	c := qb.NewContext(d, qb.NoAlias())
 	sql := ``
@@ -51,7 +51,7 @@ func (d Driver) UpsertSQL(t *qb.Table, conflict []qb.Field, q qb.Query) (string,
 	return `ON CONFLICT (` + sql + `) DO ` + usql, values
 }
 
-// Returning ...
+// Returning implements qb.Driver
 func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
 	b := qb.NewSQLBuilder(d)
 
@@ -77,7 +77,7 @@ var types = map[qb.DataType]string{
 	qb.Time:    `timestamptz`,
 }
 
-// TypeName ...
+// TypeName implements qb.Driver
 func (d Driver) TypeName(t qb.DataType) string {
 	if s, ok := types[t]; ok {
 		return s
@@ -93,7 +93,7 @@ func init() {
 	override.Add(qc.Like, pgqc.ILike)
 }
 
-// Override ...
+// Override implements qb.Driver
 func (d Driver) Override() qb.OverrideMap {
 	return override
 }

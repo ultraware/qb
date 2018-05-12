@@ -42,7 +42,8 @@ func (w *sqlWriter) String() string {
 	return w.sql.String()
 }
 
-// SQLBuilder contains data and methods to generate SQL
+// SQLBuilder contains data and methods to generate SQL.
+// This type is not intended to be used directly
 type SQLBuilder struct {
 	w       sqlWriter
 	Context *Context

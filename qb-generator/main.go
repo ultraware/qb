@@ -11,15 +11,13 @@ import (
 	"strings"
 )
 
-// InputTable ...
-type InputTable struct {
+type inputTable struct {
 	String string       `json:"name"`
 	Alias  string       `json:"alias"`
-	Fields []InputField `json:"fields"`
+	Fields []inputField `json:"fields"`
 }
 
-// InputField ...
-type InputField struct {
+type inputField struct {
 	String   string `json:"name"`
 	Nullable bool   `json:"null"`
 	ReadOnly bool   `json:"read_only"`
@@ -27,16 +25,14 @@ type InputField struct {
 	Size     int    `json:"size"`
 }
 
-// Table ...
-type Table struct {
+type table struct {
 	Table       string
 	TableString string
 	Alias       string
-	Fields      []Field
+	Fields      []field
 }
 
-// Field ...
-type Field struct { //nolint: aligncheck
+type field struct {
 	Name     string
 	String   string
 	ReadOnly bool
@@ -120,8 +116,8 @@ func getDataType(t string, size int, null bool) dataType {
 	return dataType{t, size, null}
 }
 
-func newField(f InputField) Field {
-	return Field{cleanName(f.String), f.String, f.ReadOnly, getDataType(f.DataType, f.Size, f.Nullable)}
+func newField(f inputField) field {
+	return field{cleanName(f.String), f.String, f.ReadOnly, getDataType(f.DataType, f.Size, f.Nullable)}
 }
 
 func cleanName(s string) string {
@@ -166,7 +162,7 @@ func main() {
 		log.Fatal(`Failed to open input file. `, err)
 	}
 
-	input := []InputTable{}
+	input := []inputTable{}
 
 	err = json.NewDecoder(in).Decode(&input)
 	if err != nil {
@@ -190,8 +186,8 @@ func main() {
 	}
 }
 
-func generateCode(out io.Writer, input []InputTable) error {
-	tables := make([]Table, len(input))
+func generateCode(out io.Writer, input []inputTable) error {
+	tables := make([]table, len(input))
 	for k, v := range input {
 		t := &tables[k]
 		t.Table = cleanName(v.String)

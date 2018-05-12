@@ -9,7 +9,7 @@ import (
 // CalculatedField is a field created by running functions on a TableField
 type CalculatedField func(c *qb.Context) string
 
-// QueryString ...
+// QueryString implements qb.Field
 func (f CalculatedField) QueryString(c *qb.Context) string {
 	return f(c)
 }

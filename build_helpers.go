@@ -14,7 +14,8 @@ var (
 
 ///// Field /////
 
-// MakeField returns the value as a Field, no operation performed when the value is already a field
+// MakeField returns the value as a Field, no operation performed when the value is already a field.
+// This function is not intended to be called directly
 func MakeField(i interface{}) Field {
 	if f, ok := i.(Field); ok {
 		return f
@@ -22,7 +23,8 @@ func MakeField(i interface{}) Field {
 	return Value(i)
 }
 
-// ConcatQuery combines strings and QueryStringers into string
+// ConcatQuery combines strings and QueryStringers into string.
+// This function is not intended to be called directly
 func ConcatQuery(c *Context, values ...interface{}) string {
 	s := ``
 	for _, val := range values {
@@ -40,7 +42,8 @@ func ConcatQuery(c *Context, values ...interface{}) string {
 	return s
 }
 
-// JoinQuery joins fields or values into a string separated by sep
+// JoinQuery joins fields or values into a string separated by sep.
+// This function is not intended to be called directly
 func JoinQuery(c *Context, sep string, values []interface{}) string {
 	s := make([]interface{}, len(values)*2-1)
 	for k, v := range values {
@@ -61,7 +64,8 @@ func (n *noAlias) Get(_ Source) string {
 	return ``
 }
 
-// NoAlias returns no alias
+// NoAlias returns no alias.
+// This function is not intended to be called directly
 func NoAlias() Alias {
 	return &noAlias{}
 }
@@ -71,7 +75,8 @@ type aliasGenerator struct {
 	counters map[string]int
 }
 
-// AliasGenerator returns an incrementing alias for each new Source
+// AliasGenerator returns an incrementing alias for each new Source.
+// This function is not intended to be called directly
 func AliasGenerator() Alias {
 	return &aliasGenerator{make(map[Source]string), make(map[string]int)}
 }

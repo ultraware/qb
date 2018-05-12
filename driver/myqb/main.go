@@ -32,7 +32,7 @@ func (d Driver) BoolString(v bool) string {
 	return `0`
 }
 
-// UpsertSQL ...
+// UpsertSQL implements qb.Driver
 func (d Driver) UpsertSQL(t *qb.Table, _ []qb.Field, q qb.Query) (string, []interface{}) {
 	usql, values := q.SQL(qb.NewSQLBuilder(d))
 	if !strings.HasPrefix(usql, `UPDATE `+t.Name) {
@@ -43,7 +43,7 @@ func (d Driver) UpsertSQL(t *qb.Table, _ []qb.Field, q qb.Query) (string, []inte
 	return `ON DUPLICATE KEY ` + usql, values
 }
 
-// Returning ...
+// Returning implements qb.Driver
 func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
 	panic(`mysql does not support RETURNING`)
 }
@@ -57,7 +57,7 @@ var types = map[qb.DataType]string{
 	qb.Time:    `datetime`,
 }
 
-// TypeName ...
+// TypeName implements qb.Driver
 func (d Driver) TypeName(t qb.DataType) string {
 	if s, ok := types[t]; ok {
 		return s
@@ -71,7 +71,7 @@ func init() {
 	override.Add(qf.Excluded, myqf.Values)
 }
 
-// Override ...
+// Override implements qb.Driver
 func (d Driver) Override() qb.OverrideMap {
 	return override
 }

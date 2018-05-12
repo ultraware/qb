@@ -1,6 +1,5 @@
 package qb
 
-// defaultField ...
 type defaultField struct{}
 
 // Default uses a field's default value
