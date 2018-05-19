@@ -47,6 +47,10 @@ func (q *InsertBuilder) Upsert(query Query, conflict ...Field) *InsertBuilder {
 
 // SQL returns a query string and a list of values
 func (q *InsertBuilder) SQL(b SQLBuilder) (string, []interface{}) {
+	if len(q.values) == 0 {
+		panic(`Cannot exectue insert without values`)
+	}
+
 	b.Insert(q.table, q.fields)
 	b.Values(q.values)
 
