@@ -29,12 +29,12 @@ func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
 }
 
 var types = map[qb.DataType]string{
-	qb.Int:     `int`,
-	qb.String:  `string`,
-	qb.Boolean: `boolean`,
-	qb.Float:   `float`,
-	qb.Date:    `date`,
-	qb.Time:    `time`,
+	qb.Int:    `int`,
+	qb.String: `string`,
+	qb.Bool:   `boolean`,
+	qb.Float:  `float`,
+	qb.Date:   `date`,
+	qb.Time:   `time`,
 }
 
 // TypeName returns the sql name for a type
