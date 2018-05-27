@@ -7,7 +7,7 @@ type DataType uint16
 const (
 	Int = iota + 1
 	String
-	Boolean
+	Bool
 	Float
 	Date
 	Time

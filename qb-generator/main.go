@@ -87,22 +87,24 @@ type dataType struct {
 }
 
 var dataTypes = map[string]dataType{
-	`char`:      {`String`, 0, false},
-	`varchar`:   {`String`, 0, false},
-	`tinyint`:   {`Int`, 8, false},
-	`smallint`:  {`Int`, 16, false},
-	`int`:       {`Int`, 32, false},
-	`integer`:   {`Int`, 32, false},
-	`bigint`:    {`Int`, 64, false},
-	`real`:      {`Float`, 32, false},
-	`float`:     {`Float`, 64, false},
-	`double`:    {`Float`, 64, false},
-	`time`:      {`Time`, 0, false},
-	`date`:      {`Date`, 0, false},
-	`datetime`:  {`Time`, 0, false},
-	`timestamp`: {`Time`, 0, false},
-	`boolean`:   {`Bool`, 0, false},
-	`bool`:      {`Bool`, 0, false},
+	`char`:              {`String`, 0, false},
+	`character`:         {`String`, 0, false},
+	`character varying`: {`String`, 0, false},
+	`varchar`:           {`String`, 0, false},
+	`tinyint`:           {`Int`, 8, false},
+	`smallint`:          {`Int`, 16, false},
+	`int`:               {`Int`, 32, false},
+	`integer`:           {`Int`, 32, false},
+	`bigint`:            {`Int`, 64, false},
+	`real`:              {`Float`, 32, false},
+	`float`:             {`Float`, 64, false},
+	`double`:            {`Float`, 64, false},
+	`time`:              {`Time`, 0, false},
+	`date`:              {`Date`, 0, false},
+	`datetime`:          {`Time`, 0, false},
+	`timestamp`:         {`Time`, 0, false},
+	`boolean`:           {`Bool`, 0, false},
+	`bool`:              {`Bool`, 0, false},
 }
 
 func getDataType(t string, size int, null bool) dataType {
@@ -113,7 +115,7 @@ func getDataType(t string, size int, null bool) dataType {
 		v.Null = null
 		return v
 	}
-	return dataType{t, size, null}
+	return dataType{``, size, null}
 }
 
 func newField(f inputField) field {

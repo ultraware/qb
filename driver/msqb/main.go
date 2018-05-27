@@ -67,12 +67,12 @@ func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
 }
 
 var types = map[qb.DataType]string{
-	qb.Int:     `int`,
-	qb.String:  `text`,
-	qb.Boolean: `bit`,
-	qb.Float:   `float`,
-	qb.Date:    `date`,
-	qb.Time:    `datetime`,
+	qb.Int:    `int`,
+	qb.String: `text`,
+	qb.Bool:   `bit`,
+	qb.Float:  `float`,
+	qb.Date:   `date`,
+	qb.Time:   `datetime`,
 }
 
 // TypeName implements qb.Driver
