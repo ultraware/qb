@@ -4,7 +4,8 @@ package qb
 type SelectQuery interface {
 	Query
 	getSQL(SQLBuilder, bool) (string, []interface{})
-	SubQuery() *SubQuery
+	SubQuery(...*Field) *SubQuery
+	CTE(...*Field) *CTE
 	Fields() []Field
 }
 
@@ -31,8 +32,12 @@ func (q returningBuilder) Fields() []Field {
 	return q.fields
 }
 
-func (q returningBuilder) SubQuery() *SubQuery {
-	return newSubQuery(q, q.fields)
+func (q returningBuilder) SubQuery(fields ...*Field) *SubQuery {
+	return newSubQuery(q, fields)
+}
+
+func (q returningBuilder) CTE(fields ...*Field) *CTE {
+	return newCTE(q, fields)
 }
 
 // SelectBuilder builds a SELECT query
@@ -145,8 +150,8 @@ func (q *SelectBuilder) Offset(i int) *SelectBuilder {
 }
 
 // CTE creates a new CTE (WITH) Query
-func (q *SelectBuilder) CTE() *CTE {
-	return newCTE(q)
+func (q *SelectBuilder) CTE(fields ...*Field) *CTE {
+	return newCTE(q, fields)
 }
 
 // SQL returns a query string and a list of values
@@ -180,8 +185,8 @@ func (q *SelectBuilder) getSQL(b SQLBuilder, aliasFields bool) (string, []interf
 }
 
 // SubQuery converts the SelectQuery to a SubQuery for use in further queries
-func (q *SelectBuilder) SubQuery() *SubQuery {
-	return newSubQuery(q, q.fields)
+func (q *SelectBuilder) SubQuery(fields ...*Field) *SubQuery {
+	return newSubQuery(q, fields)
 }
 
 // Fields returns a list of the fields used in the query
@@ -223,8 +228,12 @@ func (q combinedQuery) Fields() []Field {
 	return q.queries[0].Fields()
 }
 
-func (q combinedQuery) SubQuery() *SubQuery {
-	return newSubQuery(q, q.Fields())
+func (q combinedQuery) CTE(fields ...*Field) *CTE {
+	return newCTE(q, fields)
+}
+
+func (q combinedQuery) SubQuery(fields ...*Field) *SubQuery {
+	return newSubQuery(q, fields)
 }
 
 ////////////////////////
