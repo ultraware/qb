@@ -91,12 +91,10 @@ type CTE struct {
 	F     []Field
 }
 
-func newCTE(q SelectQuery) *CTE {
+func newCTE(q SelectQuery, fields []*Field) *CTE {
 	cte := &CTE{query: q}
 
-	for k := range q.Fields() {
-		cte.F = append(cte.F, &TableField{Name: `f` + strconv.Itoa(k), Parent: cte})
-	}
+	assignFields(&cte.F, cte, q, fields)
 
 	return cte
 }
@@ -133,14 +131,27 @@ type SubQuery struct {
 	F     []Field
 }
 
-func newSubQuery(q SelectQuery, f []Field) *SubQuery {
+func newSubQuery(q SelectQuery, fields []*Field) *SubQuery {
 	sq := &SubQuery{query: q}
 
-	for k := range f {
-		sq.F = append(sq.F, &TableField{Name: `f` + strconv.Itoa(k), Parent: sq})
-	}
+	assignFields(&sq.F, sq, q, fields)
 
 	return sq
+}
+
+func assignFields(dest *[]Field, parent Source, q SelectQuery, fields []*Field) {
+	if fields != nil && len(q.Fields()) != len(fields) {
+		panic(`Field count in CTE/SubQuery doesn't match`)
+	}
+
+	for k := range q.Fields() {
+		f := &TableField{Name: `f` + strconv.Itoa(k), Parent: parent}
+		*dest = append(*dest, f)
+
+		if fields != nil {
+			*fields[k] = f
+		}
+	}
 }
 
 // QueryString implements QueryStringer

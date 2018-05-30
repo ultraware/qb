@@ -287,12 +287,16 @@ func testPrepare(test *testing.T) {
 func testSubQuery(test *testing.T) {
 	o, t := model.One(), model.Two()
 
-	sq := t.Select(t.OneID, qf.CountAll()).
+	var sq struct {
+		One   qb.Field
+		Count qb.Field
+	}
+	t.Select(t.OneID, qf.CountAll()).
 		GroupBy(t.OneID).
-		SubQuery()
+		SubQuery(&sq.One, &sq.Count)
 
-	q := o.Select(o.ID, sq.F[1]).
-		InnerJoin(sq.F[0], o.ID)
+	q := o.Select(o.ID, sq.Count).
+		InnerJoin(sq.One, o.ID)
 	r := db.QueryRow(q)
 
 	var id, count int
@@ -306,6 +310,11 @@ func testSubQuery(test *testing.T) {
 
 	assert.Equal(1, id)
 	assert.Equal(2, count)
+
+	assert.Panics(func() { // Incorrect number of fields should panic
+		t.Select(t.OneID).SubQuery(&sq.One, &sq.Count)
+	})
+	t.Select(t.OneID).SubQuery() // No fields should pass
 }
 
 func testUnionAll(test *testing.T) {
