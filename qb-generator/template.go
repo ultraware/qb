@@ -1,16 +1,18 @@
 package main
 
 var codeTemplate = `///// {{.Table}} /////
-var qb{{.Table}}Table = qb.Table{Name: "{{.TableString}}"{{- if .Alias }}, Alias: "{{.Alias}}"{{end -}}}
+var (
+	qb{{.Table}}Table = qb.Table{Name: "{{.TableString}}"{{- if .Alias }}, Alias: "{{.Alias}}"{{end -}}}
 
 {{range .Fields -}}
-var qb{{$.Table}}F{{.Name}} = qb.TableField{Parent: &qb{{$.Table}}Table, Name: "{{.String}}",
+	qb{{$.Table}}F{{.Name}} = qb.TableField{Parent: &qb{{$.Table}}Table, Name: "{{.String}}",
 	{{- if .ReadOnly }}ReadOnly: true,{{end -}}
 	{{- if .DataType.Name }}Type: qb.{{.DataType.Name}},{{end -}}
 	{{- if .DataType.Size }}Size: {{.DataType.Size}},{{end -}}
 	{{- if .DataType.Null }}Nullable: true,{{end -}}
 }
 {{end}}
+)
 
 // {{.Table}}Type represents the table "{{.Table}}"
 type {{.Table}}Type struct {

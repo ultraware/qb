@@ -122,7 +122,14 @@ func newField(f inputField) field {
 	return field{cleanName(f.String), f.String, f.ReadOnly, getDataType(f.DataType, f.Size, f.Nullable)}
 }
 
+var nameReplacer = strings.NewReplacer(
+	` `, `_`,
+	`-`, `_`,
+)
+
 func cleanName(s string) string {
+	s = nameReplacer.Replace(s)
+
 	parts := strings.Split(s, `.`)
 	parts = strings.Split(parts[len(parts)-1], `_`)
 	for k := range parts {
