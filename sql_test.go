@@ -110,6 +110,11 @@ func TestJoin(t *testing.T) {
 	b.From(testTable)
 	b.w = sqlWriter{}
 
+	b.Join(join{JoinInner, testTable2, nil})
+	check(true,
+		"\t"+`INNER JOIN tmp2 t2`,
+	)
+
 	b.Join(join{JoinInner, testTable2, []Condition{eq(testFieldA, testFieldA2)}})
 	check(true,
 		"\t"+`INNER JOIN tmp2 t2 ON (t.colA = t2.colA2)`,
