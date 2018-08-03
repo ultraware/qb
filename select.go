@@ -71,8 +71,12 @@ func (q *SelectBuilder) InnerJoin(f1, f2 Field, c ...Condition) *SelectBuilder {
 }
 
 // CrossJoin adds a CROSS JOIN clause to the query
-func (q *SelectBuilder) CrossJoin(f1, f2 Field, c ...Condition) *SelectBuilder {
-	return q.join(JoinCross, f1, f2, c)
+func (q *SelectBuilder) CrossJoin(s Source) *SelectBuilder {
+	q.joins = append(q.joins, join{JoinCross, s, nil})
+
+	q.tables = append(q.tables, s)
+
+	return q
 }
 
 // LeftJoin adds a LEFT JOIN clause to the query
