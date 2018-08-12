@@ -41,12 +41,13 @@ func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
 	b := qb.NewSQLBuilder(d)
 	sql, v := q.SQL(b)
 
-	var t string
+	t, insertBefore := `INSERTED`, `WHERE`
+
 	switch strings.SplitN(sql, ` `, 2)[0] {
 	case `DELETE`:
 		t = `DELETED`
-	default:
-		t = `INSERTED`
+	case `INSERT`:
+		insertBefore = `VALUES`
 	}
 
 	line := ``
@@ -57,11 +58,12 @@ func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
 		line += t + `.` + field.QueryString(b.Context)
 	}
 
-	index := strings.Index(sql, `WHERE`)
+	index := strings.Index(sql, insertBefore)
 	if index < 0 {
-		index = len(sql)
+		sql = sql + `OUTPUT ` + line + qb.NEWLINE
+	} else {
+		sql = sql[:index] + `OUTPUT ` + line + qb.NEWLINE + sql[index:]
 	}
-	sql = sql[:index] + `OUTPUT ` + line + qb.NEWLINE + sql[index:]
 
 	return sql, v
 }
