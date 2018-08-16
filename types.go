@@ -61,7 +61,8 @@ func (t *Table) aliasString() string {
 	if t.Alias != `` {
 		return t.Alias
 	}
-	return strings.ToLower(t.Name[0:1])
+	parts := strings.Split(t.Name, `.`)
+	return strings.ToLower(parts[len(parts)-1][0:1])
 }
 
 // Select starts a SELECT query
