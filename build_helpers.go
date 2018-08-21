@@ -23,7 +23,7 @@ func MakeField(i interface{}) Field {
 	return Value(i)
 }
 
-// ConcatQuery combines strings and QueryStringers into string.
+// ConcatQuery combines strings and Fields into string.
 // This function is not intended to be called directly
 func ConcatQuery(c *Context, values ...interface{}) string {
 	s := ``

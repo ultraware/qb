@@ -5,7 +5,7 @@ import "git.ultraware.nl/NiseVoid/qb"
 ///// General functions /////
 
 // Excluded uses a value from the INSERT, only usable in an upsert query
-func Excluded(f qb.QueryStringer) qb.Field {
+func Excluded(f qb.Field) qb.Field {
 	return useOverride(nil, f)
 }
 

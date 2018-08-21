@@ -7,7 +7,7 @@ func Default() Field {
 	return defaultField{}
 }
 
-// QueryString implements QueryStringer
+// QueryString implements Field
 func (f defaultField) QueryString(_ *Context) string {
 	return `DEFAULT`
 }
