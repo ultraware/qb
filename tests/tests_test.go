@@ -320,9 +320,10 @@ func testSubQuery(test *testing.T) {
 func testUnionAll(test *testing.T) {
 	o := model.One()
 
-	sq := o.Select(o.ID).Where(qc.Eq(o.ID, 1))
+	sq1 := o.Select(o.ID).Where(qc.Eq(o.ID, 1))
+	sq2 := o.Select(o.ID).Where(qc.Eq(o.Name, `Test 1.1`))
 
-	q := qb.UnionAll(sq, sq)
+	q := qb.UnionAll(sq1, sq2)
 	r, err := db.Query(q)
 	if err != nil {
 		panic(err)
