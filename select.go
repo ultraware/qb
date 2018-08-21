@@ -207,21 +207,19 @@ type combinedQuery struct {
 
 func (q combinedQuery) getSQL(b SQLBuilder, aliasFields bool) (string, []interface{}) {
 	s := ``
-	values := []interface{}{}
 	for k, v := range q.queries {
 		var sql string
-		var val []interface{}
+
 		if k == 0 {
-			sql, val = v.getSQL(b, aliasFields)
+			sql, _ = v.getSQL(b, aliasFields)
 		} else {
 			s += ` ` + q.combineType + ` `
-			sql, val = v.getSQL(b, false)
+			sql, _ = v.getSQL(b, false)
 		}
 		s += getSubQuerySQL(sql)
-		values = append(values, val...)
 	}
 
-	return s + NEWLINE, values
+	return s + NEWLINE, *b.Context.Values
 }
 
 func (q combinedQuery) SQL(b SQLBuilder) (string, []interface{}) {
