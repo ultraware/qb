@@ -22,15 +22,6 @@ type {{.Table}}Type struct {
 	table *qb.Table
 }
 
-// All returns every field as an array
-func (t *{{.Table}}Type) All() []qb.Field {
-	return []qb.Field{
-		{{- range .Fields -}}
-			t.{{.Name}},
-		{{- end -}}
-	}
-}
-
 // GetTable returns an object with info about the table
 func (t *{{.Table}}Type) GetTable() *qb.Table {
 	return t.table
