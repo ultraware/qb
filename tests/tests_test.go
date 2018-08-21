@@ -236,7 +236,7 @@ func testInQuery(test *testing.T) {
 func testExists(test *testing.T) {
 	o, t, t2 := model.One(), model.Two(), model.Two()
 
-	sq := t2.Select(t2.OneID).Where(qc.Eq(t2.OneID, o.ID))
+	sq := t2.Select(t2.OneID).Where(qc.Eq(t2.OneID, o.ID), qc.Eq(t2.OneID, t.OneID))
 
 	q := o.Select(qf.Count(qf.Distinct(o.Name)), qf.Count(t.OneID)).
 		LeftJoin(t.OneID, o.ID).

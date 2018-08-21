@@ -32,9 +32,8 @@ func ConcatQuery(c *Context, values ...interface{}) string {
 		case (Field):
 			s += v.QueryString(c)
 		case (SelectQuery):
-			sql, vals := v.SQL(SQLBuilder{Context: c.clone(c.alias.(*aliasGenerator).copy())})
+			sql, _ := v.SQL(SQLBuilder{Context: c})
 			s += getSubQuerySQL(sql)
-			c.Add(vals...)
 		case (string):
 			s += v
 		}
@@ -105,18 +104,4 @@ func (g *aliasGenerator) new(src Source) string {
 	}
 
 	return a + strconv.Itoa(g.counters[a])
-}
-
-func (g *aliasGenerator) copy() *aliasGenerator {
-	new := AliasGenerator().(*aliasGenerator)
-
-	for k, v := range g.cache {
-		new.cache[k] = v
-	}
-
-	for k, v := range g.counters {
-		new.counters[k] = v
-	}
-
-	return new
 }
