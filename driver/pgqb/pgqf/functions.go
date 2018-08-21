@@ -6,7 +6,7 @@ import (
 )
 
 // Excluded is a postgres-specific version of qf.Excluded
-func Excluded(f qb.QueryStringer) qb.Field {
+func Excluded(f qb.Field) qb.Field {
 	return qf.NewCalculatedField(`EXCLUDED.`, f)
 }
 

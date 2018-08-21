@@ -58,9 +58,14 @@ func NewSQLBuilder(d Driver) SQLBuilder {
 
 ///// Non-statements /////
 
-// ToSQL converts a QueryStringer to a string
-func (b *SQLBuilder) ToSQL(qs QueryStringer) string {
-	return qs.QueryString(b.Context)
+// SourceToSQL converts a Source to a string
+func (b *SQLBuilder) SourceToSQL(s Source) string {
+	return s.TableString(b.Context)
+}
+
+// FieldToSQL converts a Field to a string
+func (b *SQLBuilder) FieldToSQL(f Field) string {
+	return f.QueryString(b.Context)
 }
 
 // List lists the given fields
@@ -70,7 +75,7 @@ func (b *SQLBuilder) List(f []Field, withAlias bool) string {
 		if k > 0 {
 			s += COMMA
 		}
-		s += b.ToSQL(v)
+		s += b.FieldToSQL(v)
 		if withAlias {
 			s += ` f` + strconv.Itoa(k)
 		}
@@ -119,7 +124,7 @@ func (b *SQLBuilder) Select(withAlias bool, f ...Field) {
 
 // From generates a SQL FROM line
 func (b *SQLBuilder) From(src Source) {
-	b.w.WriteLine(`FROM ` + b.ToSQL(src))
+	b.w.WriteLine(`FROM ` + b.SourceToSQL(src))
 }
 
 // Join generates SQL JOIN lines
@@ -128,7 +133,7 @@ func (b *SQLBuilder) Join(j ...join) {
 	defer b.w.SubIndent()
 
 	for _, v := range j {
-		b.w.WriteString(string(v.Type) + ` JOIN ` + b.ToSQL(v.New))
+		b.w.WriteString(string(v.Type) + ` JOIN ` + b.SourceToSQL(v.New))
 		if len(v.Conditions) > 0 {
 			b.w.WriteString(` ON (`)
 			b.Conditions(v.Conditions, false)
@@ -174,7 +179,7 @@ func (b *SQLBuilder) OrderBy(o ...FieldOrder) {
 		if k > 0 {
 			s += COMMA
 		}
-		s += b.ToSQL(v.Field) + ` ` + v.Order
+		s += b.FieldToSQL(v.Field) + ` ` + v.Order
 	}
 	b.w.WriteLine(s)
 }
@@ -198,7 +203,7 @@ func (b *SQLBuilder) Offset(i int) {
 // Update generates a SQL UPDATE line
 func (b *SQLBuilder) Update(t *Table) {
 	_ = t.Name
-	b.w.WriteLine(`UPDATE ` + b.ToSQL(t))
+	b.w.WriteLine(`UPDATE ` + b.SourceToSQL(t))
 }
 
 // Set generates a SQL SET line
@@ -226,7 +231,7 @@ func (b *SQLBuilder) Set(sets []set) {
 // Delete generates a SQL DELETE FROM line
 func (b *SQLBuilder) Delete(t *Table) {
 	_ = t.Name
-	b.w.WriteLine(`DELETE FROM ` + b.ToSQL(t))
+	b.w.WriteLine(`DELETE FROM ` + b.SourceToSQL(t))
 }
 
 // Insert generates a SQL INSERT line
@@ -237,9 +242,9 @@ func (b *SQLBuilder) Insert(t *Table, f []Field) {
 		if k > 0 {
 			s += COMMA
 		}
-		s += b.ToSQL(v)
+		s += b.FieldToSQL(v)
 	}
-	b.w.WriteLine(`INSERT INTO ` + b.ToSQL(t) + ` (` + s + `)`)
+	b.w.WriteLine(`INSERT INTO ` + b.SourceToSQL(t) + ` (` + s + `)`)
 }
 
 // Values generates a SQL VALUES line
@@ -268,7 +273,7 @@ func (b *SQLBuilder) valueLine(f []Field, addComma bool) {
 		if k > 0 {
 			s += COMMA
 		}
-		s += b.ToSQL(v)
+		s += b.FieldToSQL(v)
 	}
 	b.w.WriteLine(`(` + s + `)` + comma)
 }

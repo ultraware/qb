@@ -26,18 +26,13 @@ type Alias interface {
 	Get(Source) string
 }
 
-// QueryStringer returns a part of a query string
-type QueryStringer interface {
-	QueryString(*Context) string
-}
-
 ///
 /// Source
 ///
 
 // Source represents a table or a subquery
 type Source interface {
-	QueryStringer
+	TableString(*Context) string
 	aliasString() string
 }
 
@@ -48,8 +43,8 @@ type Table struct {
 	Alias string
 }
 
-// QueryString implements QueryStringer
-func (t *Table) QueryString(c *Context) string {
+// TableString implements Source
+func (t *Table) TableString(c *Context) string {
 	alias := c.Alias(t)
 	if len(alias) > 0 {
 		alias = ` ` + alias
@@ -104,8 +99,8 @@ func (cte *CTE) aliasString() string {
 	return `ct`
 }
 
-// QueryString implements QueryStringer
-func (cte *CTE) QueryString(c *Context) string {
+// TableString implements Source
+func (cte *CTE) TableString(c *Context) string {
 	alias := c.Alias(cte)
 	if len(alias) > 0 {
 		alias = ` ` + alias
@@ -155,8 +150,8 @@ func assignFields(dest *[]Field, parent Source, q SelectQuery, fields []*Field) 
 	}
 }
 
-// QueryString implements QueryStringer
-func (t *SubQuery) QueryString(c *Context) string {
+// TableString implements Source
+func (t *SubQuery) TableString(c *Context) string {
 	alias := c.Alias(t)
 	if len(alias) > 0 {
 		alias = ` ` + alias
@@ -187,7 +182,7 @@ func (t *SubQuery) Select(f ...Field) *SelectBuilder {
 
 // Field represents a field in a query
 type Field interface {
-	QueryStringer
+	QueryString(*Context) string
 }
 
 // TableField represents a field in a table.
@@ -201,7 +196,7 @@ type TableField struct {
 	Size     int
 }
 
-// QueryString implements QueryStringer
+// QueryString implements Field
 func (f TableField) QueryString(c *Context) string {
 	alias := c.Alias(f.Parent)
 	if alias != `` {
