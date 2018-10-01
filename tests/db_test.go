@@ -39,5 +39,5 @@ func initMysql() *sql.DB {
 }
 
 func initMssql() *sql.DB {
-	return initDatabase(`mssql`, getMssqlDBString())
+	return initDatabase(`sqlserver`, getMssqlDBString())
 }

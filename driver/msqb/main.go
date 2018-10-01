@@ -2,6 +2,7 @@ package msqb
 
 import (
 	"database/sql"
+	"strconv"
 	"strings"
 
 	"git.ultraware.nl/NiseVoid/qb"
@@ -19,8 +20,8 @@ func New(db *sql.DB) *qbdb.DB {
 }
 
 // ValueString returns a the SQL for a parameter value
-func (d Driver) ValueString(_ int) string {
-	return `?`
+func (d Driver) ValueString(i int) string {
+	return `@p` + strconv.Itoa(i)
 }
 
 // BoolString formats a boolean in a format supported by PostgreSQL
