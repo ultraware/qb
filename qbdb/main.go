@@ -139,15 +139,14 @@ func (db QueryTarget) QueryRow(q qb.SelectQuery) *sql.Row {
 }
 
 // Exec executes the given query, returns only an error
-func (db QueryTarget) Exec(q qb.Query) error {
+func (db QueryTarget) Exec(q qb.Query) (sql.Result, error) {
 	s, v := db.prepare(q)
 	return db.RawExec(s, v...)
 }
 
 // RawExec executes the given SQL with the given params directly on the database
-func (db QueryTarget) RawExec(s string, v ...interface{}) error {
-	_, err := db.src.Exec(s, v...)
-	return err
+func (db QueryTarget) RawExec(s string, v ...interface{}) (sql.Result, error) {
+	return db.src.Exec(s, v...)
 }
 
 // Prepare prepares a query for efficient repeated executions
