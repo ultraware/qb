@@ -51,6 +51,11 @@ func (d Driver) UpsertSQL(t *qb.Table, conflict []qb.Field, q qb.Query) (string,
 	return `ON CONFLICT (` + sql + `) DO ` + usql, values
 }
 
+// Limit implements qb.Driver
+func (d Driver) Limit(sql qb.SQL, limit int) {
+	sql.WriteLine(`LIMIT ` + strconv.Itoa(limit))
+}
+
 // Returning implements qb.Driver
 func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
 	b := qb.NewSQLBuilder(d)

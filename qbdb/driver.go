@@ -1,6 +1,10 @@
 package qbdb
 
-import "git.ultraware.nl/NiseVoid/qb"
+import (
+	"strconv"
+
+	"git.ultraware.nl/NiseVoid/qb"
+)
 
 // Driver is a default driver used for tests
 type Driver struct{}
@@ -21,6 +25,11 @@ func (d Driver) BoolString(v bool) string {
 // UpsertSQL implements qb.Driver
 func (d Driver) UpsertSQL(_ *qb.Table, _ []qb.Field, _ qb.Query) (string, []interface{}) {
 	panic(`This should not be used`)
+}
+
+// Limit implements qb.Driver
+func (d Driver) Limit(sql qb.SQL, limit int) {
+	sql.WriteLine(`LIMIT ` + strconv.Itoa(limit))
 }
 
 // Returning implements qb.Driver

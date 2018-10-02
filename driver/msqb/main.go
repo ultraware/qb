@@ -37,6 +37,13 @@ func (d Driver) UpsertSQL(t *qb.Table, _ []qb.Field, q qb.Query) (string, []inte
 	panic(`mssql does not support upsert`)
 }
 
+// Limit implements qb.Driver
+func (d Driver) Limit(sql qb.SQL, limit int) {
+	s := sql.String()
+
+	sql.Rewrite(`SELECT TOP ` + strconv.Itoa(limit) + s[6:])
+}
+
 // Returning implements qb.Driver
 func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
 	b := qb.NewSQLBuilder(d)

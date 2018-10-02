@@ -2,6 +2,7 @@ package myqb
 
 import (
 	"database/sql"
+	"strconv"
 	"strings"
 
 	"git.ultraware.nl/NiseVoid/qb"
@@ -41,6 +42,11 @@ func (d Driver) UpsertSQL(t *qb.Table, _ []qb.Field, q qb.Query) (string, []inte
 	usql = strings.Replace(usql, `UPDATE `+t.Name+qb.NEWLINE+`SET`, `UPDATE`, -1)
 
 	return `ON DUPLICATE KEY ` + usql, values
+}
+
+// Limit implements qb.Driver
+func (d Driver) Limit(sql qb.SQL, limit int) {
+	sql.WriteLine(`LIMIT ` + strconv.Itoa(limit))
 }
 
 // Returning implements qb.Driver

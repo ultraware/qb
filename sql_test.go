@@ -225,16 +225,6 @@ func TestOrderBy(t *testing.T) {
 	check(false, ``)
 }
 
-func TestLimit(t *testing.T) {
-	b, check := testBuilder(t, false)
-
-	b.Limit(2)
-	check(true, `LIMIT 2`)
-
-	b.Limit(0)
-	check(false, ``)
-}
-
 func TestOffset(t *testing.T) {
 	b, check := testBuilder(t, false)
 

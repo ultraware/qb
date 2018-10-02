@@ -6,6 +6,15 @@ import (
 	"strings"
 )
 
+// SQL represents an SQL string.
+// Not intended to be used directly
+type SQL interface {
+	WriteString(string)
+	WriteLine(string)
+	Rewrite(string)
+	String() string
+}
+
 type sqlWriter struct {
 	sql    bytes.Buffer
 	indent int
@@ -28,6 +37,11 @@ func (w *sqlWriter) WriteString(s string) {
 
 func (w *sqlWriter) WriteLine(s string) {
 	w.WriteString(s + NEWLINE)
+}
+
+func (w *sqlWriter) Rewrite(s string) {
+	w.sql = bytes.Buffer{}
+	w.sql.WriteString(s)
 }
 
 func (w *sqlWriter) AddIndent() {
@@ -189,7 +203,7 @@ func (b *SQLBuilder) Limit(i int) {
 	if i == 0 {
 		return
 	}
-	b.w.WriteLine(`LIMIT ` + strconv.Itoa(i))
+	b.Context.Driver.Limit(&b.w, i)
 }
 
 // Offset generates a SQL OFFSET line
