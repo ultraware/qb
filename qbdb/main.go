@@ -130,6 +130,10 @@ func (db QueryTarget) Query(q qb.SelectQuery) (*sql.Rows, error) {
 
 // QueryRow executes the given SelectQuery on the database, only returns one row
 func (db QueryTarget) QueryRow(q qb.SelectQuery) *sql.Row {
+	if sq, ok := q.(*qb.SelectBuilder); ok {
+		sq.Limit(1)
+	}
+
 	s, v := db.prepare(q)
 	return db.src.QueryRow(s, v...)
 }
