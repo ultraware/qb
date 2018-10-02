@@ -99,7 +99,7 @@ func testUpsert(test *testing.T) {
 			Set(o.Name, qf.Concat(qf.Excluded(o.Name), `.1`)),
 		o.ID,
 	)
-	err := db.Exec(q)
+	_, err := db.Exec(q)
 	if err != nil {
 		panic(err)
 	}
@@ -111,7 +111,7 @@ func testUpsertSeperate(test *testing.T) {
 	iq := o.Insert(o.ID, o.Name).
 		Values(1, `Test 1`).
 		Values(2, `Test 2`)
-	err := db.Exec(iq)
+	_, err := db.Exec(iq)
 	if err == nil {
 		return
 	}
@@ -119,7 +119,7 @@ func testUpsertSeperate(test *testing.T) {
 	uq := o.Update().
 		Set(o.Name, qf.Concat(o.Name, `.1`)).
 		Where(qc.Eq(o.ID, 1))
-	err = db.Exec(uq)
+	_, err = db.Exec(uq)
 	if err != nil {
 		panic(err)
 	}
@@ -132,7 +132,7 @@ func testInsert(test *testing.T) {
 		Values(1, 1, `Test comment`).
 		Values(1, 2, `Test comment 2`)
 
-	err := db.Exec(q)
+	_, err := db.Exec(q)
 	if err != nil {
 		panic(err)
 	}
@@ -145,7 +145,7 @@ func testUpdate(test *testing.T) {
 		Set(t.Comment, qf.Concat(t.Comment, ` v2`)).
 		Where(qc.Eq(t.OneID, 1))
 
-	err := db.Exec(q)
+	_, err := db.Exec(q)
 	if err != nil {
 		panic(err)
 	}
@@ -349,7 +349,7 @@ func testDelete(test *testing.T) {
 	t := model.Two()
 
 	q := t.Delete(qc.Eq(t.OneID, 1))
-	err := db.Exec(q)
+	_, err := db.Exec(q)
 	if err != nil {
 		panic(err)
 	}
