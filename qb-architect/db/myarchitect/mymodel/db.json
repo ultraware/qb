@@ -1,0 +1,21 @@
+[
+	{
+		"name": "information_schema.tables",
+		"fields": [
+			{"name": "table_name", "type": "string", "read_only": true},
+			{"name": "table_schema", "type": "string", "read_only": true}
+		]
+	},
+	{
+		"name": "information_schema.columns",
+		"fields": [
+			{"name": "column_name", "type": "string", "read_only": true},
+			{"name": "data_type", "type": "string", "read_only": true},
+			{"name": "is_nullable", "type": "string", "read_only": true},
+			{"name": "character_maximum_length", "type": "int", "read_only": true},
+			{"name": "table_schema", "type": "string", "read_only": true},
+			{"name": "table_name", "type": "string", "read_only": true}
+		]
+	}
+]
+

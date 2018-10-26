@@ -1,0 +1,32 @@
+[
+	{
+		"name": "pg_attribute",
+		"fields": [
+			{"name": "attname"},
+			{"name": "atttypid"},
+			{"name": "attlen"},
+			{"name": "atttypmod"},
+			{"name": "attrelid"},
+			{"name": "attnotnull"},
+			{"name": "attnum"},
+			{"name": "attisdropped"}
+		]
+	},
+	{
+		"name": "information_schema.tables",
+		"fields": [
+			{"name": "table_name"},
+			{"name": "table_schema"}
+		]
+	},
+	{
+		"name": "information_schema.columns",
+		"fields": [
+			{"name": "column_name"},
+			{"name": "table_schema"},
+			{"name": "table_name"},
+			{"name": "character_maximum_length"}
+		]
+	}
+]
+

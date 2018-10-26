@@ -2,7 +2,13 @@
 	"Format": "{{printf `%-11s` .Linter }} | {{.Path}} @{{.Line}}: {{.Message}}",
 	"Deadline": "2m",
 	"Sort": ["linter", "severity", "path"],
-	"Exclude": ["bindata.go"],
+
+	"Skip": [
+		"qb-architect/db/msarchitect/msmodel",
+		"qb-architect/db/myarchitect/mymodel",
+		"qb-architect/db/pgarchitect/pgmodel"
+	],
+	"Exclude": [],
 
 	"Linters": {
 		"qb": "qb-lint {path}:PATH:LINE:COL:MESSAGE",
