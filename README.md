@@ -18,7 +18,15 @@ go get git.ultraware.nl/NiseVoid/qb/...
 
 ### 1. Create a db.json
 
-You can create a db.json manually, but you can also use tools to generate this from your database
+You can create a db.json manually or use qb-architect to generate it from your database
+
+`qb-generator` example:
+
+```bash
+qb-architect -dsn psql host=127.0.0.1 username=qb_test dbname=qb_test > db.json
+```
+
+`db.json` example:
 
 ```json
 [
