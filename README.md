@@ -6,7 +6,7 @@ qb is a library that allows you to build queries without using strings. This off
 - You can't misspell keywords or fieldnames, this saves a lot of time and many bugs
 - You can use tab completion
 - You can easily port a query to a different database
-- The order of your query does not matter, this makes building queries in parts or adding optional statements easier
+- The order of commands in your query does not matter, this makes building queries in parts or adding optional statements easier
 
 ## Installation
 
@@ -20,7 +20,7 @@ go get git.ultraware.nl/NiseVoid/qb/...
 
 You can create a db.json manually or use qb-architect to generate it from your database
 
-`qb-generator` example:
+`qb-architect` example:
 
 ```bash
 qb-architect -dsn psql host=127.0.0.1 username=qb_test dbname=qb_test > db.json
@@ -61,7 +61,7 @@ qb-architect -dsn psql host=127.0.0.1 username=qb_test dbname=qb_test > db.json
 ### 2. Run qb-generator
 
 ```bash
-qb-generate db.json tables.go
+qb-generator db.json tables.go
 ```
 
 #### Recommendations
