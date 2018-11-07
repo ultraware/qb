@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"git.ultraware.nl/NiseVoid/qb"
+	"github.com/ultraware/qb"
 )
 
 func (db QueryTarget) printType(v interface{}, c *int) (string, bool) {

@@ -4,14 +4,14 @@ import (
 	"database/sql"
 	"strings"
 
-	"git.ultraware.nl/NiseVoid/qb"
-	"git.ultraware.nl/NiseVoid/qb/driver/pgqb"
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/db"
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/db/pgarchitect/pgmodel"
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/util"
-	"git.ultraware.nl/NiseVoid/qb/qbdb"
-	"git.ultraware.nl/NiseVoid/qb/qc"
-	"git.ultraware.nl/NiseVoid/qb/qf"
+	"github.com/ultraware/qb"
+	"github.com/ultraware/qb/driver/pgqb"
+	"github.com/ultraware/qb/qb-architect/db"
+	"github.com/ultraware/qb/qb-architect/db/pgarchitect/pgmodel"
+	"github.com/ultraware/qb/qb-architect/util"
+	"github.com/ultraware/qb/qbdb"
+	"github.com/ultraware/qb/qc"
+	"github.com/ultraware/qb/qf"
 
 	// pgsql driver
 	_ "github.com/lib/pq"

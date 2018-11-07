@@ -3,8 +3,8 @@ package qf
 import (
 	"testing"
 
-	"git.ultraware.nl/NiseVoid/qb"
-	"git.ultraware.nl/NiseVoid/qb/tests/testutil"
+	"github.com/ultraware/qb"
+	"github.com/ultraware/qb/tests/testutil"
 )
 
 var (

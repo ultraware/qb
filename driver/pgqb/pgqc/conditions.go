@@ -1,8 +1,8 @@
 package pgqc
 
 import (
-	"git.ultraware.nl/NiseVoid/qb"
-	"git.ultraware.nl/NiseVoid/qb/qc"
+	"github.com/ultraware/qb"
+	"github.com/ultraware/qb/qc"
 )
 
 // ILike is a postgres-specific version of qf.Like

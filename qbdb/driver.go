@@ -3,7 +3,7 @@ package qbdb
 import (
 	"strconv"
 
-	"git.ultraware.nl/NiseVoid/qb"
+	"github.com/ultraware/qb"
 )
 
 // Driver is a default driver used for tests

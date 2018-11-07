@@ -2,7 +2,7 @@
 
 package mymodel
 
-import "git.ultraware.nl/NiseVoid/qb"
+import "github.com/ultraware/qb"
 
 ///// Tables /////
 var (

@@ -3,9 +3,9 @@ package qf
 import (
 	"testing"
 
-	"git.ultraware.nl/NiseVoid/qb"
-	"git.ultraware.nl/NiseVoid/qb/qbdb"
-	"git.ultraware.nl/NiseVoid/qb/tests/testutil"
+	"github.com/ultraware/qb"
+	"github.com/ultraware/qb/qbdb"
+	"github.com/ultraware/qb/tests/testutil"
 )
 
 func TestAll(t *testing.T) { // nolint: funlen

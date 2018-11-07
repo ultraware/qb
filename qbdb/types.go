@@ -3,7 +3,7 @@ package qbdb
 import (
 	"database/sql"
 
-	"git.ultraware.nl/NiseVoid/qb"
+	"github.com/ultraware/qb"
 )
 
 // Tx is a transaction

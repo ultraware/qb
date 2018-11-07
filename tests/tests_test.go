@@ -10,13 +10,13 @@ import (
 
 	assertpkg "github.com/stretchr/testify/assert"
 
-	"git.ultraware.nl/NiseVoid/qb"
-	"git.ultraware.nl/NiseVoid/qb/driver/autoqb"
-	"git.ultraware.nl/NiseVoid/qb/qbdb"
-	"git.ultraware.nl/NiseVoid/qb/qc"
-	"git.ultraware.nl/NiseVoid/qb/qf"
-	"git.ultraware.nl/NiseVoid/qb/tests/internal/model"
-	"git.ultraware.nl/NiseVoid/qb/tests/testutil"
+	"github.com/ultraware/qb"
+	"github.com/ultraware/qb/driver/autoqb"
+	"github.com/ultraware/qb/qbdb"
+	"github.com/ultraware/qb/qc"
+	"github.com/ultraware/qb/qf"
+	"github.com/ultraware/qb/tests/internal/model"
+	"github.com/ultraware/qb/tests/testutil"
 )
 
 var db *qbdb.DB

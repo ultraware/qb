@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"strings"
 
-	"git.ultraware.nl/NiseVoid/qb"
-	"git.ultraware.nl/NiseVoid/qb/driver/myqb/myqf"
-	"git.ultraware.nl/NiseVoid/qb/qbdb"
-	"git.ultraware.nl/NiseVoid/qb/qf"
+	"github.com/ultraware/qb"
+	"github.com/ultraware/qb/driver/myqb/myqf"
+	"github.com/ultraware/qb/qbdb"
+	"github.com/ultraware/qb/qf"
 )
 
 // Driver implements PostgreSQL-specific features

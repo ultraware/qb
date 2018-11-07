@@ -1,6 +1,6 @@
 package qf
 
-import "git.ultraware.nl/NiseVoid/qb"
+import "github.com/ultraware/qb"
 
 type when struct {
 	C qb.Condition

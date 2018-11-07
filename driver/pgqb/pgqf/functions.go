@@ -1,8 +1,8 @@
 package pgqf
 
 import (
-	"git.ultraware.nl/NiseVoid/qb"
-	"git.ultraware.nl/NiseVoid/qb/qf"
+	"github.com/ultraware/qb"
+	"github.com/ultraware/qb/qf"
 )
 
 // Excluded is a postgres-specific version of qf.Excluded

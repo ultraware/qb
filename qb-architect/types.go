@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"sort"
 
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/db"
+	"github.com/ultraware/qb/qb-architect/db"
 )
 
 type fields []db.Field

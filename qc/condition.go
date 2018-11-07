@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"strings"
 
-	"git.ultraware.nl/NiseVoid/qb"
+	"github.com/ultraware/qb"
 )
 
 func createOperatorCondition(i1, i2 interface{}, operator string) qb.Condition {

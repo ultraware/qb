@@ -5,10 +5,10 @@ import (
 	"reflect"
 	"strings"
 
-	"git.ultraware.nl/NiseVoid/qb/driver/msqb"
-	"git.ultraware.nl/NiseVoid/qb/driver/myqb"
-	"git.ultraware.nl/NiseVoid/qb/driver/pgqb"
-	"git.ultraware.nl/NiseVoid/qb/qbdb"
+	"github.com/ultraware/qb/driver/msqb"
+	"github.com/ultraware/qb/driver/myqb"
+	"github.com/ultraware/qb/driver/pgqb"
+	"github.com/ultraware/qb/qbdb"
 )
 
 // New automatically selects a qb driver

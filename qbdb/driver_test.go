@@ -3,7 +3,7 @@ package qbdb
 import (
 	"testing"
 
-	"git.ultraware.nl/NiseVoid/qb/tests/testutil"
+	"github.com/ultraware/qb/tests/testutil"
 )
 
 var db = New(Driver{}, nil)

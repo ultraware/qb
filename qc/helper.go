@@ -3,7 +3,7 @@ package qc
 import (
 	"runtime"
 
-	"git.ultraware.nl/NiseVoid/qb"
+	"github.com/ultraware/qb"
 )
 
 // NewCondition returns a new Condition

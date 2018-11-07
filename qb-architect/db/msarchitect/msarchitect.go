@@ -3,14 +3,14 @@ package msarchitect
 import (
 	"database/sql"
 
-	"git.ultraware.nl/NiseVoid/qb"
-	"git.ultraware.nl/NiseVoid/qb/driver/myqb"
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/db"
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/db/msarchitect/msmodel"
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/util"
-	"git.ultraware.nl/NiseVoid/qb/qbdb"
-	"git.ultraware.nl/NiseVoid/qb/qc"
-	"git.ultraware.nl/NiseVoid/qb/qf"
+	"github.com/ultraware/qb"
+	"github.com/ultraware/qb/driver/myqb"
+	"github.com/ultraware/qb/qb-architect/db"
+	"github.com/ultraware/qb/qb-architect/db/msarchitect/msmodel"
+	"github.com/ultraware/qb/qb-architect/util"
+	"github.com/ultraware/qb/qbdb"
+	"github.com/ultraware/qb/qc"
+	"github.com/ultraware/qb/qf"
 
 	// mssql driver
 	_ "github.com/denisenkom/go-mssqldb"

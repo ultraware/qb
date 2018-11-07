@@ -9,10 +9,10 @@ import (
 	"sort"
 	"strings"
 
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/db"
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/db/msarchitect"
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/db/myarchitect"
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/db/pgarchitect"
+	"github.com/ultraware/qb/qb-architect/db"
+	"github.com/ultraware/qb/qb-architect/db/msarchitect"
+	"github.com/ultraware/qb/qb-architect/db/myarchitect"
+	"github.com/ultraware/qb/qb-architect/db/pgarchitect"
 )
 
 var errString = `Please specify a %s, example:` + "\n\t" +
