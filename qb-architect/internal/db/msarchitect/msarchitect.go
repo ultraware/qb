@@ -5,9 +5,9 @@ import (
 
 	"git.ultraware.nl/NiseVoid/qb"
 	"git.ultraware.nl/NiseVoid/qb/driver/myqb"
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/db"
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/db/msarchitect/msmodel"
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/util"
+	"git.ultraware.nl/NiseVoid/qb/qb-architect/internal/db"
+	"git.ultraware.nl/NiseVoid/qb/qb-architect/internal/db/msarchitect/msmodel"
+	"git.ultraware.nl/NiseVoid/qb/qb-architect/internal/util"
 	"git.ultraware.nl/NiseVoid/qb/qbdb"
 	"git.ultraware.nl/NiseVoid/qb/qc"
 	"git.ultraware.nl/NiseVoid/qb/qf"

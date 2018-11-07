@@ -6,9 +6,9 @@ import (
 
 	"git.ultraware.nl/NiseVoid/qb"
 	"git.ultraware.nl/NiseVoid/qb/driver/pgqb"
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/db"
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/db/pgarchitect/pgmodel"
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/util"
+	"git.ultraware.nl/NiseVoid/qb/qb-architect/internal/db"
+	"git.ultraware.nl/NiseVoid/qb/qb-architect/internal/db/pgarchitect/pgmodel"
+	"git.ultraware.nl/NiseVoid/qb/qb-architect/internal/util"
 	"git.ultraware.nl/NiseVoid/qb/qbdb"
 	"git.ultraware.nl/NiseVoid/qb/qc"
 	"git.ultraware.nl/NiseVoid/qb/qf"

@@ -12,11 +12,11 @@ import (
 
 	"git.ultraware.nl/NiseVoid/qb"
 	"git.ultraware.nl/NiseVoid/qb/driver/autoqb"
+	"git.ultraware.nl/NiseVoid/qb/internal/tests/internal/model"
+	"git.ultraware.nl/NiseVoid/qb/internal/testutil"
 	"git.ultraware.nl/NiseVoid/qb/qbdb"
 	"git.ultraware.nl/NiseVoid/qb/qc"
 	"git.ultraware.nl/NiseVoid/qb/qf"
-	"git.ultraware.nl/NiseVoid/qb/tests/internal/model"
-	"git.ultraware.nl/NiseVoid/qb/tests/testutil"
 )
 
 var db *qbdb.DB

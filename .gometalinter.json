@@ -4,9 +4,9 @@
 	"Sort": ["linter", "severity", "path"],
 
 	"Skip": [
-		"qb-architect/db/msarchitect/msmodel",
-		"qb-architect/db/myarchitect/mymodel",
-		"qb-architect/db/pgarchitect/pgmodel"
+		"qb-architect/internal/db/msarchitect/msmodel",
+		"qb-architect/internal/db/myarchitect/mymodel",
+		"qb-architect/internal/db/pgarchitect/pgmodel"
 	],
 	"Exclude": [],
 

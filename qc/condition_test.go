@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"git.ultraware.nl/NiseVoid/qb"
+	"git.ultraware.nl/NiseVoid/qb/internal/testutil"
 	"git.ultraware.nl/NiseVoid/qb/qbdb"
-	"git.ultraware.nl/NiseVoid/qb/tests/testutil"
 )
 
 func TestAll(t *testing.T) {

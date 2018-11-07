@@ -3,7 +3,7 @@ package qb
 import (
 	"testing"
 
-	"git.ultraware.nl/NiseVoid/qb/tests/testutil"
+	"git.ultraware.nl/NiseVoid/qb/internal/testutil"
 )
 
 func BenchmarkSQLWrite(b *testing.B) {
