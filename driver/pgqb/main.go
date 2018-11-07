@@ -1,4 +1,4 @@
-package pgqb
+package pgqb // import "git.ultraware.nl/NiseVoid/qb/driver/pgqb"
 
 import (
 	"database/sql"

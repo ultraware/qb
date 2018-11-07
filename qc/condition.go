@@ -1,4 +1,4 @@
-package qc
+package qc // import "git.ultraware.nl/NiseVoid/qb/qc"
 
 import (
 	"reflect"

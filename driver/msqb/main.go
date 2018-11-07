@@ -1,4 +1,4 @@
-package msqb
+package msqb // import "git.ultraware.nl/NiseVoid/qb/driver/msqb"
 
 import (
 	"database/sql"

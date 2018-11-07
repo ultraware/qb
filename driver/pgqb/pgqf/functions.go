@@ -1,4 +1,4 @@
-package pgqf
+package pgqf // import "git.ultraware.nl/NiseVoid/qb/driver/pgqb/pgqf"
 
 import (
 	"git.ultraware.nl/NiseVoid/qb"

@@ -1,4 +1,4 @@
-package myqf
+package myqf // import "git.ultraware.nl/NiseVoid/qb/driver/myqb/myqf"
 
 import (
 	"git.ultraware.nl/NiseVoid/qb"

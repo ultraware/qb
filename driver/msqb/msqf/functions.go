@@ -1,4 +1,4 @@
-package msqf
+package msqf // import "git.ultraware.nl/NiseVoid/qb/driver/msqb/msqf"
 
 import (
 	"git.ultraware.nl/NiseVoid/qb"

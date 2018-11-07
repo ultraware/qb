@@ -1,4 +1,4 @@
-package qbdb
+package qbdb // import "git.ultraware.nl/NiseVoid/qb/qbdb"
 
 import (
 	"database/sql"

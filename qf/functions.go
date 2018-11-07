@@ -1,4 +1,4 @@
-package qf
+package qf // import "git.ultraware.nl/NiseVoid/qb/qf"
 
 import "git.ultraware.nl/NiseVoid/qb"
 

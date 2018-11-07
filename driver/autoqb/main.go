@@ -1,4 +1,4 @@
-package autoqb
+package autoqb // import "git.ultraware.nl/NiseVoid/qb/driver/autoqb"
 
 import (
 	"database/sql"

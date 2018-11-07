@@ -1,4 +1,4 @@
-package main
+package main // import "git.ultraware.nl/NiseVoid/qb/qb-architect"
 
 import (
 	"encoding/json"

@@ -1,4 +1,4 @@
-package myqb
+package myqb // import "git.ultraware.nl/NiseVoid/qb/driver/myqb"
 
 import (
 	"database/sql"
