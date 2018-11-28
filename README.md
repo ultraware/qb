@@ -23,7 +23,7 @@ You can create a db.json manually or use qb-architect to generate it from your d
 `qb-architect` example:
 
 ```bash
-qb-architect -dsn psql host=127.0.0.1 username=qb_test dbname=qb_test > db.json
+qb-architect -dbms psql host=127.0.0.1 username=qb_test dbname=qb_test > db.json
 ```
 
 `db.json` example:
@@ -126,7 +126,7 @@ q := one.Insert(one.Field1, one.Field2).
 	Values(2, "Record 2").
 	Values(4, "Record 4")
 
-err := db.Exec(q)
+_, err := db.Exec(q)
 if err != nil {
 	panic(err)
 }
@@ -141,7 +141,7 @@ q := one.Update().
 	Set(one.Field2, "Record 3").
 	Where(qc.Eq(one.Field1, 4))
 
-err := db.Exec(q)
+_, err := db.Exec(q)
 if err != nil {
 	panic(err)
 }
@@ -154,7 +154,7 @@ one := model.One()
 
 q := one.Delete(qc.Eq(one.Field1, 4))
 
-err := db.Exec(q)
+_, err := db.Exec(q)
 if err != nil {
 	panic(err)
 }
