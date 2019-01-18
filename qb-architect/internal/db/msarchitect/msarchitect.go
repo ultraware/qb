@@ -4,7 +4,7 @@ import (
 	"database/sql"
 
 	"git.ultraware.nl/NiseVoid/qb"
-	"git.ultraware.nl/NiseVoid/qb/driver/myqb"
+	"git.ultraware.nl/NiseVoid/qb/driver/msqb"
 	"git.ultraware.nl/NiseVoid/qb/qb-architect/internal/db"
 	"git.ultraware.nl/NiseVoid/qb/qb-architect/internal/db/msarchitect/msmodel"
 	"git.ultraware.nl/NiseVoid/qb/qb-architect/internal/util"
@@ -26,7 +26,7 @@ func New(dsn string) db.Driver {
 	d, err := sql.Open(`sqlserver`, dsn)
 	util.PanicOnErr(err)
 
-	return Driver{myqb.New(d)}
+	return Driver{msqb.New(d)}
 }
 
 func database() qb.Field {
