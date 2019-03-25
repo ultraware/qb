@@ -169,10 +169,15 @@ id := 0
 q := one.Select(one.Field1, one.Field2).
 	Where(qc.Eq(one.Field1, &id))
 
+stmt, err := db.Prepare()
+if err != nil {
+	panic(err)
+}
+
 for _, v := range []int{1,2,3,4,5} {
 	id = v
 
-	row := db.QueryRow(q)
+	row := stmt.QueryRow()
 
 	f1, f2 := 0, ""
 	err := row.Scan(&field1, &field2)
