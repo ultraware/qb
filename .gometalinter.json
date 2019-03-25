@@ -28,7 +28,6 @@
 		"ineffassign",
 		"interfacer",
 		"lll",
-		"megacheck",
 		"misspell",
 		"structcheck",
 		"unconvert",
