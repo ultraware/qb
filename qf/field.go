@@ -22,7 +22,8 @@ func NewCalculatedField(args ...interface{}) CalculatedField {
 func useOverride(fallback interface{}, in ...interface{}) qb.Field {
 	pc := make([]uintptr, 1)
 	runtime.Callers(2, pc)
-	fn := runtime.FuncForPC(pc[0])
+	frame, _ := runtime.CallersFrames(pc).Next()
+	fn := frame.Function
 
 	return CalculatedField(func(c *qb.Context) string {
 		return c.Driver.Override().Field(fn, fallback, in).QueryString(c)

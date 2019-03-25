@@ -7,7 +7,7 @@ import (
 
 // OverrideMap allows a driver to override functions from qf and qc.
 // This type is not intended to be used directly
-type OverrideMap map[*runtime.Func]interface{}
+type OverrideMap map[string]interface{}
 
 // Add adds an override to the map
 func (m OverrideMap) Add(target, new interface{}) {
@@ -25,7 +25,7 @@ func (m OverrideMap) Add(target, new interface{}) {
 		panic(`Arguments must be qb types`)
 	}
 
-	m[runtime.FuncForPC(reflect.ValueOf(target).Pointer())] = new
+	m[runtime.FuncForPC(reflect.ValueOf(target).Pointer()).Name()] = new
 }
 
 func isQbType(rt reflect.Type) bool {
@@ -36,16 +36,16 @@ func isQbType(rt reflect.Type) bool {
 }
 
 // Condition gets an override for qc, if there is no entry in the map fallback will be used
-func (m OverrideMap) Condition(source *runtime.Func, fallback interface{}, in []interface{}) Condition {
+func (m OverrideMap) Condition(source string, fallback interface{}, in []interface{}) Condition {
 	return m.execute(source, fallback, in).(Condition)
 }
 
 // Field gets an override for qf, if there is no entry in the map fallback will be used
-func (m OverrideMap) Field(source *runtime.Func, fallback interface{}, in []interface{}) Field {
+func (m OverrideMap) Field(source string, fallback interface{}, in []interface{}) Field {
 	return m.execute(source, fallback, in).(Field)
 }
 
-func (m OverrideMap) execute(source *runtime.Func, fallback interface{}, in []interface{}) interface{} {
+func (m OverrideMap) execute(source string, fallback interface{}, in []interface{}) interface{} {
 	values := make([]reflect.Value, len(in))
 	for k, v := range in {
 		if v, ok := v.(reflect.Value); ok {
@@ -64,7 +64,7 @@ func (m OverrideMap) execute(source *runtime.Func, fallback interface{}, in []in
 	}
 
 	if fallback == nil {
-		panic(`Function "` + source.Name() + `" not implemented by driver`)
+		panic(`Function "` + source + `" not implemented by driver`)
 	}
 
 	return reflect.ValueOf(fallback).Call(values)[0].Interface()
