@@ -9,6 +9,7 @@ var (
 	qbTablesTable = qb.Table{Name: "information_schema.tables"}
 
 	qbTablesFTableName    = qb.TableField{Parent: &qbTablesTable, Name: "table_name"}
+	qbTablesFTableSchema  = qb.TableField{Parent: &qbTablesTable, Name: "table_schema"}
 	qbTablesFTableCatalog = qb.TableField{Parent: &qbTablesTable, Name: "table_catalog"}
 	qbTablesFTableType    = qb.TableField{Parent: &qbTablesTable, Name: "table_type"}
 )
@@ -16,6 +17,7 @@ var (
 // TablesType represents the table "Tables"
 type TablesType struct {
 	TableName    qb.Field
+	TableSchema  qb.Field
 	TableCatalog qb.Field
 	TableType    qb.Field
 	table        *qb.Table
@@ -51,6 +53,7 @@ func Tables() *TablesType {
 	table := qbTablesTable
 	return &TablesType{
 		qbTablesFTableName.Copy(&table),
+		qbTablesFTableSchema.Copy(&table),
 		qbTablesFTableCatalog.Copy(&table),
 		qbTablesFTableType.Copy(&table),
 		&table,
@@ -62,6 +65,7 @@ var (
 	qbColumnsTable = qb.Table{Name: "information_schema.columns"}
 
 	qbColumnsFColumnName             = qb.TableField{Parent: &qbColumnsTable, Name: "column_name"}
+	qbColumnsFTableSchema            = qb.TableField{Parent: &qbColumnsTable, Name: "table_schema"}
 	qbColumnsFDataType               = qb.TableField{Parent: &qbColumnsTable, Name: "data_type"}
 	qbColumnsFIsNullable             = qb.TableField{Parent: &qbColumnsTable, Name: "is_nullable"}
 	qbColumnsFCharacterMaximumLength = qb.TableField{Parent: &qbColumnsTable, Name: "character_maximum_length"}
@@ -72,6 +76,7 @@ var (
 // ColumnsType represents the table "Columns"
 type ColumnsType struct {
 	ColumnName             qb.Field
+	TableSchema            qb.Field
 	DataType               qb.Field
 	IsNullable             qb.Field
 	CharacterMaximumLength qb.Field
@@ -110,6 +115,7 @@ func Columns() *ColumnsType {
 	table := qbColumnsTable
 	return &ColumnsType{
 		qbColumnsFColumnName.Copy(&table),
+		qbColumnsFTableSchema.Copy(&table),
 		qbColumnsFDataType.Copy(&table),
 		qbColumnsFIsNullable.Copy(&table),
 		qbColumnsFCharacterMaximumLength.Copy(&table),

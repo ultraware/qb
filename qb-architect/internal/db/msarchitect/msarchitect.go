@@ -2,6 +2,7 @@ package msarchitect
 
 import (
 	"database/sql"
+	"strings"
 
 	"git.ultraware.nl/NiseVoid/qb"
 	"git.ultraware.nl/NiseVoid/qb/driver/msqb"
@@ -37,23 +38,23 @@ func database() qb.Field {
 func (d Driver) GetTables() []string {
 	it := msmodel.Tables()
 
-	q := it.Select(it.TableName).
+	q := it.Select(it.TableSchema, it.TableName).
 		Where(
 			qc.Eq(it.TableType, `BASE TABLE`),
 			qc.Eq(it.TableCatalog, database()),
 		).
-		GroupBy(it.TableName)
+		GroupBy(it.TableSchema, it.TableName)
 
 	rows, err := d.DB.Query(q)
 	util.PanicOnErr(err)
 
 	var tables []string
 	for rows.Next() {
-		var table string
-		err := rows.Scan(&table)
+		var schema, table string
+		err := rows.Scan(&schema, &table)
 		util.PanicOnErr(err)
 
-		tables = append(tables, table)
+		tables = append(tables, schema+`.`+table)
 	}
 
 	return tables
@@ -61,12 +62,17 @@ func (d Driver) GetTables() []string {
 
 // GetFields returns all fields in a table
 func (d Driver) GetFields(table string) (fields []db.Field) {
+	sp := strings.Split(table, `.`)
+	schema := sp[0]
+	table = sp[1]
+
 	c := msmodel.Columns()
 
 	q := c.Select(c.ColumnName, c.DataType, c.IsNullable).
 		Where(
 			qc.Eq(c.TableCatalog, database()),
 			qc.Eq(c.TableName, table),
+			qc.Eq(c.TableSchema, schema),
 		).
 		GroupBy(c.ColumnName, c.DataType, c.IsNullable)
 

@@ -3,6 +3,7 @@
 		"name": "information_schema.tables",
 		"fields": [
 			{"name": "table_name"},
+			{"name": "table_schema"},
 			{"name": "table_catalog"},
 			{"name": "table_type"}
 		]
@@ -11,6 +12,7 @@
 		"name": "information_schema.columns",
 		"fields": [
 			{"name": "column_name"},
+			{"name": "table_schema"},
 			{"name": "data_type"},
 			{"name": "is_nullable"},
 			{"name": "character_maximum_length"},
