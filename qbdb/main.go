@@ -103,32 +103,30 @@ func (db QueryTarget) prepare(q qb.Query) (string, []interface{}) {
 func (db QueryTarget) prepareSQL(s string, v []interface{}) (string, []interface{}) {
 	vc := 0
 	c := 0
-	offset := 0
+	b := &strings.Builder{}
 
 	new := []interface{}{}
-	for {
-		i := strings.IndexRune(s[offset:], '?')
-		if i == -1 {
-			break
+	for _, chr := range s {
+		if chr != '?' {
+			if _, err := b.WriteRune(chr); err != nil {
+				panic(err)
+			}
+			continue
 		}
 
-		offset += i
-
-		vc++
-		str, param := db.printType(v[vc-1], &c)
+		str, param := db.printType(v[vc], &c)
 		if param {
-			new = append(new, v[vc-1])
+			new = append(new, v[vc])
 		}
+		vc++
 
-		if str != `?` {
-			s = s[:offset] + str + s[offset+1:]
-			offset += len(str) - 1
+		if _, err := b.WriteString(str); err != nil {
+			panic(err)
 		}
-		offset++
 	}
 
-	db.log(s, new)
-	return s, new
+	db.log(b.String(), new)
+	return b.String(), new
 }
 
 func (db QueryTarget) log(s string, v []interface{}) {

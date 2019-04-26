@@ -11,6 +11,7 @@ pipeline:
       - go get git.ultraware.nl/NiseVoid/funlen
       - make test
       - make lint
+      - go test -bench=.
     when:
       event: [ push, tag, pull_request ]
 
