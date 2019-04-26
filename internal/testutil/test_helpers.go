@@ -2,25 +2,34 @@ package testutil
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"testing"
-
-	"github.com/kortschak/ct"
 )
 
 var (
 	// Warn is used when printing warnings
-	Warn = (ct.Fg(ct.White) | ct.Bg(ct.Red) | ct.Bold).Paint
+	Warn = colored(31)
 	// Okay is used when printing text signifying a passed test
-	Okay = (ct.Fg(ct.Green) | ct.Bold).Paint
+	Okay = colored(32)
 	// Info is used for info messages
-	Info = (ct.Fg(ct.Magenta)).Paint
+	Info = colored(35)
 	// Notice is used for less important info messages
-	Notice = (ct.Fg(ct.Magenta) | ct.Faint).Paint
+	Notice = colored(36)
 
 	// String is used when printing strings
-	String = (ct.Fg(ct.Yellow).Paint)
+	String = colored(33)
 )
+
+func colored(code int) func(v ...interface{}) string {
+	return func(v ...interface{}) string {
+		return fmt.Sprint(append([]interface{}{shell(code)}, append(v, shell(0))...)...)
+	}
+}
+
+func shell(i int) string {
+	return "\x1B[" + strconv.Itoa(i) + "m"
+}
 
 func quoted(s string) string {
 	var n string
