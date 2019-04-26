@@ -45,11 +45,10 @@ func (d Driver) Limit(sql qb.SQL, limit int) {
 }
 
 // Returning implements qb.Driver
-func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
-	b := qb.NewSQLBuilder(d)
+func (d Driver) Returning(b qb.SQLBuilder, q qb.Query, f []qb.Field) (string, []interface{}) {
 	sql, v := q.SQL(b)
 
-	t, insertBefore := `INSERTED`, `WHERE`
+	t, insertBefore := `INSERTED`, `FROM`
 
 	switch strings.SplitN(sql, ` `, 2)[0] {
 	case `DELETE`:
@@ -63,7 +62,7 @@ func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
 		if k > 0 {
 			line += `, `
 		}
-		line += t + `.` + field.QueryString(b.Context)
+		line += t + `.` + field.(*qb.TableField).Name
 	}
 
 	index := strings.Index(sql, insertBefore)

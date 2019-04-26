@@ -1,5 +1,10 @@
 package qb
 
+import (
+	"reflect"
+	"strings"
+)
+
 type set struct {
 	Field Field
 	Value Field
@@ -38,8 +43,14 @@ func (q *UpdateBuilder) Where(c ...Condition) *UpdateBuilder {
 
 // SQL returns a query string and a list of values
 func (q *UpdateBuilder) SQL(b SQLBuilder) (string, []interface{}) {
-	b.Update(q.t)
-	b.Set(q.set)
+	if reflect.TypeOf(b.Context.alias) != reflect.TypeOf(NoAlias()) && strings.HasSuffix(reflect.TypeOf(b.Context.Driver).PkgPath(), `msqb`) {
+		b.w.WriteLine(`UPDATE ` + q.t.aliasString())
+		b.Set(q.set)
+		b.w.WriteLine(`FROM ` + b.SourceToSQL(q.t))
+	} else {
+		b.Update(q.t)
+		b.Set(q.set)
+	}
 	b.Where(q.c...)
 
 	return b.w.String(), *b.Context.Values

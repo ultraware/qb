@@ -11,7 +11,7 @@ type Driver interface {
 	BoolString(bool) string
 	UpsertSQL(*Table, []Field, Query) (string, []interface{})
 	Limit(SQL, int)
-	Returning(Query, []Field) (string, []interface{})
+	Returning(SQLBuilder, Query, []Field) (string, []interface{})
 	TypeName(DataType) string
 	Override() OverrideMap
 }
@@ -48,7 +48,7 @@ type Table struct {
 func (t *Table) TableString(c *Context) string {
 	alias := c.Alias(t)
 	if len(alias) > 0 {
-		alias = ` ` + alias
+		alias = ` AS ` + alias
 	}
 	return t.Name + alias
 }

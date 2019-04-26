@@ -44,7 +44,7 @@ func TestConcatQuerySubquery(t *testing.T) {
 	output := ConcatQuery(NewContext(nil, NoAlias()), sq, `, `, sq)
 	NEWLINE, INDENT = "\n", "\t"
 
-	assert.Eq("(SELECT f1FROM tbl t), (SELECT f1FROM tbl t)", output)
+	assert.Eq("(SELECT f1FROM tbl AS t), (SELECT f1FROM tbl AS t)", output)
 }
 
 func TestJoinQuery(t *testing.T) {

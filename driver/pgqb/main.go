@@ -57,9 +57,7 @@ func (d Driver) Limit(sql qb.SQL, limit int) {
 }
 
 // Returning implements qb.Driver
-func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
-	b := qb.NewSQLBuilder(d)
-
+func (d Driver) Returning(b qb.SQLBuilder, q qb.Query, f []qb.Field) (string, []interface{}) {
 	s, v := q.SQL(b)
 
 	line := ``

@@ -9,34 +9,39 @@ type SelectQuery interface {
 	Fields() []Field
 }
 
-type returningBuilder struct {
-	query  Query
+// ReturningBuilder builds a query with a RETURNING statement
+type ReturningBuilder struct {
+	Query  Query
 	fields []Field
 }
 
 // Returning creates a RETURNING or OUTPUT query
 func Returning(q Query, f ...Field) SelectQuery {
-	return returningBuilder{q, f}
+	return ReturningBuilder{q, f}
 }
 
-func (q returningBuilder) SQL(b SQLBuilder) (string, []interface{}) {
+// SQL returns a query string and a list of values
+func (q ReturningBuilder) SQL(b SQLBuilder) (string, []interface{}) {
 	return q.getSQL(b, false)
 }
 
-func (q returningBuilder) getSQL(b SQLBuilder, aliasFields bool) (string, []interface{}) {
-	s, v := b.Context.Driver.Returning(q.query, q.fields)
+func (q ReturningBuilder) getSQL(b SQLBuilder, aliasFields bool) (string, []interface{}) {
+	s, v := b.Context.Driver.Returning(b, q.Query, q.fields)
 	return s, append(v, *b.Context.Values...)
 }
 
-func (q returningBuilder) Fields() []Field {
+// Fields returns a list of the fields used in the query
+func (q ReturningBuilder) Fields() []Field {
 	return q.fields
 }
 
-func (q returningBuilder) SubQuery(fields ...*Field) *SubQuery {
+// SubQuery converts the SelectQuery to a SubQuery for use in further queries
+func (q ReturningBuilder) SubQuery(fields ...*Field) *SubQuery {
 	return newSubQuery(q, fields)
 }
 
-func (q returningBuilder) CTE(fields ...*Field) *CTE {
+// CTE creates a new CTE (WITH) Query
+func (q ReturningBuilder) CTE(fields ...*Field) *CTE {
 	return newCTE(q, fields)
 }
 

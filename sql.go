@@ -233,18 +233,20 @@ func (b *SQLBuilder) Set(sets []set) {
 		b.w.WriteString(`SET `)
 	}
 
+	cField := *b.Context
+	cField.alias = NoAlias()
+
 	for k, v := range sets {
 		comma := `,`
 		if k == len(sets)-1 {
 			comma = ``
 		}
-		b.w.WriteLine(eq(v.Field, v.Value)(b.Context) + comma)
+		b.w.WriteLine(v.Field.QueryString(&cField) + ` = ` + v.Value.QueryString(b.Context) + comma)
 	}
 }
 
 // Delete generates a SQL DELETE FROM line
 func (b *SQLBuilder) Delete(t *Table) {
-	_ = t.Name
 	b.w.WriteLine(`DELETE FROM ` + b.SourceToSQL(t))
 }
 

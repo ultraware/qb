@@ -50,7 +50,7 @@ func (d Driver) Limit(sql qb.SQL, limit int) {
 }
 
 // Returning implements qb.Driver
-func (d Driver) Returning(q qb.Query, f []qb.Field) (string, []interface{}) {
+func (d Driver) Returning(b qb.SQLBuilder, q qb.Query, f []qb.Field) (string, []interface{}) {
 	panic(`mysql does not support RETURNING`)
 }
 

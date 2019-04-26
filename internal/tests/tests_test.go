@@ -84,7 +84,11 @@ func runTests(t *testing.T) {
 	testPrepare(t)
 	testSubQuery(t)
 	testUnionAll(t)
-	testDelete(t)
+	if driver == `myqb.Driver` {
+		testDelete(t)
+	} else {
+		testDeleteReturning(t)
+	}
 	testLeftJoin(t)
 }
 
@@ -341,6 +345,30 @@ func testUnionAll(test *testing.T) {
 	assert.True(r.Next())
 	assert.NoError(r.Scan(&id))
 	assert.Equal(1, id)
+
+	assert.False(r.Next())
+}
+
+func testDeleteReturning(test *testing.T) {
+	t := model.Two()
+
+	q := t.Delete(qc.Eq(t.OneID, 1))
+	r, err := db.Query(qb.Returning(q, t.Number))
+	if err != nil {
+		panic(err)
+	}
+
+	var number int
+
+	assert := assertpkg.New(test)
+
+	assert.True(r.Next())
+	assert.NoError(r.Scan(&number))
+	assert.Equal(1, number)
+
+	assert.True(r.Next())
+	assert.NoError(r.Scan(&number))
+	assert.Equal(2, number)
 
 	assert.False(r.Next())
 }

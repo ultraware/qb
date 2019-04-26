@@ -64,8 +64,23 @@ func (db QueryTarget) ctes(ctes []*qb.CTE, done map[*qb.CTE]bool, b qb.SQLBuilde
 	return list
 }
 
+func shouldContext(q qb.Query) bool {
+	switch t := q.(type) {
+	case *qb.UpdateBuilder, qb.DeleteBuilder:
+		return true
+	case qb.ReturningBuilder:
+		return shouldContext(t.Query)
+	}
+
+	return false
+}
+
 func (db QueryTarget) prepare(q qb.Query) (string, []interface{}) {
 	b := qb.NewSQLBuilder(db.Driver)
+
+	if shouldContext(q) {
+		b.Context = qb.NewContext(b.Context.Driver, qb.AliasGenerator())
+	}
 
 	s, v := q.SQL(b)
 
