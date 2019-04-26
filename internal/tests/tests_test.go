@@ -8,8 +8,7 @@ import (
 	"testing"
 	"time"
 
-	assertpkg "github.com/stretchr/testify/assert"
-
+	"git.fuyu.moe/Fuyu/assert"
 	"git.ultraware.nl/NiseVoid/qb"
 	"git.ultraware.nl/NiseVoid/qb/driver/autoqb"
 	"git.ultraware.nl/NiseVoid/qb/internal/tests/internal/model"
@@ -170,18 +169,18 @@ func testUpdateReturning(test *testing.T) {
 	var (
 		comment = ``
 		number  = 0
-		assert  = assertpkg.New(test)
+		assert  = assert.New(test)
 	)
 
 	assert.True(r.Next())
 	assert.NoError(r.Scan(&comment, &number))
-	assert.Equal(`Test comment v2`, comment)
-	assert.Equal(1, number)
+	assert.Eq(`Test comment v2`, comment)
+	assert.Eq(1, number)
 
 	assert.True(r.Next())
 	assert.NoError(r.Scan(&comment, &number))
-	assert.Equal(`Test comment 2 v2`, comment)
-	assert.Equal(2, number)
+	assert.Eq(`Test comment 2 v2`, comment)
+	assert.Eq(2, number)
 
 	assert.False(r.Next())
 }
@@ -200,7 +199,7 @@ func testSelect(test *testing.T) {
 		year, number int
 		comment      string
 		modified     *time.Time
-		assert       = assertpkg.New(test)
+		assert       = assert.New(test)
 	)
 
 	err := r.Scan(&id, &name, &year, &number, &comment, &modified)
@@ -208,12 +207,12 @@ func testSelect(test *testing.T) {
 		panic(err)
 	}
 
-	assert.Equal(1, id)
+	assert.Eq(1, id)
 
-	assert.Equal(time.Now().Year(), year)
-	assert.Equal(`Test 1.1`, name)
-	assert.Equal(1, number)
-	assert.Equal(`Test comment v2`, comment)
+	assert.Eq(time.Now().Year(), year)
+	assert.Eq(`Test 1.1`, name)
+	assert.Eq(1, number)
+	assert.Eq(`Test comment v2`, comment)
 
 	assert.Nil(modified)
 }
@@ -233,8 +232,8 @@ func testInQuery(test *testing.T) {
 		panic(err)
 	}
 
-	assert := assertpkg.New(test)
-	assert.Equal(`Test 1.1`, name)
+	assert := assert.New(test)
+	assert.Eq(`Test 1.1`, name)
 }
 
 func testExists(test *testing.T) {
@@ -253,9 +252,9 @@ func testExists(test *testing.T) {
 		panic(err)
 	}
 
-	assert := assertpkg.New(test)
-	assert.Equal(1, names)
-	assert.Equal(2, count)
+	assert := assert.New(test)
+	assert.Eq(1, names)
+	assert.Eq(2, count)
 }
 
 func testPrepare(test *testing.T) {
@@ -271,21 +270,21 @@ func testPrepare(test *testing.T) {
 		panic(err)
 	}
 
-	assert := assertpkg.New(test)
+	assert := assert.New(test)
 	out := 0
 
-	assert.Equal(sql.ErrNoRows, stmt.QueryRow().Scan(&out))
+	assert.Eq(sql.ErrNoRows, stmt.QueryRow().Scan(&out))
 
 	oneid = 1
 	assert.NoError(stmt.QueryRow().Scan(&out))
-	assert.Equal(oneid, out)
+	assert.Eq(oneid, out)
 
 	oneid = 2
 	assert.NoError(stmt.QueryRow().Scan(&out))
-	assert.Equal(oneid, out)
+	assert.Eq(oneid, out)
 
 	oneid = 3
-	assert.Equal(sql.ErrNoRows, stmt.QueryRow().Scan(&out))
+	assert.Eq(sql.ErrNoRows, stmt.QueryRow().Scan(&out))
 }
 
 func testSubQuery(test *testing.T) {
@@ -310,14 +309,11 @@ func testSubQuery(test *testing.T) {
 		panic(err)
 	}
 
-	assert := assertpkg.New(test)
+	assert := assert.New(test)
 
-	assert.Equal(1, id)
-	assert.Equal(2, count)
+	assert.Eq(1, id)
+	assert.Eq(2, count)
 
-	assert.Panics(func() { // Incorrect number of fields should panic
-		t.Select(t.OneID).SubQuery(&sq.One, &sq.Count)
-	})
 	t.Select(t.OneID).SubQuery() // No fields should pass
 }
 
@@ -335,16 +331,16 @@ func testUnionAll(test *testing.T) {
 
 	var (
 		id     int
-		assert = assertpkg.New(test)
+		assert = assert.New(test)
 	)
 
 	assert.True(r.Next())
 	assert.NoError(r.Scan(&id))
-	assert.Equal(1, id)
+	assert.Eq(1, id)
 
 	assert.True(r.Next())
 	assert.NoError(r.Scan(&id))
-	assert.Equal(1, id)
+	assert.Eq(1, id)
 
 	assert.False(r.Next())
 }
@@ -360,15 +356,15 @@ func testDeleteReturning(test *testing.T) {
 
 	var number int
 
-	assert := assertpkg.New(test)
+	assert := assert.New(test)
 
 	assert.True(r.Next())
 	assert.NoError(r.Scan(&number))
-	assert.Equal(1, number)
+	assert.Eq(1, number)
 
 	assert.True(r.Next())
 	assert.NoError(r.Scan(&number))
-	assert.Equal(2, number)
+	assert.Eq(2, number)
 
 	assert.False(r.Next())
 }
@@ -394,10 +390,10 @@ func testLeftJoin(test *testing.T) {
 	var (
 		id     int
 		oneid  *int
-		assert = assertpkg.New(test)
+		assert = assert.New(test)
 	)
 
 	assert.NoError(r.Scan(&id, &oneid))
-	assert.Equal(1, id)
+	assert.Eq(1, id)
 	assert.Nil(oneid)
 }
