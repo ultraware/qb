@@ -54,7 +54,7 @@ func main() {
 	}
 
 	var tables []db.Table
-	for _, v := range filterTables(driver.GetTables(), fExclude, tExclude) {
+	for _, v := range filterTables(driver.GetTables(), tOnly, tExclude) {
 		tables = append(tables, db.Table{
 			Name:   v,
 			Fields: filterFields(driver.GetFields(v), fOnly, fExclude),
