@@ -6,6 +6,16 @@ import (
 	"git.ultraware.nl/NiseVoid/qb"
 )
 
+// Target is a target for a query, either a plain DB or a Tx
+type Target interface {
+	Render(qb.Query) (string, []interface{})
+	Query(qb.SelectQuery) (*sql.Rows, error)
+	QueryRow(qb.SelectQuery) *sql.Row
+	Exec(q qb.Query) (sql.Result, error)
+	RawExec(s string, v ...interface{}) (sql.Result, error)
+	Prepare(q qb.Query) (*Stmt, error)
+}
+
 // Tx is a transaction
 type Tx struct {
 	QueryTarget
