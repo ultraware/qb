@@ -3,50 +3,47 @@ workspace:
   path: src/git.ultraware.nl/NiseVoid/qb
 
 pipeline:
-  test:
+  setup:
     image: registry.ultraware.nl/ultraware/go-build:latest
     pull: true
     commands:
       - make setup
-      - go get git.ultraware.nl/NiseVoid/funlen
+      - mv /go/src vendor/
+
+  test:
+    image: registry.ultraware.nl/ultraware/go-build:latest
+    pull: true
+    commands:
       - make test
       - make lint
       - go test -bench=.
-    when:
-      event: [ push, tag, pull_request ]
 
   PostgreSQL:
+    group: dbtest
     image: registry.ultraware.nl/ultraware/go-build:latest
     pull: true
     environment:
       - POSTGRES_TESTHOST=pgsql
     commands:
-      - make setup
       - make test_postgres
-    when:
-      event: [ push, tag, pull_request ]
 
   MySQL:
+    group: dbtest
     image: registry.ultraware.nl/ultraware/go-build:latest
     pull: true
     environment:
       - MYSQL_TESTHOST=mariadb
     commands:
-      - make setup
       - make test_mysql
-    when:
-      event: [ push, tag, pull_request ]
 
   MSSQL:
+    group: dbtest
     image: registry.ultraware.nl/ultraware/go-build:latest
     pull: true
     environment:
       - MSSQL_TESTHOST=172.22.0.25
     commands:
-      - make setup
       - make test_mssql
-    when:
-      event: [ push, tag, pull_request ]
 
 services:
   pgsql:

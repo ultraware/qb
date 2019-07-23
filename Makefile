@@ -7,7 +7,7 @@ setup:
 	@printf "Running go generate ...\n"
 	@go generate ./...
 	@printf "Getting dependencies ...\n"
-	@go get -t ./...; true
+	@go get -t ./...
 	@printf "\n\n"
 
 .PHONY: test

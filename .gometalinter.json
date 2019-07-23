@@ -2,6 +2,7 @@
 	"Format": "{{printf `%-11s` .Linter }} | {{.Path}} @{{.Line}}: {{.Message}}",
 	"Deadline": "2m",
 	"Sort": ["linter", "severity", "path"],
+	"Vendor": true,
 
 	"Skip": [
 		"qb-architect/internal/db/msarchitect/msmodel",
