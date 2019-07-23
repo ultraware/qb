@@ -12,7 +12,7 @@ type Join string
 // All possible join types
 const (
 	JoinInner Join = `INNER`
-	JoinLeft       = `LEFT`
-	JoinRight      = `RIGHT`
-	JoinCross      = `CROSS`
+	JoinLeft  Join = `LEFT`
+	JoinRight Join = `RIGHT`
+	JoinCross Join = `CROSS`
 )

@@ -103,9 +103,9 @@ func testUpsert(test *testing.T) {
 		o.ID,
 	)
 	_, err := db.Exec(q)
-	if err != nil {
-		panic(err)
-	}
+
+	assert := assert.New(test)
+	assert.NoError(err)
 }
 
 func testUpsertSeperate(test *testing.T) {
@@ -123,9 +123,9 @@ func testUpsertSeperate(test *testing.T) {
 		Set(o.Name, qf.Concat(o.Name, `.1`)).
 		Where(qc.Eq(o.ID, 1))
 	_, err = db.Exec(uq)
-	if err != nil {
-		panic(err)
-	}
+
+	assert := assert.New(test)
+	assert.NoError(err)
 }
 
 func testInsert(test *testing.T) {
@@ -136,9 +136,9 @@ func testInsert(test *testing.T) {
 		Values(1, 2, `Test comment 2`)
 
 	_, err := db.Exec(q)
-	if err != nil {
-		panic(err)
-	}
+
+	assert := assert.New(test)
+	assert.NoError(err)
 }
 
 func testUpdate(test *testing.T) {
@@ -149,9 +149,9 @@ func testUpdate(test *testing.T) {
 		Where(qc.Eq(t.OneID, 1))
 
 	_, err := db.Exec(q)
-	if err != nil {
-		panic(err)
-	}
+
+	assert := assert.New(test)
+	assert.NoError(err)
 }
 
 func testUpdateReturning(test *testing.T) {
@@ -162,14 +162,13 @@ func testUpdateReturning(test *testing.T) {
 		Where(qc.Eq(t.OneID, 1))
 
 	r, err := db.Query(qb.Returning(q, t.Comment, t.Number))
-	if err != nil {
-		panic(err)
-	}
+
+	assert := assert.New(test)
+	assert.NoError(err)
 
 	var (
 		comment = ``
 		number  = 0
-		assert  = assert.New(test)
 	)
 
 	assert.True(r.Next())
@@ -374,9 +373,9 @@ func testDelete(test *testing.T) {
 
 	q := t.Delete(qc.Eq(t.OneID, 1))
 	_, err := db.Exec(q)
-	if err != nil {
-		panic(err)
-	}
+
+	assert := assert.New(test)
+	assert.NoError(err)
 }
 
 func testLeftJoin(test *testing.T) {

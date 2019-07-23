@@ -13,7 +13,7 @@ setup:
 .PHONY: test
 test:
 	@printf "Testing ...\n"
-	@T=$$(go test -v -short -cover ./...); C=$$?; \
+	@T=$$(go test -short -cover ./...); C=$$?; \
 		echo -e "$$T" | grep -vE "^(ok|fail|\?|coverage|PASS)"; echo; \
 		echo -e "$$T" | grep -E "^(ok|FAIL)[^$$]"; \
 		exit $$C
@@ -37,5 +37,5 @@ test_mssql:
 .PHONY: lint
 lint:
 	@printf "Running linters ...\n"
-	@gometalinter --config .gometalinter.json ./...
+	@golangci-lint run
 	@printf "\n\n"

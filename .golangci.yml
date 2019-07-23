@@ -1,0 +1,75 @@
+run:
+  deadline: 10m
+  build-tags:
+    # empty list
+  skip-dirs:
+    - "qb-architect/internal/db/msarchitect/msmodel"
+    - "qb-architect/internal/db/myarchitect/mymodel"
+    - "qb-architect/internal/db/pgarchitect/pgmodel"
+  skip-files:
+    # empty list
+
+output:
+  format: colored-line-number
+  print-issued-lines: false
+  print-linter-name: true
+
+linters:
+  disable-all: true
+  enable:
+    - bodyclose
+    - deadcode
+    - dupl
+    - errcheck
+    - funlen
+    - goconst
+    - gocritic
+    - gocyclo
+    - gofmt
+    - goimports
+    - golint
+    - gosimple
+    - govet
+    - ineffassign
+    - interfacer
+    - lll
+    - maligned
+    - misspell
+    - nakedret
+    - prealloc
+    - scopelint
+    - staticcheck
+    - structcheck
+    - stylecheck
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - varcheck
+    - whitespace
+
+linters-settings:
+  gocyclo:
+    min-complexity: 10
+
+  maligned:
+    suggest-new: true
+
+  dupl:
+    threshold: 50
+
+  lll:
+    line-length: 150
+    tab-width: 4
+
+  nakedret:
+    max-func-lines: 10
+
+issues:
+  exclude:
+    # empty list
+  exclude-rules:
+    # empty list
+  exclude-use-default: false
+  max-per-linter: 0
+  max-same-issues: 0

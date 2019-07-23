@@ -40,7 +40,7 @@ func (db QueryTarget) Render(q qb.Query) (string, []interface{}) {
 }
 
 func (db QueryTarget) ctes(ctes []*qb.CTE, done map[*qb.CTE]bool, b qb.SQLBuilder) []string {
-	var list []string
+	var list []string // nolint: prealloc
 
 	for _, v := range ctes {
 		if _, ok := done[v]; ok {

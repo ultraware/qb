@@ -42,7 +42,6 @@ func check(t *testing.T, c qb.Condition, expectedSQL string) {
 	sql := c(ctx)
 
 	testutil.Compare(t, expectedSQL, sql)
-
 }
 
 func fails(f func()) (failed bool) {

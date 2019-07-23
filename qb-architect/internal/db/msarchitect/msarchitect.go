@@ -61,7 +61,7 @@ func (d Driver) GetTables() []string {
 }
 
 // GetFields returns all fields in a table
-func (d Driver) GetFields(table string) (fields []db.Field) {
+func (d Driver) GetFields(table string) []db.Field {
 	sp := strings.Split(table, `.`)
 	schema := sp[0]
 	table = sp[1]
@@ -79,6 +79,8 @@ func (d Driver) GetFields(table string) (fields []db.Field) {
 	rows, err := d.DB.Query(q)
 	util.PanicOnErr(err)
 
+	var fields []db.Field
+
 	for rows.Next() {
 		f := db.Field{}
 
@@ -92,5 +94,5 @@ func (d Driver) GetFields(table string) (fields []db.Field) {
 		fields = append(fields, f)
 	}
 
-	return
+	return fields
 }

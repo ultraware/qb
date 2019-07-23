@@ -53,7 +53,7 @@ func (m OverrideMap) execute(source string, fallback interface{}, in []interface
 			continue
 		}
 		if v == nil {
-			values[k] = reflect.ValueOf(&v).Elem()
+			values[k] = reflect.ValueOf(&in[k]).Elem()
 			continue
 		}
 		values[k] = reflect.ValueOf(v)
