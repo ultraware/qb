@@ -9,10 +9,14 @@ import (
 )
 
 func TestAll(t *testing.T) {
+	qb.NEWLINE, qb.INDENT = ` `, ``
+
 	tb := &qb.Table{Name: `test`}
 
 	f1 := &qb.TableField{Name: `A`, Parent: tb}
 	f2 := &qb.TableField{Name: `B`, Parent: tb}
+
+	qry := tb.Select([]qb.Field{f1})
 
 	check(t, Eq(f1, f2), `A = B`)
 	check(t, Ne(f1, f2), `A != B`)
@@ -26,6 +30,9 @@ func TestAll(t *testing.T) {
 	check(t, NotNull(f1), `A IS NOT NULL`)
 	check(t, Like(f1, `%a%`), `A LIKE ?`)
 	check(t, In(f1, 1, 2, 3), `A IN (?, ?, ?)`)
+
+	check(t, InQuery(f1, qry), `A IN ( SELECT t.A FROM test AS t  )`)
+	check(t, Exists(qry), `EXISTS ( SELECT t.A FROM test AS t  )`)
 
 	check(t, Not(Eq(f1, f2)), `NOT (A = B)`)
 	check(t, And(Eq(f1, f2), NotNull(f1)), `(A = B AND A IS NOT NULL)`)
