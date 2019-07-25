@@ -1,6 +1,7 @@
 package qbdb
 
 import (
+	"database/sql/driver"
 	"testing"
 
 	"git.ultraware.nl/NiseVoid/qb/internal/testutil"
@@ -8,14 +9,21 @@ import (
 
 var db = New(Driver{}, nil)
 
+type Valuer int
+
+func (v Valuer) Value() (driver.Value, error) {
+	return v + 1, nil
+}
+
 func TestPrint(t *testing.T) {
 	tests := map[interface{}]string{
-		2:       `2`,
-		uint(3): `3`,
-		4.8766:  `4.8766`,
-		true:    `t`,
-		`abc`:   `@@`,
-		nil:     `NULL`,
+		2:         `2`,
+		uint(3):   `3`,
+		4.8766:    `4.8766`,
+		true:      `t`,
+		`abc`:     `@@`,
+		nil:       `NULL`,
+		Valuer(5): `@@`,
 	}
 
 	c := 0
