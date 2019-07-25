@@ -1,8 +1,6 @@
 package qf
 
 import (
-	"runtime"
-
 	"git.ultraware.nl/NiseVoid/qb"
 )
 
@@ -20,10 +18,7 @@ func NewCalculatedField(args ...interface{}) CalculatedField {
 }
 
 func useOverride(fallback interface{}, in ...interface{}) qb.Field {
-	pc := make([]uintptr, 1)
-	runtime.Callers(2, pc)
-	frame, _ := runtime.CallersFrames(pc).Next()
-	fn := frame.Function
+	fn := qb.GetFuncFrame()
 
 	return CalculatedField(func(c *qb.Context) string {
 		return c.Driver.Override().Field(fn, fallback, in).QueryString(c)

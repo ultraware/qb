@@ -1,8 +1,6 @@
 package qc
 
 import (
-	"runtime"
-
 	"git.ultraware.nl/NiseVoid/qb"
 )
 
@@ -14,10 +12,7 @@ func NewCondition(values ...interface{}) qb.Condition {
 }
 
 func useOverride(fallback interface{}, in ...interface{}) qb.Condition {
-	pc := make([]uintptr, 1)
-	runtime.Callers(2, pc)
-	frame, _ := runtime.CallersFrames(pc).Next()
-	fn := frame.Function
+	fn := qb.GetFuncFrame()
 
 	return func(c *qb.Context) string {
 		return c.Driver.Override().Condition(fn, fallback, in)(c)

@@ -5,6 +5,16 @@ import (
 	"runtime"
 )
 
+// GetFuncFrame returns a function
+func GetFuncFrame() string {
+	pc := make([]uintptr, 1)
+	runtime.Callers(3, pc)
+	frame, _ := runtime.CallersFrames(pc).Next()
+	fn := frame.Function
+
+	return fn
+}
+
 // OverrideMap allows a driver to override functions from qf and qc.
 // This type is not intended to be used directly
 type OverrideMap map[string]interface{}
