@@ -284,12 +284,12 @@ func (b *SQLBuilder) valueLine(f []Field, addComma bool) {
 		comma = ``
 	}
 
-	s := ``
+	s := strings.Builder{}
 	for k, v := range f {
 		if k > 0 {
-			s += COMMA
+			s.WriteString(COMMA)
 		}
-		s += b.FieldToSQL(v)
+		s.WriteString(b.FieldToSQL(v))
 	}
-	b.w.WriteLine(`(` + s + `)` + comma)
+	b.w.WriteLine(`(` + s.String() + `)` + comma)
 }

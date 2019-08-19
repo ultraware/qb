@@ -1,5 +1,9 @@
 package qb
 
+import (
+	"strings"
+)
+
 // Values used when building queries
 var (
 	COMMA   = `, `
@@ -22,19 +26,20 @@ func MakeField(i interface{}) Field {
 // ConcatQuery combines strings and Fields into string.
 // This function is not intended to be called directly
 func ConcatQuery(c *Context, values ...interface{}) string {
-	s := ``
+	s := strings.Builder{}
+
 	for _, val := range values {
 		switch v := val.(type) {
 		case (Field):
-			s += v.QueryString(c)
+			s.WriteString(v.QueryString(c))
 		case (SelectQuery):
 			sql, _ := v.SQL(SQLBuilder{Context: c})
-			s += getSubQuerySQL(sql)
+			s.WriteString(getSubQuerySQL(sql))
 		case (string):
-			s += v
+			s.WriteString(v)
 		}
 	}
-	return s
+	return s.String()
 }
 
 // JoinQuery joins fields or values into a string separated by sep.

@@ -1,6 +1,10 @@
 package qf
 
-import "git.ultraware.nl/NiseVoid/qb"
+import (
+	"strings"
+
+	"git.ultraware.nl/NiseVoid/qb"
+)
 
 type when struct {
 	C qb.Condition
@@ -49,10 +53,13 @@ type CaseField struct {
 
 // QueryString returns a string for use in queries
 func (f CaseField) QueryString(c *qb.Context) string {
-	s := `CASE`
+	s := strings.Builder{}
+	s.WriteString(`CASE`)
+
 	for _, v := range f.When {
-		s += ` WHEN ` + v.C(c) + ` THEN ` + v.F.QueryString(c)
+		s.WriteString(` WHEN ` + v.C(c) + ` THEN ` + v.F.QueryString(c))
 	}
-	s += ` ELSE ` + f.Else.QueryString(c) + ` END`
-	return s
+
+	s.WriteString(` ELSE ` + f.Else.QueryString(c) + ` END`)
+	return s.String()
 }

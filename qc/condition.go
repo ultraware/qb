@@ -144,15 +144,16 @@ func not(c qb.Condition) qb.Condition {
 
 func createLogicalCondition(operator string, conditions ...qb.Condition) qb.Condition {
 	return func(ctx *qb.Context) string {
-		s := `(`
+		s := strings.Builder{}
+		s.WriteString(`(`)
 		for k, c := range conditions {
 			if k > 0 {
-				s += ` ` + operator + ` `
+				s.WriteString(` ` + operator + ` `)
 			}
-			s += c(ctx)
+			s.WriteString(c(ctx))
 		}
-		s += `)`
-		return s
+		s.WriteString(`)`)
+		return s.String()
 	}
 }
 
