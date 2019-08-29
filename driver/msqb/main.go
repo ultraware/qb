@@ -37,11 +37,21 @@ func (d Driver) UpsertSQL(t *qb.Table, _ []qb.Field, q qb.Query) (string, []inte
 	panic(`mssql does not support upsert`)
 }
 
-// Limit implements qb.Driver
-func (d Driver) Limit(sql qb.SQL, limit int) {
-	s := sql.String()
+// LimitOffset implements qb.Driver
+func (d Driver) LimitOffset(sql qb.SQL, limit, offset int) {
+	if offset > 0 {
+		sql.WriteLine(`OFFSET ` + strconv.Itoa(limit) + ` ROWS`)
+		if limit > 0 {
+			sql.WriteLine(`FETCH NEXT ` + strconv.Itoa(limit) + ` ROWS ONLY`)
+		}
+		return
+	}
 
-	sql.Rewrite(`SELECT TOP ` + strconv.Itoa(limit) + s[6:])
+	if limit > 0 {
+		s := sql.String()
+
+		sql.Rewrite(`SELECT TOP ` + strconv.Itoa(limit) + s[6:])
+	}
 }
 
 // Returning implements qb.Driver

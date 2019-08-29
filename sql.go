@@ -198,20 +198,12 @@ func (b *SQLBuilder) OrderBy(o ...FieldOrder) {
 	b.w.WriteLine(s)
 }
 
-// Limit generates a SQL LIMIT line
-func (b *SQLBuilder) Limit(i int) {
-	if i == 0 {
+// LimitOffset generates a SQL LIMIT and OFFSET line
+func (b *SQLBuilder) LimitOffset(l, o int) {
+	if l == 0 && o == 0 {
 		return
 	}
-	b.Context.Driver.Limit(&b.w, i)
-}
-
-// Offset generates a SQL OFFSET line
-func (b *SQLBuilder) Offset(i int) {
-	if i == 0 {
-		return
-	}
-	b.w.WriteLine(`OFFSET ` + strconv.Itoa(i))
+	b.Context.Driver.LimitOffset(&b.w, l, o)
 }
 
 // Update generates a SQL UPDATE line

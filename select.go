@@ -185,8 +185,7 @@ func (q *SelectBuilder) getSQL(b SQLBuilder, aliasFields bool) (string, []interf
 	b.GroupBy(q.group...)
 	b.Having(q.having...)
 	b.OrderBy(q.order...)
-	b.Limit(q.limit)
-	b.Offset(q.offset)
+	b.LimitOffset(q.limit, q.offset)
 
 	b.Context.alias = oldAlias
 

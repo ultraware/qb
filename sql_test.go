@@ -225,16 +225,6 @@ func TestOrderBy(t *testing.T) {
 	check(false, ``)
 }
 
-func TestOffset(t *testing.T) {
-	b, check := testBuilder(t, false)
-
-	b.Offset(2)
-	check(true, `OFFSET 2`)
-
-	b.Offset(0)
-	check(false, ``)
-}
-
 func TestValues(t *testing.T) {
 	b, check := testBuilder(t, false)
 

@@ -78,6 +78,7 @@ func runTests(t *testing.T) {
 	}
 
 	testSelect(t)
+	testSelectOffset(t)
 	testInQuery(t)
 	testExists(t)
 	testPrepare(t)
@@ -116,14 +117,14 @@ func testUpsertSeperate(test *testing.T) {
 		Values(2, `Test 2`)
 	_, err := db.Exec(iq)
 	if err == nil {
+		fmt.Println(err)
 		return
 	}
 
 	uq := o.Update().
-		Set(o.Name, qf.Concat(o.Name, `.1`)).
-		Where(qc.Eq(o.ID, 1))
-	_, err = db.Exec(uq)
+		Set(o.Name, qf.Concat(o.Name, `.1`))
 
+	_, err = db.Exec(uq)
 	assert := assert.New(test)
 	assert.NoError(err)
 }
@@ -207,13 +208,38 @@ func testSelect(test *testing.T) {
 	}
 
 	assert.Eq(1, id)
-
-	assert.Eq(time.Now().Year(), year)
 	assert.Eq(`Test 1.1`, name)
+	assert.Eq(time.Now().Year(), year)
+
 	assert.Eq(1, number)
 	assert.Eq(`Test comment v2`, comment)
-
 	assert.Nil(modified)
+}
+
+func testSelectOffset(test *testing.T) {
+	o := model.One()
+
+	q := o.Select(o.ID, o.Name, qf.Year(o.CreatedAt)).
+		OrderBy(qb.Asc(o.ID)).
+		Limit(1).
+		Offset(1)
+	r := db.QueryRow(q)
+
+	var (
+		id     int
+		name   string
+		year   int
+		assert = assert.New(test)
+	)
+
+	err := r.Scan(&id, &name, &year)
+	if err != nil {
+		panic(err)
+	}
+
+	assert.Eq(2, id)
+	assert.Eq(`Test 2.1`, name)
+	assert.Eq(time.Now().Year(), year)
 }
 
 func testInQuery(test *testing.T) {
