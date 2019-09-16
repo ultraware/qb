@@ -55,7 +55,7 @@ func main() {
 
 	filtered := filterTables(driver.GetTables(), tOnly, tExclude)
 
-	tables := make([]db.Table, len(filtered))
+	tables := make([]db.Table, 0, len(filtered))
 	for _, v := range filtered {
 		tables = append(tables, db.Table{
 			Name:   v,
