@@ -221,7 +221,7 @@ func testSelectOffset(test *testing.T) {
 
 	q := o.Select(o.ID, o.Name, qf.Year(o.CreatedAt)).
 		OrderBy(qb.Asc(o.ID)).
-		Limit(1).
+		Limit(2).
 		Offset(1)
 	r := db.QueryRow(q)
 

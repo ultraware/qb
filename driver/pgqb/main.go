@@ -57,7 +57,7 @@ func (d Driver) LimitOffset(sql qb.SQL, limit, offset int) { //nolint: dupl
 		sql.WriteLine(`LIMIT ` + strconv.Itoa(limit))
 	}
 	if offset > 0 {
-		sql.WriteLine(`OFFSET ` + strconv.Itoa(limit))
+		sql.WriteLine(`OFFSET ` + strconv.Itoa(offset))
 	}
 }
 

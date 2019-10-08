@@ -40,7 +40,7 @@ func (d Driver) UpsertSQL(t *qb.Table, _ []qb.Field, q qb.Query) (string, []inte
 // LimitOffset implements qb.Driver
 func (d Driver) LimitOffset(sql qb.SQL, limit, offset int) {
 	if offset > 0 {
-		sql.WriteLine(`OFFSET ` + strconv.Itoa(limit) + ` ROWS`)
+		sql.WriteLine(`OFFSET ` + strconv.Itoa(offset) + ` ROWS`)
 		if limit > 0 {
 			sql.WriteLine(`FETCH NEXT ` + strconv.Itoa(limit) + ` ROWS ONLY`)
 		}
