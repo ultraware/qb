@@ -77,6 +77,8 @@ func runTests(t *testing.T) {
 		testUpdateReturning(t)
 	}
 
+	testRollback(t)
+
 	testSelect(t)
 	testSelectOffset(t)
 	testInQuery(t)
@@ -134,14 +136,18 @@ func testUpsertSeperate(test *testing.T) {
 func testInsert(test *testing.T) {
 	t := model.Two()
 
+	tx := db.MustBegin()
+
 	q := t.Insert(t.OneID, t.Number, t.Comment).
 		Values(1, 1, `Test comment`).
 		Values(1, 2, `Test comment 2`)
 
-	res := db.MustExec(q)
+	res := tx.MustExec(q)
 
 	assert := assert.New(test)
 	assert.Eq(int64(2), res.MustRowsAffected())
+
+	tx.MustCommit()
 }
 
 func testUpdate(test *testing.T) {
@@ -408,4 +414,16 @@ func testLeftJoin(test *testing.T) {
 	assert.True(r.MustScan(&id, &oneid))
 	assert.Eq(1, id)
 	assert.Nil(oneid)
+}
+
+func testRollback(test *testing.T) {
+	o := model.One()
+
+	tx := db.MustBegin()
+
+	q := o.Delete(qc.Eq(1, 1))
+	tx.MustExec(q)
+
+	assert := assert.New(test)
+	assert.NoError(tx.Rollback())
 }
