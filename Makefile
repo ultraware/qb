@@ -24,15 +24,15 @@ test_all: test_postgres test_mysql test_mssql
 
 .PHONY: test_postgres
 test_postgres:
-	@TYPE=postgres go test ./internal/tests -v
+	@TYPE=postgres go test -cover -coverpkg ./... ./internal/tests -v
 
 .PHONY: test_mysql
 test_mysql:
-	@TYPE=mysql go test ./internal/tests -v
+	@TYPE=mysql go test -cover -coverpkg ./... ./internal/tests -v
 
 .PHONY: test_mssql
 test_mssql:
-	@TYPE=mssql go test ./internal/tests -v
+	@TYPE=mssql go test -cover -coverpkg ./... ./internal/tests -v
 
 .PHONY: lint
 lint:
