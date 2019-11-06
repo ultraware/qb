@@ -15,19 +15,38 @@ func (s *Stmt) Close() error {
 	return s.stmt.Close()
 }
 
-// Query executes the given SelectQuery on the database
-func (s *Stmt) Query() (*sql.Rows, error) {
-	return s.stmt.Query(s.args...)
+// Query executes the prepared statement on the database
+func (s *Stmt) Query() (Rows, error) {
+	r, err := s.stmt.Query(s.args...)
+	return Rows{r}, err
 }
 
-// QueryRow executes the given SelectQuery on the database, only returns one row
-func (s *Stmt) QueryRow() *sql.Row {
-	return s.stmt.QueryRow(s.args...)
+// MustQuery executes the prepared statement on the database
+func (s *Stmt) MustQuery() Rows {
+	r, err := s.Query()
+	if err != nil {
+		panic(err)
+	}
+	return r
 }
 
-// Exec executes the given query, returns only an error
-func (s *Stmt) Exec() error {
-	_, err := s.stmt.Exec(s.args...)
+// QueryRow executes the prepared statement on the database, only returns one row
+func (s *Stmt) QueryRow() Row {
+	return Row{s.stmt.QueryRow(s.args...)}
+}
 
-	return err
+// Exec executes the prepared statement
+func (s *Stmt) Exec() (Result, error) {
+	r, err := s.stmt.Exec(s.args...)
+
+	return Result{r}, err
+}
+
+// MustExec executes the given SelectQuery on the database
+func (s *Stmt) MustExec() Result {
+	r, err := s.Exec()
+	if err != nil {
+		panic(err)
+	}
+	return r
 }

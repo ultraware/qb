@@ -103,10 +103,10 @@ func testUpsert(test *testing.T) {
 			Set(o.Name, qf.Concat(qf.Excluded(o.Name), `.1`)),
 		o.ID,
 	)
-	_, err := db.Exec(q)
+	res := db.MustExec(q)
 
 	assert := assert.New(test)
-	assert.NoError(err)
+	assert.True(res.MustRowsAffected() >= 2)
 }
 
 func testUpsertSeperate(test *testing.T) {
@@ -115,18 +115,20 @@ func testUpsertSeperate(test *testing.T) {
 	iq := o.Insert(o.ID, o.Name).
 		Values(1, `Test 1`).
 		Values(2, `Test 2`)
-	_, err := db.Exec(iq)
+	res, err := db.Exec(iq)
+
+	assert := assert.New(test)
 	if err == nil {
-		fmt.Println(err)
+		assert.Eq(int64(2), res.MustRowsAffected())
 		return
 	}
 
 	uq := o.Update().
 		Set(o.Name, qf.Concat(o.Name, `.1`))
 
-	_, err = db.Exec(uq)
-	assert := assert.New(test)
-	assert.NoError(err)
+	res = db.MustExec(uq)
+
+	assert.Eq(int64(2), res.MustRowsAffected())
 }
 
 func testInsert(test *testing.T) {
@@ -136,10 +138,10 @@ func testInsert(test *testing.T) {
 		Values(1, 1, `Test comment`).
 		Values(1, 2, `Test comment 2`)
 
-	_, err := db.Exec(q)
+	res := db.MustExec(q)
 
 	assert := assert.New(test)
-	assert.NoError(err)
+	assert.Eq(int64(2), res.MustRowsAffected())
 }
 
 func testUpdate(test *testing.T) {
@@ -149,10 +151,10 @@ func testUpdate(test *testing.T) {
 		Set(t.Comment, qf.Concat(t.Comment, ` v2`)).
 		Where(qc.Eq(t.OneID, 1))
 
-	_, err := db.Exec(q)
+	res := db.MustExec(q)
 
 	assert := assert.New(test)
-	assert.NoError(err)
+	assert.Eq(int64(2), res.MustRowsAffected())
 }
 
 func testUpdateReturning(test *testing.T) {
@@ -162,10 +164,9 @@ func testUpdateReturning(test *testing.T) {
 		Set(t.Comment, qf.Concat(t.Comment, ` v2`)).
 		Where(qc.Eq(t.OneID, 1))
 
-	r, err := db.Query(qb.Returning(q, t.Comment, t.Number))
+	r := db.MustQuery(qb.Returning(q, t.Comment, t.Number))
 
 	assert := assert.New(test)
-	assert.NoError(err)
 
 	var (
 		comment = ``
@@ -178,7 +179,7 @@ func testUpdateReturning(test *testing.T) {
 	assert.Eq(1, number)
 
 	assert.True(r.Next())
-	assert.NoError(r.Scan(&comment, &number))
+	r.MustScan(&comment, &number)
 	assert.Eq(`Test comment 2 v2`, comment)
 	assert.Eq(2, number)
 
@@ -202,10 +203,7 @@ func testSelect(test *testing.T) {
 		assert       = assert.New(test)
 	)
 
-	err := r.Scan(&id, &name, &year, &number, &comment, &modified)
-	if err != nil {
-		panic(err)
-	}
+	assert.True(r.MustScan(&id, &name, &year, &number, &comment, &modified))
 
 	assert.Eq(1, id)
 	assert.Eq(`Test 1.1`, name)
@@ -232,10 +230,7 @@ func testSelectOffset(test *testing.T) {
 		assert = assert.New(test)
 	)
 
-	err := r.Scan(&id, &name, &year)
-	if err != nil {
-		panic(err)
-	}
+	assert.True(r.MustScan(&id, &name, &year))
 
 	assert.Eq(2, id)
 	assert.Eq(`Test 2.1`, name)
@@ -252,12 +247,10 @@ func testInQuery(test *testing.T) {
 	row := db.QueryRow(q)
 
 	var name string
-	err := row.Scan(&name)
-	if err != nil {
-		panic(err)
-	}
-
 	assert := assert.New(test)
+
+	assert.True(row.MustScan(&name))
+
 	assert.Eq(`Test 1.1`, name)
 }
 
@@ -272,12 +265,10 @@ func testExists(test *testing.T) {
 	row := db.QueryRow(q)
 
 	var names, count int
-	err := row.Scan(&names, &count)
-	if err != nil {
-		panic(err)
-	}
-
 	assert := assert.New(test)
+
+	assert.True(row.MustScan(&names, &count))
+
 	assert.Eq(1, names)
 	assert.Eq(2, count)
 }
@@ -305,11 +296,11 @@ func testPrepare(test *testing.T) {
 	assert.Eq(oneid, out)
 
 	oneid = 2
-	assert.NoError(stmt.QueryRow().Scan(&out))
+	assert.True(stmt.QueryRow().MustScan(&out))
 	assert.Eq(oneid, out)
 
 	oneid = 3
-	assert.Eq(sql.ErrNoRows, stmt.QueryRow().Scan(&out))
+	assert.False(stmt.QueryRow().MustScan(&out))
 }
 
 func testSubQuery(test *testing.T) {
@@ -328,13 +319,9 @@ func testSubQuery(test *testing.T) {
 	r := db.QueryRow(q)
 
 	var id, count int
-
-	err := r.Scan(&id, &count)
-	if err != nil {
-		panic(err)
-	}
-
 	assert := assert.New(test)
+
+	assert.True(r.MustScan(&id, &count))
 
 	assert.Eq(1, id)
 	assert.Eq(2, count)
@@ -360,11 +347,11 @@ func testUnionAll(test *testing.T) {
 	)
 
 	assert.True(r.Next())
-	assert.NoError(r.Scan(&id))
+	r.MustScan(&id)
 	assert.Eq(1, id)
 
 	assert.True(r.Next())
-	assert.NoError(r.Scan(&id))
+	r.MustScan(&id)
 	assert.Eq(1, id)
 
 	assert.False(r.Next())
@@ -384,11 +371,11 @@ func testDeleteReturning(test *testing.T) {
 	assert := assert.New(test)
 
 	assert.True(r.Next())
-	assert.NoError(r.Scan(&number))
+	r.MustScan(&number)
 	assert.Eq(1, number)
 
 	assert.True(r.Next())
-	assert.NoError(r.Scan(&number))
+	r.MustScan(&number)
 	assert.Eq(2, number)
 
 	assert.False(r.Next())
@@ -418,7 +405,7 @@ func testLeftJoin(test *testing.T) {
 		assert = assert.New(test)
 	)
 
-	assert.NoError(r.Scan(&id, &oneid))
+	assert.True(r.MustScan(&id, &oneid))
 	assert.Eq(1, id)
 	assert.Nil(oneid)
 }

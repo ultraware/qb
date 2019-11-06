@@ -34,6 +34,7 @@ pipeline:
     environment:
       - MYSQL_TESTHOST=mariadb
     commands:
+      - sleep 10s
       - make test_mysql
 
   MSSQL:

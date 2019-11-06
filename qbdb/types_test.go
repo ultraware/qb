@@ -13,4 +13,7 @@ func TestImplements(t *testing.T) {
 	assert.True(ok)
 	_, ok = interface{}(Tx{}).(Target)
 	assert.True(ok)
+
+	_, ok = interface{}(Result{}).(Result)
+	assert.True(ok)
 }

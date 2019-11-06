@@ -1,7 +1,6 @@
 package qbdb // import "git.ultraware.nl/NiseVoid/qb/qbdb"
 
 import (
-	"database/sql"
 	"database/sql/driver"
 	"fmt"
 	"reflect"
@@ -136,30 +135,62 @@ func (db QueryTarget) log(s string, v []interface{}) {
 }
 
 // Query executes the given SelectQuery on the database
-func (db QueryTarget) Query(q qb.SelectQuery) (*sql.Rows, error) {
+func (db QueryTarget) Query(q qb.SelectQuery) (Rows, error) {
 	s, v := db.prepare(q)
-	return db.src.Query(s, v...)
+	r, err := db.src.Query(s, v...)
+	return Rows{r}, err
+}
+
+// MustQuery executes the given SelectQuery on the database
+// If an error occurs returned it will panic
+func (db QueryTarget) MustQuery(q qb.SelectQuery) Rows {
+	r, err := db.Query(q)
+	if err != nil {
+		panic(err)
+	}
+	return r
 }
 
 // QueryRow executes the given SelectQuery on the database, only returns one row
-func (db QueryTarget) QueryRow(q qb.SelectQuery) *sql.Row {
+func (db QueryTarget) QueryRow(q qb.SelectQuery) Row {
 	if sq, ok := q.(*qb.SelectBuilder); ok {
 		sq.Limit(1)
 	}
 
 	s, v := db.prepare(q)
-	return db.src.QueryRow(s, v...)
+	return Row{db.src.QueryRow(s, v...)}
 }
 
 // Exec executes the given query, returns only an error
-func (db QueryTarget) Exec(q qb.Query) (sql.Result, error) {
+func (db QueryTarget) Exec(q qb.Query) (Result, error) {
 	s, v := db.prepare(q)
 	return db.RawExec(s, v...)
 }
 
+// MustExec executes the given query
+// If an error occurs returned it will panic
+func (db QueryTarget) MustExec(q qb.Query) Result {
+	res, err := db.Exec(q)
+	if err != nil {
+		panic(err)
+	}
+	return res
+}
+
 // RawExec executes the given SQL with the given params directly on the database
-func (db QueryTarget) RawExec(s string, v ...interface{}) (sql.Result, error) {
-	return db.src.Exec(s, v...)
+func (db QueryTarget) RawExec(s string, v ...interface{}) (Result, error) {
+	r, err := db.src.Exec(s, v...)
+	return Result{r}, err
+}
+
+// MustRawExec executes the given SQL with the given params directly on the database
+// If an error occurs returned it will panic
+func (db QueryTarget) MustRawExec(s string, v ...interface{}) Result {
+	res, err := db.RawExec(s, v...)
+	if err != nil {
+		panic(err)
+	}
+	return res
 }
 
 // Prepare prepares a query for efficient repeated executions
@@ -172,4 +203,14 @@ func (db QueryTarget) Prepare(q qb.Query) (*Stmt, error) {
 	}
 
 	return &Stmt{stmt, v}, nil
+}
+
+// MustPrepare prepares a query for efficient repeated executions
+// If an error occurs returned it will panic
+func (db QueryTarget) MustPrepare(q qb.Query) *Stmt {
+	stmt, err := db.Prepare(q)
+	if err != nil {
+		panic(err)
+	}
+	return stmt
 }
