@@ -13,10 +13,7 @@ setup:
 .PHONY: test
 test:
 	@printf "Testing ...\n"
-	@T=$$(go test -short -cover ./...); C=$$?; \
-		echo -e "$$T" | grep -vE "^(ok|fail|\?|coverage|PASS)"; echo; \
-		echo -e "$$T" | grep -E "^(ok|FAIL)[^$$]"; \
-		exit $$C
+	@go test -short -cover -coverprofile unit.out ./...
 	@printf "\n\n"
 
 .PHONY: test_all
@@ -24,15 +21,15 @@ test_all: test_postgres test_mysql test_mssql
 
 .PHONY: test_postgres
 test_postgres:
-	@TYPE=postgres go test -cover -coverpkg ./... ./internal/tests -v
+	@TYPE=postgres go test -cover -coverprofile postgres.out -coverpkg ./... ./internal/tests -v
 
 .PHONY: test_mysql
 test_mysql:
-	@TYPE=mysql go test -cover -coverpkg ./... ./internal/tests -v
+	@TYPE=mysql go test -cover -coverprofile mysql.out -coverpkg ./... ./internal/tests -v
 
 .PHONY: test_mssql
 test_mssql:
-	@TYPE=mssql go test -cover -coverpkg ./... ./internal/tests -v
+	@TYPE=mssql go test -cover -coverprofile mssql.out -coverpkg ./... ./internal/tests -v
 
 .PHONY: lint
 lint:

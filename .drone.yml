@@ -34,7 +34,7 @@ pipeline:
     environment:
       - MYSQL_TESTHOST=mariadb
     commands:
-      - sleep 10s
+      - sleep 5s
       - make test_mysql
 
   MSSQL:
@@ -45,6 +45,16 @@ pipeline:
       - MSSQL_TESTHOST=172.22.0.25
     commands:
       - make test_mssql
+
+  total_coverage:
+    image: registry.ultraware.nl/ultraware/go-build:latest
+    pull: true
+    commands:
+      - cat unit.out > total.out
+      - tail -n +2 postgres.out >> total.out
+      - tail -n +2 mysql.out >> total.out
+      - tail -n +2 mssql.out >> total.out
+      - go tool cover -func total.out | tail -1
 
 services:
   pgsql:
