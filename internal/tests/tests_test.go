@@ -85,6 +85,7 @@ func runTests(t *testing.T) {
 	testExists(t)
 	testPrepare(t)
 	testSubQuery(t)
+	testCTE(t)
 	testUnionAll(t)
 	if driver == `myqb.Driver` {
 		testDelete(t)
@@ -309,16 +310,28 @@ func testPrepare(test *testing.T) {
 	assert.False(stmt.QueryRow().MustScan(&out))
 }
 
+type twoSQ struct {
+	One   qb.Field
+	Count qb.Field
+}
+
 func testSubQuery(test *testing.T) {
+	testSub(test, func(q *qb.SelectBuilder, sq *twoSQ) {
+		q.SubQuery(&sq.One, &sq.Count)
+	})
+}
+
+func testCTE(test *testing.T) {
+	testSub(test, func(q *qb.SelectBuilder, sq *twoSQ) {
+		q.CTE(&sq.One, &sq.Count)
+	})
+}
+
+func testSub(test *testing.T, sqf func(*qb.SelectBuilder, *twoSQ)) {
 	o, t := model.One(), model.Two()
 
-	var sq struct {
-		One   qb.Field
-		Count qb.Field
-	}
-	t.Select(t.OneID, qf.CountAll()).
-		GroupBy(t.OneID).
-		SubQuery(&sq.One, &sq.Count)
+	var sq twoSQ
+	sqf(t.Select(t.OneID, qf.CountAll()).GroupBy(t.OneID), &sq)
 
 	q := o.Select(o.ID, sq.Count).
 		InnerJoin(sq.One, o.ID)
