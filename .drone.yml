@@ -19,7 +19,6 @@ pipeline:
       - go test -bench=.
 
   PostgreSQL:
-    group: dbtest
     image: registry.ultraware.nl/ultraware/go-build:latest
     pull: true
     environment:
@@ -27,24 +26,21 @@ pipeline:
     commands:
       - make test_postgres
 
+  MSSQL:
+    image: registry.ultraware.nl/ultraware/go-build:latest
+    pull: true
+    environment:
+      - MSSQL_TESTHOST=sqlserver
+    commands:
+      - make test_mssql
+
   MySQL:
-    group: dbtest
     image: registry.ultraware.nl/ultraware/go-build:latest
     pull: true
     environment:
       - MYSQL_TESTHOST=mariadb
     commands:
-      - sleep 5s
       - make test_mysql
-
-  MSSQL:
-    group: dbtest
-    image: registry.ultraware.nl/ultraware/go-build:latest
-    pull: true
-    environment:
-      - MSSQL_TESTHOST=172.22.0.25
-    commands:
-      - make test_mssql
 
   total_coverage:
     image: registry.ultraware.nl/ultraware/go-build:latest
@@ -72,4 +68,21 @@ services:
       - MYSQL_DATABASE=qb_test
       - MYSQL_USER=qb_test
       - MYSQL_PASSWORD=qb_test
-      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+
+  sqlserver:
+    image: microsoft/mssql-server-linux:latest
+    pull: true
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=P@ssw0rd
+    commands:
+      - echo "CREATE DATABASE qb_test;" > setup.sql
+      - echo "GO" >> setup.sql
+      - echo "USE qb_test;" >> setup.sql
+      - echo "GO" >> setup.sql
+      - echo "CREATE LOGIN qb_test WITH PASSWORD = 'qb_testA1';" >> setup.sql
+      - echo "CREATE USER qb_test FOR LOGIN qb_test;" >> setup.sql
+      - echo "EXEC sp_addrolemember 'db_owner', 'qb_test'" >> setup.sql
+      - (sleep 1s; /opt/mssql-tools/bin/sqlcmd -b -S localhost -U SA -P $MSSQL_SA_PASSWORD -i setup.sql) &
+      - /opt/mssql/bin/sqlservr --accept-eula

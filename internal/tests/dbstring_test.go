@@ -24,7 +24,7 @@ func getMysqlDBString() string {
 }
 
 func getMssqlDBString() string {
-	return fmt.Sprintf("sqlserver://qb_test:qb_test@%s:1433?database=qb_test", getHost(`MSSQL`))
+	return fmt.Sprintf("sqlserver://qb_test:qb_testA1@%s:1433?database=qb_test", getHost(`MSSQL`))
 }
 
 const createSQL = `
