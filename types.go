@@ -10,6 +10,7 @@ type Driver interface {
 	ValueString(int) string
 	BoolString(bool) string
 	UpsertSQL(*Table, []Field, Query) (string, []interface{})
+	IgnoreConflictSQL(*Table, []Field) (string, []interface{})
 	LimitOffset(SQL, int, int)
 	Returning(SQLBuilder, Query, []Field) (string, []interface{})
 	TypeName(DataType) string

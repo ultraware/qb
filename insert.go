@@ -14,11 +14,13 @@ func (f defaultField) QueryString(_ *Context) string {
 
 // InsertBuilder builds an INSERT query
 type InsertBuilder struct {
-	table    *Table
-	fields   []Field
-	values   [][]Field
-	update   Query
-	conflict []Field
+	table  *Table
+	fields []Field
+	values [][]Field
+
+	conflict       []Field
+	update         Query
+	ignoreConflict bool
 }
 
 // Values adds values to the query
@@ -39,7 +41,23 @@ func (q *InsertBuilder) Values(values ...interface{}) *InsertBuilder {
 
 // Upsert turns the INSERT query into an upsert query, only usable if your driver supports it
 func (q *InsertBuilder) Upsert(query Query, conflict ...Field) *InsertBuilder {
+	if q.ignoreConflict {
+		panic(`can't upsert and ignore conflicts at the same time`)
+	}
+
 	q.update = query
+	q.conflict = conflict
+
+	return q
+}
+
+// IgnoreConflict ignores conflicts from the insert query
+func (q *InsertBuilder) IgnoreConflict(conflict ...Field) *InsertBuilder {
+	if q.update != nil {
+		panic(`can't upsert and ignore conflicts at the same time`)
+	}
+
+	q.ignoreConflict = true
 	q.conflict = conflict
 
 	return q
@@ -57,6 +75,10 @@ func (q *InsertBuilder) SQL(b SQLBuilder) (string, []interface{}) {
 	sql := b.w.String()
 	if q.update != nil {
 		s, v := b.Context.Driver.UpsertSQL(q.table, q.conflict, q.update)
+		b.Context.Add(v...)
+		sql += s
+	} else if q.ignoreConflict {
+		s, v := b.Context.Driver.IgnoreConflictSQL(q.table, q.conflict)
 		b.Context.Add(v...)
 		sql += s
 	}

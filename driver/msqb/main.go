@@ -37,6 +37,11 @@ func (d Driver) UpsertSQL(t *qb.Table, _ []qb.Field, q qb.Query) (string, []inte
 	panic(`mssql does not support upsert`)
 }
 
+// IgnoreConflictSQL implements qb.Driver
+func (d Driver) IgnoreConflictSQL(_ *qb.Table, _ []qb.Field) (string, []interface{}) {
+	panic(`mssql does not support ignore conflicts`)
+}
+
 // LimitOffset implements qb.Driver
 func (d Driver) LimitOffset(sql qb.SQL, limit, offset int) {
 	if offset > 0 {

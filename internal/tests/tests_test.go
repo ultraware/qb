@@ -70,6 +70,9 @@ func runTests(t *testing.T) {
 		testInsert(t)
 		testUpsert(t)
 	}
+	if driver == `pgqb.Driver` {
+		testIgnoreConflicts(t)
+	}
 
 	if driver == `myqb.Driver` {
 		testUpdate(t)
@@ -132,6 +135,18 @@ func testUpsertSeperate(test *testing.T) {
 	res = db.MustExec(uq)
 
 	assert.Eq(int64(2), res.MustRowsAffected())
+}
+
+func testIgnoreConflicts(test *testing.T) {
+	o := model.One()
+
+	q := o.Insert(o.ID, o.Name).
+		Values(1, `Test 1`).
+		IgnoreConflict(o.ID)
+	res := db.MustExec(q)
+
+	assert := assert.New(test)
+	assert.Eq(int64(0), res.MustRowsAffected())
 }
 
 func testInsert(test *testing.T) {

@@ -27,6 +27,11 @@ func (d Driver) UpsertSQL(_ *qb.Table, _ []qb.Field, _ qb.Query) (string, []inte
 	panic(`This should not be used`)
 }
 
+// IgnoreConflictSQL implements qb.Driver
+func (d Driver) IgnoreConflictSQL(_ *qb.Table, _ []qb.Field) (string, []interface{}) {
+	panic(`This should not be used`)
+}
+
 // LimitOffset implements qb.Driver
 func (d Driver) LimitOffset(sql qb.SQL, limit, offset int) { //nolint: dupl
 	if limit > 0 {
