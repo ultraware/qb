@@ -18,8 +18,10 @@ import (
 	"git.ultraware.nl/NiseVoid/qb/qf"
 )
 
-var db *qbdb.DB
-var driver string
+var (
+	db     *qbdb.DB
+	driver string
+)
 
 func TestEndToEnd(t *testing.T) {
 	if testing.Short() {
@@ -81,6 +83,8 @@ func runTests(t *testing.T) {
 	}
 
 	testRollback(t)
+
+	testSubQueryField(t)
 
 	testSelect(t)
 	testSelectOffset(t)
@@ -206,6 +210,29 @@ func testUpdateReturning(test *testing.T) {
 	assert.Eq(2, number)
 
 	assert.False(r.Next())
+}
+
+func testSubQueryField(test *testing.T) {
+	o, t := model.One(), model.Two()
+
+	sq := o.Select(o.ID).Where(qc.Eq(o.Name, `Test 1.1`))
+
+	q := t.Select(t.Number, t.Comment, t.ModifiedAt).
+		Where(qc.Eq(t.OneID, sq))
+	r := db.QueryRow(q)
+
+	var (
+		number   int
+		comment  string
+		modified *time.Time
+		assert   = assert.New(test)
+	)
+
+	assert.True(r.MustScan(&number, &comment, &modified))
+
+	assert.Eq(1, number)
+	assert.Eq(`Test comment v2`, comment)
+	assert.Nil(modified)
 }
 
 func testSelect(test *testing.T) {

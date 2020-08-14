@@ -17,9 +17,13 @@ var (
 // MakeField returns the value as a Field, no operation performed when the value is already a field.
 // This function is not intended to be called directly
 func MakeField(i interface{}) Field {
-	if f, ok := i.(Field); ok {
+	switch f := i.(type) {
+	case Field:
 		return f
+	case SelectQuery:
+		return subqueryField{f}
 	}
+
 	return Value(i)
 }
 

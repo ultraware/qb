@@ -234,6 +234,15 @@ func Value(v interface{}) Field {
 	return valueField{v}
 }
 
+type subqueryField struct {
+	sq SelectQuery
+}
+
+func (f subqueryField) QueryString(c *Context) string {
+	sql, _ := f.sq.SQL(SQLBuilder{Context: c, w: sqlWriter{indent: 1}})
+	return `(` + strings.TrimSpace(sql) + `)`
+}
+
 ///
 /// Query types
 ///
