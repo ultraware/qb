@@ -125,6 +125,7 @@ func newField(f inputField) field {
 var nameReplacer = strings.NewReplacer(
 	` `, `_`,
 	`-`, `_`,
+	`$`, `_`,
 )
 
 func cleanName(s string) string {
@@ -153,7 +154,7 @@ func cleanName(s string) string {
 
 var pkg string
 
-func init() {
+func initFlags() {
 	log.SetFlags(0)
 
 	flag.StringVar(&pkg, `package`, `model`, `The package name for the output file`)
@@ -166,6 +167,8 @@ func init() {
 }
 
 func main() {
+	initFlags()
+
 	in, err := os.Open(flag.Arg(0))
 	if err != nil {
 		log.Fatal(`Failed to open input file. `, err)
