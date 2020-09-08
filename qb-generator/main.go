@@ -9,6 +9,8 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+
+	"git.ultraware.nl/NiseVoid/qb/internal/filter"
 )
 
 type inputTable struct {
@@ -119,7 +121,7 @@ func getDataType(t string, size int, null bool) dataType {
 }
 
 func newField(f inputField) field {
-	return field{cleanName(f.String), f.String, f.ReadOnly, getDataType(f.DataType, f.Size, f.Nullable)}
+	return field{cleanName(f.String, fTrim), f.String, f.ReadOnly, getDataType(f.DataType, f.Size, f.Nullable)}
 }
 
 var nameReplacer = strings.NewReplacer(
@@ -128,11 +130,17 @@ var nameReplacer = strings.NewReplacer(
 	`$`, `_`,
 )
 
-func cleanName(s string) string {
-	s = nameReplacer.Replace(s)
-
+func cleanName(s string, f filter.Filters) string {
 	parts := strings.Split(s, `.`)
-	parts = strings.Split(parts[len(parts)-1], `_`)
+
+	target := parts[len(parts)-1]
+	for _, re := range f {
+		target = re.ReplaceAllString(target, ``)
+	}
+
+	target = nameReplacer.Replace(target)
+
+	parts = strings.Split(target, `_`)
 	for k := range parts {
 		upper := false
 		for _, v := range fullUpperList {
@@ -152,12 +160,17 @@ func cleanName(s string) string {
 	return strings.Join(parts, ``)
 }
 
-var pkg string
+var (
+	pkg          string
+	tTrim, fTrim filter.Filters
+)
 
 func initFlags() {
 	log.SetFlags(0)
 
 	flag.StringVar(&pkg, `package`, `model`, `The package name for the output file`)
+	flag.Var(&tTrim, `ttrim`, `Regular expressions to clean up table names (runs after removing schema)`)
+	flag.Var(&fTrim, `ftrim`, `Regular expressions to clean up field names`)
 	flag.Parse()
 
 	if len(flag.Args()) != 2 {
@@ -181,7 +194,7 @@ func main() {
 		log.Fatal(`Failed to parse input file. `, err)
 	}
 
-	out, err := os.OpenFile(flag.Arg(1), os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0600)
+	out, err := os.OpenFile(flag.Arg(1), os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o600)
 	if err != nil {
 		log.Fatal(`Failed to open output file. `, err)
 	}
@@ -202,7 +215,7 @@ func generateCode(out io.Writer, input []inputTable) error {
 	tables := make([]table, len(input))
 	for k, v := range input {
 		t := &tables[k]
-		t.Table = cleanName(v.String)
+		t.Table = cleanName(v.String, tTrim)
 		t.Alias = v.Alias
 		t.TableString = v.String
 

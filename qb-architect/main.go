@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 
+	"git.ultraware.nl/NiseVoid/qb/internal/filter"
 	"git.ultraware.nl/NiseVoid/qb/qb-architect/internal/db"
 	"git.ultraware.nl/NiseVoid/qb/qb-architect/internal/db/msarchitect"
 	"git.ultraware.nl/NiseVoid/qb/qb-architect/internal/db/myarchitect"
@@ -21,11 +22,11 @@ var errString = `Please specify a %s, example:` + "\n\t" +
 func main() {
 	dbms := flag.String(`dbms`, ``, `Database type to use: psql, mysql, mssql`)
 
-	var tExclude, tOnly filters
+	var tExclude, tOnly filter.Filters
 	flag.Var(&tExclude, `texclude`, `Regular expressions to exclude tables`)
 	flag.Var(&tOnly, `tonly`, `Regular expressions to whitelist tables, only tables that match at least one are returned`)
 
-	var fExclude, fOnly filters
+	var fExclude, fOnly filter.Filters
 	flag.Var(&fExclude, `fexclude`, `Regular expressions to exclude fields`)
 	flag.Var(&fOnly, `fonly`, `Regular expressions to whitelist fields, only tables that match at least one are returned`)
 
@@ -70,11 +71,11 @@ func main() {
 	}
 }
 
-func filterTables(tables []string, only, exclude filters) []string {
+func filterTables(tables []string, only, exclude filter.Filters) []string {
 	var out []string
 
 	for _, v := range tables {
-		if filter(v, only, exclude) {
+		if applyFilters(v, only, exclude) {
 			out = append(out, v)
 		}
 	}
@@ -84,11 +85,11 @@ func filterTables(tables []string, only, exclude filters) []string {
 	return out
 }
 
-func filterFields(field []db.Field, only, exclude filters) []db.Field {
+func filterFields(field []db.Field, only, exclude filter.Filters) []db.Field {
 	var out []db.Field
 
 	for _, v := range field {
-		if filter(v.Name, only, exclude) {
+		if applyFilters(v.Name, only, exclude) {
 			out = append(out, v)
 		}
 	}
@@ -98,7 +99,7 @@ func filterFields(field []db.Field, only, exclude filters) []db.Field {
 	return out
 }
 
-func filter(name string, only, exclude filters) bool {
+func applyFilters(name string, only, exclude filter.Filters) bool {
 	pass := false
 	for _, re := range only {
 		if re.MatchString(name) {
