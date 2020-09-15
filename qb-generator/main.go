@@ -121,26 +121,30 @@ func getDataType(t string, size int, null bool) dataType {
 }
 
 func newField(f inputField) field {
-	return field{cleanName(f.String, fTrim), f.String, f.ReadOnly, getDataType(f.DataType, f.Size, f.Nullable)}
+	return field{cleanName(f.String, false, fTrim), f.String, f.ReadOnly, getDataType(f.DataType, f.Size, f.Nullable)}
 }
 
 var nameReplacer = strings.NewReplacer(
 	` `, `_`,
 	`-`, `_`,
 	`$`, `_`,
+	`.`, `_`,
 )
 
-func cleanName(s string, f filter.Filters) string {
-	parts := strings.Split(s, `.`)
+func cleanName(s string, trimSchema bool, f filter.Filters) string {
+	if trimSchema {
+		parts := strings.Split(s, `.`)
+		s = parts[len(parts)-1]
+	}
 
-	target := parts[len(parts)-1]
+	target := s
 	for _, re := range f {
 		target = re.ReplaceAllString(target, ``)
 	}
 
 	target = nameReplacer.Replace(target)
 
-	parts = strings.Split(target, `_`)
+	parts := strings.Split(target, `_`)
 	for k := range parts {
 		upper := false
 		for _, v := range fullUpperList {
@@ -215,7 +219,7 @@ func generateCode(out io.Writer, input []inputTable) error {
 	tables := make([]table, len(input))
 	for k, v := range input {
 		t := &tables[k]
-		t.Table = cleanName(v.String, tTrim)
+		t.Table = cleanName(v.String, true, tTrim)
 		t.Alias = v.Alias
 		t.TableString = v.String
 
