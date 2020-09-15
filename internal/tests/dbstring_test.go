@@ -30,10 +30,11 @@ func getMssqlDBString() string {
 const createSQL = `
 CREATE TABLE one (
 	ID int PRIMARY KEY,
-	Name varchar(50) NOT NULL,
-	CreatedAt timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+	"$Name. #()" varchar(50) NOT NULL,
+	created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-CREATE TABLE two (
+
+CREATE TABLE "two $#!" (
 	OneID int,
 	Number int,
 	Comment varchar(100) NOT NULL,

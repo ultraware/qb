@@ -25,12 +25,17 @@ func (d Driver) ValueString(_ int) string {
 	return `?`
 }
 
-// BoolString formats a boolean in a format supported by PostgreSQL
+// BoolString formats a boolean in a format supported by MySQL
 func (d Driver) BoolString(v bool) string {
 	if v {
 		return `1`
 	}
 	return `0`
+}
+
+// EscapeCharacter returns the correct escape character for MySQL
+func (d Driver) EscapeCharacter() string {
+	return "`"
 }
 
 // UpsertSQL implements qb.Driver

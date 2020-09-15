@@ -3,12 +3,12 @@
 		"name": "one",
 		"fields": [
 			{"name": "ID", "read_only": true, "data_type": "int"},
-			{"name": "Name", "data_type": "varchar", "size": 50},
-			{"name": "CreatedAt", "read_only": true, "data_type": "timestamp"}
+			{"name": "$Name. #()", "data_type": "varchar", "size": 50},
+			{"name": "created_at", "read_only": true, "data_type": "timestamp"}
 		]
 	},
 	{
-		"name": "two",
+		"name": "two $#!",
 		"alias": "tw",
 		"fields": [
 			{"name": "OneID", "data_type": "int"},

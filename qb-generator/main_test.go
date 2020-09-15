@@ -10,7 +10,7 @@ import (
 
 func expectCleanName(input, expected string) func(*testing.T) {
 	return func(t *testing.T) {
-		actual := cleanName(input, true, nil)
+		actual := cleanName(input, nil)
 		if actual != expected {
 			t.Errorf(`actual: "%s" does not match expected: "%s"`, actual, expected)
 		}
@@ -74,18 +74,18 @@ func TestCleanNameTrim(t *testing.T) {
 		t.Run(c.re.String(), func(t *testing.T) {
 			assert := assert.New(t)
 
-			out := cleanName(`public.schema$user_tbl`, true, c.re)
+			out := cleanName(`schema$user_tbl`, c.re)
 			assert.Eq(c.expected, out)
 		})
 	}
 }
 
-func TestCleanNameTrimSchema(t *testing.T) {
+func TestRemoveSchema(t *testing.T) {
 	assert := assert.New(t)
 
-	out := cleanName(`public.tbl`, true, nil)
-	assert.Eq(`Tbl`, out)
+	out := removeSchema(`public.tbl`)
+	assert.Eq(`tbl`, out)
 
-	out = cleanName(`parent.field`, false, nil)
-	assert.Eq(`ParentField`, out)
+	out = removeSchema(`dbo.something.idk.tbl`)
+	assert.Eq(`tbl`, out)
 }

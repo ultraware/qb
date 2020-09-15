@@ -6,12 +6,12 @@ import "git.ultraware.nl/NiseVoid/qb"
 
 ///// Tables /////
 var (
-	qbTablesTable = qb.Table{Name: "information_schema.tables"}
+	qbTablesTable = qb.Table{Name: `information_schema.tables`}
 
-	qbTablesFTableName    = qb.TableField{Parent: &qbTablesTable, Name: "table_name"}
-	qbTablesFTableSchema  = qb.TableField{Parent: &qbTablesTable, Name: "table_schema"}
-	qbTablesFTableCatalog = qb.TableField{Parent: &qbTablesTable, Name: "table_catalog"}
-	qbTablesFTableType    = qb.TableField{Parent: &qbTablesTable, Name: "table_type"}
+	qbTablesFTableName    = qb.TableField{Parent: &qbTablesTable, Name: `table_name`}
+	qbTablesFTableSchema  = qb.TableField{Parent: &qbTablesTable, Name: `table_schema`}
+	qbTablesFTableCatalog = qb.TableField{Parent: &qbTablesTable, Name: `table_catalog`}
+	qbTablesFTableType    = qb.TableField{Parent: &qbTablesTable, Name: `table_type`}
 )
 
 // TablesType represents the table "Tables"
@@ -62,15 +62,15 @@ func Tables() *TablesType {
 
 ///// Columns /////
 var (
-	qbColumnsTable = qb.Table{Name: "information_schema.columns"}
+	qbColumnsTable = qb.Table{Name: `information_schema.columns`}
 
-	qbColumnsFColumnName             = qb.TableField{Parent: &qbColumnsTable, Name: "column_name"}
-	qbColumnsFTableSchema            = qb.TableField{Parent: &qbColumnsTable, Name: "table_schema"}
-	qbColumnsFDataType               = qb.TableField{Parent: &qbColumnsTable, Name: "data_type"}
-	qbColumnsFIsNullable             = qb.TableField{Parent: &qbColumnsTable, Name: "is_nullable"}
-	qbColumnsFCharacterMaximumLength = qb.TableField{Parent: &qbColumnsTable, Name: "character_maximum_length"}
-	qbColumnsFTableCatalog           = qb.TableField{Parent: &qbColumnsTable, Name: "table_catalog"}
-	qbColumnsFTableName              = qb.TableField{Parent: &qbColumnsTable, Name: "table_name"}
+	qbColumnsFColumnName             = qb.TableField{Parent: &qbColumnsTable, Name: `column_name`}
+	qbColumnsFTableSchema            = qb.TableField{Parent: &qbColumnsTable, Name: `table_schema`}
+	qbColumnsFDataType               = qb.TableField{Parent: &qbColumnsTable, Name: `data_type`}
+	qbColumnsFIsNullable             = qb.TableField{Parent: &qbColumnsTable, Name: `is_nullable`}
+	qbColumnsFCharacterMaximumLength = qb.TableField{Parent: &qbColumnsTable, Name: `character_maximum_length`}
+	qbColumnsFTableCatalog           = qb.TableField{Parent: &qbColumnsTable, Name: `table_catalog`}
+	qbColumnsFTableName              = qb.TableField{Parent: &qbColumnsTable, Name: `table_name`}
 )
 
 // ColumnsType represents the table "Columns"

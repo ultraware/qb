@@ -31,6 +31,11 @@ func (d Driver) BoolString(v bool) string {
 	return strconv.FormatBool(v)
 }
 
+// EscapeCharacter returns the correct escape character for PostgreSQL
+func (d Driver) EscapeCharacter() string {
+	return `"`
+}
+
 // UpsertSQL implements qb.Driver
 func (d Driver) UpsertSQL(t *qb.Table, conflict []qb.Field, q qb.Query) (string, []interface{}) {
 	c := qb.NewContext(d, qb.NoAlias())

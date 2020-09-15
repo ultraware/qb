@@ -6,11 +6,11 @@ import "git.ultraware.nl/NiseVoid/qb"
 
 ///// One /////
 var (
-	qbOneTable = qb.Table{Name: "one"}
+	qbOneTable = qb.Table{Name: `one`}
 
-	qbOneFID        = qb.TableField{Parent: &qbOneTable, Name: "ID", ReadOnly: true, Type: qb.Int, Size: 32}
-	qbOneFName      = qb.TableField{Parent: &qbOneTable, Name: "Name", Type: qb.String, Size: 50}
-	qbOneFCreatedAt = qb.TableField{Parent: &qbOneTable, Name: "CreatedAt", ReadOnly: true, Type: qb.Time}
+	qbOneFID        = qb.TableField{Parent: &qbOneTable, Name: `ID`, ReadOnly: true, Type: qb.Int, Size: 32}
+	qbOneFName      = qb.TableField{Parent: &qbOneTable, Name: `$Name. #()`, Escape: true, Type: qb.String, Size: 50}
+	qbOneFCreatedAt = qb.TableField{Parent: &qbOneTable, Name: `created_at`, ReadOnly: true, Type: qb.Time}
 )
 
 // OneType represents the table "One"
@@ -59,12 +59,12 @@ func One() *OneType {
 
 ///// Two /////
 var (
-	qbTwoTable = qb.Table{Name: "two", Alias: "tw"}
+	qbTwoTable = qb.Table{Name: `two $#!`, Alias: `tw`, Escape: true}
 
-	qbTwoFOneID      = qb.TableField{Parent: &qbTwoTable, Name: "OneID", Type: qb.Int, Size: 32}
-	qbTwoFNumber     = qb.TableField{Parent: &qbTwoTable, Name: "Number", Type: qb.Int, Size: 32}
-	qbTwoFComment    = qb.TableField{Parent: &qbTwoTable, Name: "Comment", Type: qb.String, Size: 100}
-	qbTwoFModifiedAt = qb.TableField{Parent: &qbTwoTable, Name: "ModifiedAt", Type: qb.Time, Nullable: true}
+	qbTwoFOneID      = qb.TableField{Parent: &qbTwoTable, Name: `OneID`, Type: qb.Int, Size: 32}
+	qbTwoFNumber     = qb.TableField{Parent: &qbTwoTable, Name: `Number`, Type: qb.Int, Size: 32}
+	qbTwoFComment    = qb.TableField{Parent: &qbTwoTable, Name: `Comment`, Type: qb.String, Size: 100}
+	qbTwoFModifiedAt = qb.TableField{Parent: &qbTwoTable, Name: `ModifiedAt`, Type: qb.Time, Nullable: true}
 )
 
 // TwoType represents the table "Two"

@@ -15,13 +15,17 @@ func initDatabase(driverName, connectionString string) *sql.DB {
 		panic(err)
 	}
 
-	_, _ = db.Exec(`DROP TABLE one, two`)
-
+	dropQuery := `DROP TABLE one, "two $#!"`
 	sql := createSQL
 	if driverName != `postgres` {
 		sql = strings.Replace(sql, `timestamp`, `datetime`, -1)
 	}
+	if driverName == `mysql` {
+		sql = strings.Replace(sql, `"`, "`", -1)
+		dropQuery = strings.Replace(dropQuery, `"`, "`", -1)
+	}
 
+	_, _ = db.Exec(dropQuery)
 	_, err = db.Exec(sql)
 	if err != nil {
 		panic(err)

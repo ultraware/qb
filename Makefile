@@ -3,10 +3,6 @@ all: setup test lint
 
 .PHONY: setup
 setup:
-	@go install ./qb-generator
-	@printf "Running go generate ...\n"
-	@go generate ./...
-	@printf "Getting dependencies ...\n"
 	@go get -t ./...
 	@printf "\n\n"
 

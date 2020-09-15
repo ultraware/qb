@@ -9,6 +9,7 @@ import (
 type Driver interface {
 	ValueString(int) string
 	BoolString(bool) string
+	EscapeCharacter() string
 	UpsertSQL(*Table, []Field, Query) (string, []interface{})
 	IgnoreConflictSQL(*Table, []Field) (string, []interface{})
 	LimitOffset(SQL, int, int)
@@ -41,8 +42,9 @@ type Source interface {
 // Table represents a table in the database.
 // This type is used by qb-generator's generated code and is not intended to be used manually
 type Table struct {
-	Name  string
-	Alias string
+	Name   string
+	Alias  string
+	Escape bool
 }
 
 // TableString implements Source
@@ -51,7 +53,12 @@ func (t *Table) TableString(c *Context) string {
 	if len(alias) > 0 {
 		alias = ` AS ` + alias
 	}
-	return t.Name + alias
+	name := t.Name
+	if t.Escape {
+		ec := c.Driver.EscapeCharacter()
+		name = ec + name + ec
+	}
+	return name + alias
 }
 
 func (t *Table) aliasString() string {
@@ -192,6 +199,7 @@ type Field interface {
 type TableField struct {
 	Parent   Source
 	Name     string
+	Escape   bool
 	ReadOnly bool
 	Nullable bool
 	Type     DataType
@@ -204,7 +212,12 @@ func (f TableField) QueryString(c *Context) string {
 	if alias != `` {
 		alias += `.`
 	}
-	return alias + f.Name
+	name := f.Name
+	if f.Escape {
+		ec := c.Driver.EscapeCharacter()
+		name = ec + name + ec
+	}
+	return alias + name
 }
 
 // Copy creates a new instance of the field with a different Parent

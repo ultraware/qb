@@ -6,10 +6,10 @@ import "git.ultraware.nl/NiseVoid/qb"
 
 ///// Tables /////
 var (
-	qbTablesTable = qb.Table{Name: "information_schema.tables"}
+	qbTablesTable = qb.Table{Name: `information_schema.tables`}
 
-	qbTablesFTableName   = qb.TableField{Parent: &qbTablesTable, Name: "table_name", ReadOnly: true}
-	qbTablesFTableSchema = qb.TableField{Parent: &qbTablesTable, Name: "table_schema", ReadOnly: true}
+	qbTablesFTableName   = qb.TableField{Parent: &qbTablesTable, Name: `table_name`, ReadOnly: true}
+	qbTablesFTableSchema = qb.TableField{Parent: &qbTablesTable, Name: `table_schema`, ReadOnly: true}
 )
 
 // TablesType represents the table "Tables"
@@ -56,14 +56,14 @@ func Tables() *TablesType {
 
 ///// Columns /////
 var (
-	qbColumnsTable = qb.Table{Name: "information_schema.columns"}
+	qbColumnsTable = qb.Table{Name: `information_schema.columns`}
 
-	qbColumnsFColumnName             = qb.TableField{Parent: &qbColumnsTable, Name: "column_name", ReadOnly: true}
-	qbColumnsFDataType               = qb.TableField{Parent: &qbColumnsTable, Name: "data_type", ReadOnly: true}
-	qbColumnsFIsNullable             = qb.TableField{Parent: &qbColumnsTable, Name: "is_nullable", ReadOnly: true}
-	qbColumnsFCharacterMaximumLength = qb.TableField{Parent: &qbColumnsTable, Name: "character_maximum_length", ReadOnly: true}
-	qbColumnsFTableSchema            = qb.TableField{Parent: &qbColumnsTable, Name: "table_schema", ReadOnly: true}
-	qbColumnsFTableName              = qb.TableField{Parent: &qbColumnsTable, Name: "table_name", ReadOnly: true}
+	qbColumnsFColumnName             = qb.TableField{Parent: &qbColumnsTable, Name: `column_name`, ReadOnly: true}
+	qbColumnsFDataType               = qb.TableField{Parent: &qbColumnsTable, Name: `data_type`, ReadOnly: true}
+	qbColumnsFIsNullable             = qb.TableField{Parent: &qbColumnsTable, Name: `is_nullable`, ReadOnly: true}
+	qbColumnsFCharacterMaximumLength = qb.TableField{Parent: &qbColumnsTable, Name: `character_maximum_length`, ReadOnly: true}
+	qbColumnsFTableSchema            = qb.TableField{Parent: &qbColumnsTable, Name: `table_schema`, ReadOnly: true}
+	qbColumnsFTableName              = qb.TableField{Parent: &qbColumnsTable, Name: `table_name`, ReadOnly: true}
 )
 
 // ColumnsType represents the table "Columns"

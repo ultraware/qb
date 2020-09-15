@@ -24,12 +24,17 @@ func (d Driver) ValueString(i int) string {
 	return `@p` + strconv.Itoa(i)
 }
 
-// BoolString formats a boolean in a format supported by PostgreSQL
+// BoolString formats a boolean in a format supported by MSSQL
 func (d Driver) BoolString(v bool) string {
 	if v {
 		return `1`
 	}
 	return `0`
+}
+
+// EscapeCharacter returns the correct escape character for MSSQL
+func (d Driver) EscapeCharacter() string {
+	return `"`
 }
 
 // UpsertSQL implements qb.Driver

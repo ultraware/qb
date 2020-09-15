@@ -3,12 +3,13 @@ package main // import "git.ultraware.nl/NiseVoid/qb/qb-generator"
 import (
 	"encoding/json"
 	"flag"
-	"html/template"
 	"io"
 	"log"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
+	"text/template"
 
 	"git.ultraware.nl/NiseVoid/qb/internal/filter"
 )
@@ -31,12 +32,14 @@ type table struct {
 	Table       string
 	TableString string
 	Alias       string
+	Escape      bool
 	Fields      []field
 }
 
 type field struct {
 	Name     string
 	String   string
+	Escape   bool
 	ReadOnly bool
 	DataType dataType
 }
@@ -120,31 +123,31 @@ func getDataType(t string, size int, null bool) dataType {
 	return dataType{``, size, null}
 }
 
-func newField(f inputField) field {
-	return field{cleanName(f.String, false, fTrim), f.String, f.ReadOnly, getDataType(f.DataType, f.Size, f.Nullable)}
+var escapeRE = regexp.MustCompile(`[^a-zA-Z0-9_$]`)
+
+func shouldEscape(s string) bool {
+	return escapeRE.MatchString(s)
 }
 
-var nameReplacer = strings.NewReplacer(
-	` `, `_`,
-	`-`, `_`,
-	`$`, `_`,
-	`.`, `_`,
-)
+func newField(f inputField) field {
+	return field{cleanName(f.String, fTrim), f.String, shouldEscape(f.String), f.ReadOnly, getDataType(f.DataType, f.Size, f.Nullable)}
+}
 
-func cleanName(s string, trimSchema bool, f filter.Filters) string {
-	if trimSchema {
-		parts := strings.Split(s, `.`)
-		s = parts[len(parts)-1]
-	}
+func removeSchema(s string) string {
+	parts := strings.Split(s, `.`)
+	return parts[len(parts)-1]
+}
 
-	target := s
+var nameRE = regexp.MustCompile(`[^a-zA-Z0-9_]`)
+
+func cleanName(s string, f filter.Filters) string {
 	for _, re := range f {
-		target = re.ReplaceAllString(target, ``)
+		s = re.ReplaceAllString(s, ``)
 	}
 
-	target = nameReplacer.Replace(target)
+	s = nameRE.ReplaceAllString(s, `_`)
 
-	parts := strings.Split(target, `_`)
+	parts := strings.Split(s, `_`)
 	for k := range parts {
 		upper := false
 		for _, v := range fullUpperList {
@@ -219,9 +222,10 @@ func generateCode(out io.Writer, input []inputTable) error {
 	tables := make([]table, len(input))
 	for k, v := range input {
 		t := &tables[k]
-		t.Table = cleanName(v.String, true, tTrim)
+		t.Table = cleanName(removeSchema(v.String), tTrim)
 		t.Alias = v.Alias
 		t.TableString = v.String
+		t.Escape = shouldEscape(removeSchema(v.String))
 
 		for _, f := range v.Fields {
 			t.Fields = append(t.Fields, newField(f))

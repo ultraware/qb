@@ -22,6 +22,11 @@ func (d Driver) BoolString(v bool) string {
 	return `f`
 }
 
+// EscapeCharacter returns the character to escape table and field names
+func (d Driver) EscapeCharacter() string {
+	return `"`
+}
+
 // UpsertSQL implements qb.Driver
 func (d Driver) UpsertSQL(_ *qb.Table, _ []qb.Field, _ qb.Query) (string, []interface{}) {
 	panic(`This should not be used`)

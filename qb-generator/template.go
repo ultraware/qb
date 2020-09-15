@@ -2,14 +2,18 @@ package main
 
 var codeTemplate = `///// {{.Table}} /////
 var (
-	qb{{.Table}}Table = qb.Table{Name: "{{.TableString}}"{{- if .Alias }}, Alias: "{{.Alias}}"{{end -}}}
+	qb{{.Table}}Table = qb.Table{Name: ` + "`" + `{{.TableString}}` + "`" + `
+		{{- if .Alias }}, Alias: ` + "`" + `{{.Alias}}` + "`" + `{{end -}}
+		{{- if .Escape }}, Escape: true{{end -}}
+	}
 
 {{range .Fields -}}
-	qb{{$.Table}}F{{.Name}} = qb.TableField{Parent: &qb{{$.Table}}Table, Name: "{{.String}}",
-	{{- if .ReadOnly }}ReadOnly: true,{{end -}}
-	{{- if .DataType.Name }}Type: qb.{{.DataType.Name}},{{end -}}
-	{{- if .DataType.Size }}Size: {{.DataType.Size}},{{end -}}
-	{{- if .DataType.Null }}Nullable: true,{{end -}}
+	qb{{$.Table}}F{{.Name}} = qb.TableField{Parent: &qb{{$.Table}}Table, Name: ` + "`" + `{{.String}}` + "`" + `,
+		{{- if .Escape }}Escape: true,{{end -}}
+		{{- if .ReadOnly }}ReadOnly: true,{{end -}}
+		{{- if .DataType.Name }}Type: qb.{{.DataType.Name}},{{end -}}
+		{{- if .DataType.Size }}Size: {{.DataType.Size}},{{end -}}
+		{{- if .DataType.Null }}Nullable: true,{{end -}}
 }
 {{end}}
 )

@@ -6,16 +6,16 @@ import "git.ultraware.nl/NiseVoid/qb"
 
 ///// PgAttribute /////
 var (
-	qbPgAttributeTable = qb.Table{Name: "pg_attribute"}
+	qbPgAttributeTable = qb.Table{Name: `pg_attribute`}
 
-	qbPgAttributeFAttname      = qb.TableField{Parent: &qbPgAttributeTable, Name: "attname"}
-	qbPgAttributeFAtttypid     = qb.TableField{Parent: &qbPgAttributeTable, Name: "atttypid"}
-	qbPgAttributeFAttlen       = qb.TableField{Parent: &qbPgAttributeTable, Name: "attlen"}
-	qbPgAttributeFAtttypmod    = qb.TableField{Parent: &qbPgAttributeTable, Name: "atttypmod"}
-	qbPgAttributeFAttrelid     = qb.TableField{Parent: &qbPgAttributeTable, Name: "attrelid"}
-	qbPgAttributeFAttnotnull   = qb.TableField{Parent: &qbPgAttributeTable, Name: "attnotnull"}
-	qbPgAttributeFAttnum       = qb.TableField{Parent: &qbPgAttributeTable, Name: "attnum"}
-	qbPgAttributeFAttisdropped = qb.TableField{Parent: &qbPgAttributeTable, Name: "attisdropped"}
+	qbPgAttributeFAttname      = qb.TableField{Parent: &qbPgAttributeTable, Name: `attname`}
+	qbPgAttributeFAtttypid     = qb.TableField{Parent: &qbPgAttributeTable, Name: `atttypid`}
+	qbPgAttributeFAttlen       = qb.TableField{Parent: &qbPgAttributeTable, Name: `attlen`}
+	qbPgAttributeFAtttypmod    = qb.TableField{Parent: &qbPgAttributeTable, Name: `atttypmod`}
+	qbPgAttributeFAttrelid     = qb.TableField{Parent: &qbPgAttributeTable, Name: `attrelid`}
+	qbPgAttributeFAttnotnull   = qb.TableField{Parent: &qbPgAttributeTable, Name: `attnotnull`}
+	qbPgAttributeFAttnum       = qb.TableField{Parent: &qbPgAttributeTable, Name: `attnum`}
+	qbPgAttributeFAttisdropped = qb.TableField{Parent: &qbPgAttributeTable, Name: `attisdropped`}
 )
 
 // PgAttributeType represents the table "PgAttribute"
@@ -74,10 +74,10 @@ func PgAttribute() *PgAttributeType {
 
 ///// Tables /////
 var (
-	qbTablesTable = qb.Table{Name: "information_schema.tables"}
+	qbTablesTable = qb.Table{Name: `information_schema.tables`}
 
-	qbTablesFTableName   = qb.TableField{Parent: &qbTablesTable, Name: "table_name"}
-	qbTablesFTableSchema = qb.TableField{Parent: &qbTablesTable, Name: "table_schema"}
+	qbTablesFTableName   = qb.TableField{Parent: &qbTablesTable, Name: `table_name`}
+	qbTablesFTableSchema = qb.TableField{Parent: &qbTablesTable, Name: `table_schema`}
 )
 
 // TablesType represents the table "Tables"
@@ -124,12 +124,12 @@ func Tables() *TablesType {
 
 ///// Columns /////
 var (
-	qbColumnsTable = qb.Table{Name: "information_schema.columns"}
+	qbColumnsTable = qb.Table{Name: `information_schema.columns`}
 
-	qbColumnsFColumnName             = qb.TableField{Parent: &qbColumnsTable, Name: "column_name"}
-	qbColumnsFTableSchema            = qb.TableField{Parent: &qbColumnsTable, Name: "table_schema"}
-	qbColumnsFTableName              = qb.TableField{Parent: &qbColumnsTable, Name: "table_name"}
-	qbColumnsFCharacterMaximumLength = qb.TableField{Parent: &qbColumnsTable, Name: "character_maximum_length"}
+	qbColumnsFColumnName             = qb.TableField{Parent: &qbColumnsTable, Name: `column_name`}
+	qbColumnsFTableSchema            = qb.TableField{Parent: &qbColumnsTable, Name: `table_schema`}
+	qbColumnsFTableName              = qb.TableField{Parent: &qbColumnsTable, Name: `table_name`}
+	qbColumnsFCharacterMaximumLength = qb.TableField{Parent: &qbColumnsTable, Name: `character_maximum_length`}
 )
 
 // ColumnsType represents the table "Columns"
