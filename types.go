@@ -173,7 +173,7 @@ func (t *SubQuery) TableString(c *Context) string {
 }
 
 func getSubQuerySQL(sql string) string {
-	return `(` + NEWLINE + INDENT + strings.Replace(strings.TrimSuffix(sql, "\n"), "\n", "\n"+INDENT, -1) + NEWLINE + `)`
+	return `(` + NEWLINE + INDENT + strings.ReplaceAll(strings.TrimSuffix(sql, "\n"), "\n", "\n"+INDENT) + NEWLINE + `)`
 }
 
 func (t *SubQuery) aliasString() string {

@@ -51,7 +51,7 @@ func (d Driver) UpsertSQL(t *qb.Table, conflict []qb.Field, q qb.Query) (string,
 	if !strings.HasPrefix(usql, `UPDATE `+t.Name) {
 		panic(`Update does not update the correct table`)
 	}
-	usql = strings.Replace(usql, `UPDATE `+t.Name, `UPDATE`, -1)
+	usql = strings.ReplaceAll(usql, `UPDATE `+t.Name, `UPDATE`)
 
 	return `ON CONFLICT (` + sql + `) DO ` + usql, values
 }

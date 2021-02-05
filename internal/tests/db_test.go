@@ -18,11 +18,11 @@ func initDatabase(driverName, connectionString string) *sql.DB {
 	dropQuery := `DROP TABLE one, "two $#!"`
 	sql := createSQL
 	if driverName != `postgres` {
-		sql = strings.Replace(sql, `timestamp`, `datetime`, -1)
+		sql = strings.ReplaceAll(sql, `timestamp`, `datetime`)
 	}
 	if driverName == `mysql` {
-		sql = strings.Replace(sql, `"`, "`", -1)
-		dropQuery = strings.Replace(dropQuery, `"`, "`", -1)
+		sql = strings.ReplaceAll(sql, `"`, "`")
+		dropQuery = strings.ReplaceAll(dropQuery, `"`, "`")
 	}
 
 	_, _ = db.Exec(dropQuery)

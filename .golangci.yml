@@ -72,6 +72,9 @@ issues:
     - linters:
         - stylecheck
       text: "ST1000:"
+    - linters:
+        - gocritic
+      text: "commentFormatting:"
 
   exclude-use-default: false
   max-per-linter: 0
