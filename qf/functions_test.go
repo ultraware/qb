@@ -50,12 +50,12 @@ func TestAll(t *testing.T) { // nolint: funlen
 	check(t, Floor(f1), `floor(A)`)
 	check(t, Round(f1, 2), `round(A, ?)`)
 
-	check(t, Add(f1, f2), `A + B`)
-	check(t, Sub(f1, f2), `A - B`)
-	check(t, Mult(f1, f2), `A * B`)
-	check(t, Div(f1, f2), `A / B`)
-	check(t, Mod(f1, f2), `A % B`)
-	check(t, Pow(f1, f2), `A ^ B`)
+	check(t, Add(f1, f2), `(A + B)`)
+	check(t, Sub(f1, f2), `(A - B)`)
+	check(t, Mult(f1, f2), `(A * B)`)
+	check(t, Div(f1, f2), `(A / B)`)
+	check(t, Mod(f1, f2), `(A % B)`)
+	check(t, Pow(f1, f2), `(A ^ B)`)
 
 	fails(func() {
 		Excluded(f1)
