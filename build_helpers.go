@@ -36,11 +36,15 @@ func ConcatQuery(c *Context, values ...interface{}) string {
 		switch v := val.(type) {
 		case (Field):
 			s.WriteString(v.QueryString(c))
+		case (Condition):
+			s.WriteString(v(c))
 		case (SelectQuery):
 			sql, _ := v.SQL(SQLBuilder{Context: c})
 			s.WriteString(getSubQuerySQL(sql))
 		case (string):
 			s.WriteString(v)
+		default:
+			panic(`Can only use strings, Fields, Conditions and SelectQueries to build SQL`)
 		}
 	}
 	return s.String()
