@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	db     *qbdb.DB
+	db     qbdb.DB
 	driver string
 )
 
@@ -45,10 +45,10 @@ func TestEndToEnd(t *testing.T) {
 
 func startTests(t *testing.T, d *sql.DB) {
 	db = autoqb.New(d)
-	driver = reflect.TypeOf(db.Driver).String()
+	driver = reflect.TypeOf(db.Driver()).String()
 
 	if testing.Verbose() {
-		db.Debug = true
+		db.SetDebug(true)
 		fmt.Println()
 		fmt.Println(testutil.Info(`Testing with:`, driver))
 		fmt.Println()

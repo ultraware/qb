@@ -7,7 +7,7 @@ import (
 	"git.ultraware.nl/NiseVoid/qb/internal/testutil"
 )
 
-var db = New(Driver{}, nil)
+var database = New(Driver{}, nil).(*db)
 
 type Valuer int
 
@@ -28,7 +28,7 @@ func TestPrint(t *testing.T) {
 
 	c := 0
 	for k, v := range tests {
-		out, _ := db.printType(k, &c)
+		out, _ := database.printType(k, &c)
 		testutil.Compare(t, v, out)
 	}
 }
@@ -45,7 +45,7 @@ func TestPrepareSQL(t *testing.T) {
 	}
 
 	for k, v := range testIn {
-		out, _ := db.prepareSQL(test, v)
+		out, _ := database.prepareSQL(test, v)
 		testutil.Compare(t, testOut[k], out)
 	}
 }
@@ -54,6 +54,6 @@ func BenchmarkPrepareSQL(b *testing.B) {
 	test := `SELECT a + ?, ? FROM tbl WHERE str IN (?,?,?,?,?,?)`
 
 	for i := 0; i < b.N; i++ {
-		db.prepareSQL(test, []interface{}{`abc`, true, 1, `defg`, `hijk`, `lmnop`, `qrstuvw`, `xyz`})
+		database.prepareSQL(test, []interface{}{`abc`, true, 1, `defg`, `hijk`, `lmnop`, `qrstuvw`, `xyz`})
 	}
 }

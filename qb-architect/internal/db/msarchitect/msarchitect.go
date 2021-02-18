@@ -19,7 +19,7 @@ import (
 
 // Driver implements db.Driver
 type Driver struct {
-	DB *qbdb.DB
+	DB qbdb.DB
 }
 
 // New opens a database connection and returns a Driver

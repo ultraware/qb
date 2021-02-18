@@ -10,10 +10,10 @@ import (
 	"git.ultraware.nl/NiseVoid/qb"
 )
 
-func (db QueryTarget) printType(v interface{}, c *int) (string, bool) {
+func (db queryTarget) printType(v interface{}, c *int) (string, bool) {
 	if _, ok := v.(driver.Valuer); ok {
 		(*c)++
-		return db.Driver.ValueString(*c), true
+		return db.driver.ValueString(*c), true
 	}
 	if v == nil {
 		return `NULL`, false
@@ -26,19 +26,19 @@ func (db QueryTarget) printType(v interface{}, c *int) (string, bool) {
 	case reflect.Float32, reflect.Float64:
 		return strconv.FormatFloat(t.Float(), 'g', -1, 64), false
 	case reflect.Bool:
-		return db.Driver.BoolString(t.Bool()), false
+		return db.driver.BoolString(t.Bool()), false
 	default:
 		(*c)++
-		return db.Driver.ValueString(*c), true
+		return db.driver.ValueString(*c), true
 	}
 }
 
 // Render returns the generated SQL and values without executing the query
-func (db QueryTarget) Render(q qb.Query) (string, []interface{}) {
+func (db queryTarget) Render(q qb.Query) (string, []interface{}) {
 	return db.prepare(q)
 }
 
-func (db QueryTarget) ctes(ctes []*qb.CTE, done map[*qb.CTE]bool, b qb.SQLBuilder) []string {
+func (db queryTarget) ctes(ctes []*qb.CTE, done map[*qb.CTE]bool, b qb.SQLBuilder) []string {
 	var list []string // nolint: prealloc
 
 	for _, v := range ctes {
@@ -74,8 +74,8 @@ func shouldContext(q qb.Query) bool {
 	return false
 }
 
-func (db QueryTarget) prepare(q qb.Query) (string, []interface{}) {
-	b := qb.NewSQLBuilder(db.Driver)
+func (db queryTarget) prepare(q qb.Query) (string, []interface{}) {
+	b := qb.NewSQLBuilder(db.driver)
 
 	if shouldContext(q) {
 		b.Context = qb.NewContext(b.Context.Driver, qb.AliasGenerator())
@@ -99,7 +99,7 @@ func (db QueryTarget) prepare(q qb.Query) (string, []interface{}) {
 	return db.prepareSQL(s, v)
 }
 
-func (db QueryTarget) prepareSQL(s string, v []interface{}) (string, []interface{}) {
+func (db queryTarget) prepareSQL(s string, v []interface{}) (string, []interface{}) {
 	vc := 0
 	c := 0
 	b := &strings.Builder{}
@@ -128,22 +128,22 @@ func (db QueryTarget) prepareSQL(s string, v []interface{}) (string, []interface
 	return b.String(), new
 }
 
-func (db QueryTarget) log(s string, v []interface{}) {
-	if db.Debug {
+func (db queryTarget) log(s string, v []interface{}) {
+	if db.debug {
 		fmt.Printf("-- Running query:\n%s-- With values: %v\n\n", s, v)
 	}
 }
 
 // Query executes the given SelectQuery on the database
-func (db QueryTarget) Query(q qb.SelectQuery) (Rows, error) {
+func (db queryTarget) Query(q qb.SelectQuery) (Rows, error) {
 	s, v := db.prepare(q)
-	r, err := db.src.Query(s, v...)
-	return Rows{r}, err
+	r, err := db.RawQuery(s, v...)
+	return r, err
 }
 
 // MustQuery executes the given SelectQuery on the database
 // If an error occurs returned it will panic
-func (db QueryTarget) MustQuery(q qb.SelectQuery) Rows {
+func (db queryTarget) MustQuery(q qb.SelectQuery) Rows {
 	r, err := db.Query(q)
 	if err != nil {
 		panic(err)
@@ -151,25 +151,46 @@ func (db QueryTarget) MustQuery(q qb.SelectQuery) Rows {
 	return r
 }
 
+// RawQuery executes the given raw query on the database
+func (db queryTarget) RawQuery(s string, v ...interface{}) (Rows, error) {
+	r, err := db.src.Query(s, v...)
+	return Rows{r}, err
+}
+
+// MustRawQuery executes the given raw query on the database
+// If an error occurs returned it will panic
+func (db queryTarget) MustRawQuery(s string, v ...interface{}) Rows {
+	r, err := db.RawQuery(s, v)
+	if err != nil {
+		panic(err)
+	}
+	return r
+}
+
 // QueryRow executes the given SelectQuery on the database, only returns one row
-func (db QueryTarget) QueryRow(q qb.SelectQuery) Row {
+func (db queryTarget) QueryRow(q qb.SelectQuery) Row {
 	if sq, ok := q.(*qb.SelectBuilder); ok {
 		sq.Limit(1)
 	}
 
 	s, v := db.prepare(q)
+	return db.RawQueryRow(s, v...)
+}
+
+// RawQueryRow executes the given raw query on the database, only returns one row
+func (db queryTarget) RawQueryRow(s string, v ...interface{}) Row {
 	return Row{db.src.QueryRow(s, v...)}
 }
 
 // Exec executes the given query, returns only an error
-func (db QueryTarget) Exec(q qb.Query) (Result, error) {
+func (db queryTarget) Exec(q qb.Query) (Result, error) {
 	s, v := db.prepare(q)
 	return db.RawExec(s, v...)
 }
 
 // MustExec executes the given query
 // If an error occurs returned it will panic
-func (db QueryTarget) MustExec(q qb.Query) Result {
+func (db queryTarget) MustExec(q qb.Query) Result {
 	res, err := db.Exec(q)
 	if err != nil {
 		panic(err)
@@ -178,14 +199,14 @@ func (db QueryTarget) MustExec(q qb.Query) Result {
 }
 
 // RawExec executes the given SQL with the given params directly on the database
-func (db QueryTarget) RawExec(s string, v ...interface{}) (Result, error) {
+func (db queryTarget) RawExec(s string, v ...interface{}) (Result, error) {
 	r, err := db.src.Exec(s, v...)
 	return Result{r}, err
 }
 
 // MustRawExec executes the given SQL with the given params directly on the database
 // If an error occurs returned it will panic
-func (db QueryTarget) MustRawExec(s string, v ...interface{}) Result {
+func (db queryTarget) MustRawExec(s string, v ...interface{}) Result {
 	res, err := db.RawExec(s, v...)
 	if err != nil {
 		panic(err)
@@ -194,7 +215,7 @@ func (db QueryTarget) MustRawExec(s string, v ...interface{}) Result {
 }
 
 // Prepare prepares a query for efficient repeated executions
-func (db QueryTarget) Prepare(q qb.Query) (*Stmt, error) {
+func (db queryTarget) Prepare(q qb.Query) (*Stmt, error) {
 	s, v := db.prepare(q)
 
 	stmt, err := db.src.Prepare(s)
@@ -207,7 +228,7 @@ func (db QueryTarget) Prepare(q qb.Query) (*Stmt, error) {
 
 // MustPrepare prepares a query for efficient repeated executions
 // If an error occurs returned it will panic
-func (db QueryTarget) MustPrepare(q qb.Query) *Stmt {
+func (db queryTarget) MustPrepare(q qb.Query) *Stmt {
 	stmt, err := db.Prepare(q)
 	if err != nil {
 		panic(err)

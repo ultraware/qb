@@ -15,7 +15,7 @@ import (
 type Driver struct{}
 
 // New returns the driver
-func New(db *sql.DB) *qbdb.DB {
+func New(db *sql.DB) qbdb.DB {
 	return qbdb.New(Driver{}, db)
 }
 

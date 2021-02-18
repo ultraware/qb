@@ -9,30 +9,47 @@ import (
 // Target is a target for a query, either a plain DB or a Tx
 type Target interface {
 	Render(qb.Query) (string, []interface{})
+
 	Query(qb.SelectQuery) (Rows, error)
+	RawQuery(string, ...interface{}) (Rows, error)
 	MustQuery(qb.SelectQuery) Rows
+	MustRawQuery(string, ...interface{}) Rows
+
 	QueryRow(qb.SelectQuery) Row
+	RawQueryRow(string, ...interface{}) Row
+
 	Exec(q qb.Query) (Result, error)
+	RawExec(string, ...interface{}) (Result, error)
 	MustExec(q qb.Query) Result
-	RawExec(s string, v ...interface{}) (Result, error)
-	MustRawExec(s string, v ...interface{}) Result
-	Prepare(q qb.Query) (*Stmt, error)
-	MustPrepare(q qb.Query) *Stmt
+	MustRawExec(string, ...interface{}) Result
+
+	Prepare(qb.Query) (*Stmt, error)
+	MustPrepare(qb.Query) *Stmt
+
+	Driver() qb.Driver
+	SetDebug(bool)
 }
 
 // Tx is a transaction
-type Tx struct {
-	QueryTarget
+type Tx interface {
+	Target
+	Commit() error
+	MustCommit()
+	Rollback() error
+}
+
+type tx struct {
+	queryTarget
 	tx *sql.Tx
 }
 
 // Commit applies all the changes from the transaction
-func (t Tx) Commit() error {
+func (t *tx) Commit() error {
 	return t.tx.Commit()
 }
 
 // MustCommit is the same as Commit, but it panics if an error occurred
-func (t Tx) MustCommit() {
+func (t *tx) MustCommit() {
 	err := t.Commit()
 	if err != nil {
 		panic(err)
@@ -40,36 +57,49 @@ func (t Tx) MustCommit() {
 }
 
 // Rollback reverts all the changes from the transaction
-func (t Tx) Rollback() error {
+func (t *tx) Rollback() error {
 	return t.tx.Rollback()
 }
 
-// QueryTarget is a sql.DB or sql.Tx
-type QueryTarget struct {
+type queryTarget struct {
 	src interface {
 		Exec(string, ...interface{}) (sql.Result, error)
 		Query(string, ...interface{}) (*sql.Rows, error)
 		QueryRow(string, ...interface{}) *sql.Row
 		Prepare(string) (*sql.Stmt, error)
 	}
-	Driver qb.Driver
-	Debug  bool
+	driver qb.Driver
+	debug  bool
 }
 
-// DB wraps sql.DB to support qb queries
-type DB struct {
-	QueryTarget
+func (db *queryTarget) Driver() qb.Driver {
+	return db.driver
+}
+
+func (db *queryTarget) SetDebug(b bool) {
+	db.debug = b
+}
+
+// DB is a database connection
+type DB interface {
+	Target
+	Begin() (Tx, error)
+	MustBegin() Tx
+}
+
+type db struct {
+	queryTarget
 	DB *sql.DB
 }
 
 // Begin starts a transaction
-func (db *DB) Begin() (Tx, error) {
-	tx, err := db.DB.Begin()
-	return Tx{QueryTarget{tx, db.QueryTarget.Driver, db.QueryTarget.Debug}, tx}, err
+func (db *db) Begin() (Tx, error) {
+	rawTx, err := db.DB.Begin()
+	return &tx{queryTarget{rawTx, db.queryTarget.driver, db.queryTarget.debug}, rawTx}, err
 }
 
 // MustBegin is the same as Begin, but it panics if an error occurred
-func (db *DB) MustBegin() Tx {
+func (db *db) MustBegin() Tx {
 	tx, err := db.Begin()
 	if err != nil {
 		panic(err)
@@ -78,8 +108,8 @@ func (db *DB) MustBegin() Tx {
 }
 
 // New returns a new DB
-func New(driver qb.Driver, db *sql.DB) *DB {
-	return &DB{QueryTarget{db, driver, false}, db}
+func New(driver qb.Driver, database *sql.DB) DB {
+	return &db{queryTarget{database, driver, false}, database}
 }
 
 ///////// Wrappers for Must functions /////////

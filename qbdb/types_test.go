@@ -9,9 +9,15 @@ import (
 func TestImplements(t *testing.T) {
 	assert := assert.New(t)
 
-	_, ok := interface{}(DB{}).(Target)
+	_, ok := interface{}(&db{}).(DB)
 	assert.True(ok)
-	_, ok = interface{}(Tx{}).(Target)
+
+	_, ok = interface{}(&tx{}).(Tx)
+	assert.True(ok)
+
+	_, ok = interface{}(&db{}).(Target)
+	assert.True(ok)
+	_, ok = interface{}(&tx{}).(Target)
 	assert.True(ok)
 
 	_, ok = interface{}(Result{}).(Result)

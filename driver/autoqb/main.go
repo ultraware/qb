@@ -12,7 +12,7 @@ import (
 )
 
 // New automatically selects a qb driver
-func New(db *sql.DB) *qbdb.DB {
+func New(db *sql.DB) qbdb.DB {
 	switch getPkgName(db) {
 	case `github.com/lib/pq`, `github.com/jackc/pgx/stdlib`:
 		return pgqb.New(db)
