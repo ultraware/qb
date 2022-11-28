@@ -1,4 +1,4 @@
-package main // import "git.ultraware.nl/NiseVoid/qb/qb-architect"
+package main // import "git.ultraware.nl/Ultraware/qb/qb-architect"
 
 import (
 	"encoding/json"
@@ -9,15 +9,19 @@ import (
 	"sort"
 	"strings"
 
-	"git.ultraware.nl/NiseVoid/qb/internal/filter"
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/internal/db"
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/internal/db/msarchitect"
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/internal/db/myarchitect"
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/internal/db/pgarchitect"
+	"git.ultraware.nl/Ultraware/qb/internal/filter"
+	"git.ultraware.nl/Ultraware/qb/qb-architect/internal/db"
+	"git.ultraware.nl/Ultraware/qb/qb-architect/internal/db/msarchitect"
+	"git.ultraware.nl/Ultraware/qb/qb-architect/internal/db/myarchitect"
+	"git.ultraware.nl/Ultraware/qb/qb-architect/internal/db/pgarchitect"
 )
 
-var errString = `Please specify a %s, example:` + "\n\t" +
-	`qb-architect -dbms psql "host=/tmp user=qb database=architect" > db.json`
+var (
+	errNoTablesFoundInDatabase = errors.New(`no tables found in this database`)
+
+	errString = `Please specify a %s, example:` + "\n\t" +
+		`qb-architect -dbms psql "host=/tmp user=qb database=architect" > db.json`
+)
 
 func main() {
 	dbms := flag.String(`dbms`, ``, `Database type to use: psql, mysql, mssql`)
@@ -123,7 +127,7 @@ func applyFilters(name string, only, exclude filter.Filters) bool {
 
 func output(tables []db.Table) error {
 	if len(tables) == 0 {
-		return errors.New(`no tables found in this database`)
+		return errNoTablesFoundInDatabase
 	}
 
 	enc := json.NewEncoder(os.Stdout)

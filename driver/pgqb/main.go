@@ -1,16 +1,16 @@
-package pgqb // import "git.ultraware.nl/NiseVoid/qb/driver/pgqb"
+package pgqb // import "git.ultraware.nl/Ultraware/qb/driver/pgqb"
 
 import (
 	"database/sql"
 	"strconv"
 	"strings"
 
-	"git.ultraware.nl/NiseVoid/qb"
-	"git.ultraware.nl/NiseVoid/qb/driver/pgqb/pgqc"
-	"git.ultraware.nl/NiseVoid/qb/driver/pgqb/pgqf"
-	"git.ultraware.nl/NiseVoid/qb/qbdb"
-	"git.ultraware.nl/NiseVoid/qb/qc"
-	"git.ultraware.nl/NiseVoid/qb/qf"
+	"git.ultraware.nl/Ultraware/qb"
+	"git.ultraware.nl/Ultraware/qb/driver/pgqb/pgqc"
+	"git.ultraware.nl/Ultraware/qb/driver/pgqb/pgqf"
+	"git.ultraware.nl/Ultraware/qb/qbdb"
+	"git.ultraware.nl/Ultraware/qb/qc"
+	"git.ultraware.nl/Ultraware/qb/qf"
 )
 
 // Driver implements PostgreSQL-specific features
@@ -71,7 +71,7 @@ func (d Driver) IgnoreConflictSQL(t *qb.Table, conflict []qb.Field) (string, []i
 }
 
 // LimitOffset implements qb.Driver
-func (d Driver) LimitOffset(sql qb.SQL, limit, offset int) { //nolint: dupl
+func (d Driver) LimitOffset(sql qb.SQL, limit, offset int) {
 	if limit > 0 {
 		sql.WriteLine(`LIMIT ` + strconv.Itoa(limit))
 	}

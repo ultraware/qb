@@ -3,12 +3,12 @@ package qf
 import (
 	"testing"
 
-	"git.ultraware.nl/NiseVoid/qb"
-	"git.ultraware.nl/NiseVoid/qb/internal/testutil"
-	"git.ultraware.nl/NiseVoid/qb/qbdb"
+	"git.ultraware.nl/Ultraware/qb"
+	"git.ultraware.nl/Ultraware/qb/internal/testutil"
+	"git.ultraware.nl/Ultraware/qb/qbdb"
 )
 
-func TestAll(t *testing.T) { // nolint: funlen
+func TestAll(t *testing.T) {
 	tb := &qb.Table{Name: `test`}
 
 	f1 := &qb.TableField{Name: `A`, Parent: tb}

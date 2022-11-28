@@ -3,7 +3,7 @@ package main
 import (
 	"sort"
 
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/internal/db"
+	"git.ultraware.nl/Ultraware/qb/qb-architect/internal/db"
 )
 
 type fields []db.Field

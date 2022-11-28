@@ -1,7 +1,7 @@
 package qc
 
 import (
-	"git.ultraware.nl/NiseVoid/qb"
+	"git.ultraware.nl/Ultraware/qb"
 )
 
 // NewCondition returns a new Condition

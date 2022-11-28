@@ -9,13 +9,13 @@ import (
 	"time"
 
 	"git.fuyu.moe/Fuyu/assert"
-	"git.ultraware.nl/NiseVoid/qb"
-	"git.ultraware.nl/NiseVoid/qb/driver/autoqb"
-	"git.ultraware.nl/NiseVoid/qb/internal/tests/internal/model"
-	"git.ultraware.nl/NiseVoid/qb/internal/testutil"
-	"git.ultraware.nl/NiseVoid/qb/qbdb"
-	"git.ultraware.nl/NiseVoid/qb/qc"
-	"git.ultraware.nl/NiseVoid/qb/qf"
+	"git.ultraware.nl/Ultraware/qb"
+	"git.ultraware.nl/Ultraware/qb/driver/autoqb"
+	"git.ultraware.nl/Ultraware/qb/internal/tests/internal/model"
+	"git.ultraware.nl/Ultraware/qb/internal/testutil"
+	"git.ultraware.nl/Ultraware/qb/qbdb"
+	"git.ultraware.nl/Ultraware/qb/qc"
+	"git.ultraware.nl/Ultraware/qb/qf"
 )
 
 var (

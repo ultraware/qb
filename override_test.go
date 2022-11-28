@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"git.fuyu.moe/Fuyu/assert"
+	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
 var override = OverrideMap{}
@@ -38,9 +39,9 @@ func TestOverrideField(t *testing.T) {
 
 	val := reflect.ValueOf
 
-	assert.Eq(val(TField()), val(field1()))
+	assert.Cmp(val(TField()), val(field1()), cmpopts.IgnoreUnexported(reflect.Value{}))
 
 	override.Add(TField, field2)
 
-	assert.Eq(val(TField()), val(field2()))
+	assert.Cmp(val(TField()), val(field2()), cmpopts.IgnoreUnexported(reflect.Value{}))
 }

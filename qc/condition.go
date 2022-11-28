@@ -1,10 +1,10 @@
-package qc // import "git.ultraware.nl/NiseVoid/qb/qc"
+package qc // import "git.ultraware.nl/Ultraware/qb/qc"
 
 import (
 	"reflect"
 	"strings"
 
-	"git.ultraware.nl/NiseVoid/qb"
+	"git.ultraware.nl/Ultraware/qb"
 )
 
 func createOperatorCondition(i1, i2 interface{}, operator string) qb.Condition {
@@ -17,6 +17,7 @@ func createOperatorCondition(i1, i2 interface{}, operator string) qb.Condition {
 func Eq(i1, i2 interface{}) qb.Condition {
 	return useOverride(eq, i1, i2)
 }
+
 func eq(i1, i2 interface{}) qb.Condition {
 	return createOperatorCondition(i1, i2, `=`)
 }
@@ -25,6 +26,7 @@ func eq(i1, i2 interface{}) qb.Condition {
 func Ne(i1, i2 interface{}) qb.Condition {
 	return useOverride(ne, i1, i2)
 }
+
 func ne(i1, i2 interface{}) qb.Condition {
 	return createOperatorCondition(i1, i2, `!=`)
 }
@@ -33,6 +35,7 @@ func ne(i1, i2 interface{}) qb.Condition {
 func Gt(i1, i2 interface{}) qb.Condition {
 	return useOverride(gt, i1, i2)
 }
+
 func gt(i1, i2 interface{}) qb.Condition {
 	return createOperatorCondition(i1, i2, `>`)
 }
@@ -41,6 +44,7 @@ func gt(i1, i2 interface{}) qb.Condition {
 func Gte(i1, i2 interface{}) qb.Condition {
 	return useOverride(gte, i1, i2)
 }
+
 func gte(i1, i2 interface{}) qb.Condition {
 	return createOperatorCondition(i1, i2, `>=`)
 }
@@ -49,6 +53,7 @@ func gte(i1, i2 interface{}) qb.Condition {
 func Lt(i1, i2 interface{}) qb.Condition {
 	return useOverride(lt, i1, i2)
 }
+
 func lt(i1, i2 interface{}) qb.Condition {
 	return createOperatorCondition(i1, i2, `<`)
 }
@@ -57,6 +62,7 @@ func lt(i1, i2 interface{}) qb.Condition {
 func Lte(i1, i2 interface{}) qb.Condition {
 	return useOverride(lte, i1, i2)
 }
+
 func lte(i1, i2 interface{}) qb.Condition {
 	return createOperatorCondition(i1, i2, `<=`)
 }
@@ -65,6 +71,7 @@ func lte(i1, i2 interface{}) qb.Condition {
 func Between(f1 qb.Field, i1, i2 interface{}) qb.Condition {
 	return useOverride(between, f1, i1, i2)
 }
+
 func between(f1 qb.Field, i1, i2 interface{}) qb.Condition {
 	f2 := qb.MakeField(i1)
 	f3 := qb.MakeField(i2)
@@ -75,6 +82,7 @@ func between(f1 qb.Field, i1, i2 interface{}) qb.Condition {
 func IsNull(f1 qb.Field) qb.Condition {
 	return useOverride(isNull, f1)
 }
+
 func isNull(f1 qb.Field) qb.Condition {
 	return NewCondition(f1, ` IS NULL`)
 }
@@ -83,6 +91,7 @@ func isNull(f1 qb.Field) qb.Condition {
 func NotNull(f1 qb.Field) qb.Condition {
 	return useOverride(notNull, f1)
 }
+
 func notNull(f1 qb.Field) qb.Condition {
 	return NewCondition(f1, ` IS NOT NULL`)
 }
@@ -91,6 +100,7 @@ func notNull(f1 qb.Field) qb.Condition {
 func Like(f1 qb.Field, s string) qb.Condition {
 	return useOverride(like, f1, s)
 }
+
 func like(f1 qb.Field, s string) qb.Condition {
 	f2 := qb.MakeField(s)
 	return NewCondition(f1, ` LIKE `, f2)
@@ -104,6 +114,7 @@ func In(f1 qb.Field, args ...interface{}) qb.Condition {
 
 	return useOverride(in, append([]interface{}{f1}, args...)...)
 }
+
 func in(f1 qb.Field, args ...interface{}) qb.Condition {
 	list := strings.TrimSuffix(strings.Repeat(`?, `, len(args)), `, `)
 	return func(c *qb.Context) string {
@@ -116,6 +127,7 @@ func in(f1 qb.Field, args ...interface{}) qb.Condition {
 func InQuery(f qb.Field, q qb.SelectQuery) qb.Condition {
 	return useOverride(inQuery, f, q)
 }
+
 func inQuery(f qb.Field, q qb.SelectQuery) qb.Condition {
 	return func(c *qb.Context) string {
 		return qb.ConcatQuery(c, f, ` IN `, q)
@@ -126,6 +138,7 @@ func inQuery(f qb.Field, q qb.SelectQuery) qb.Condition {
 func Exists(q qb.SelectQuery) qb.Condition {
 	return useOverride(exists, q)
 }
+
 func exists(q qb.SelectQuery) qb.Condition {
 	return func(c *qb.Context) string {
 		return qb.ConcatQuery(c, `EXISTS `, q)
@@ -136,6 +149,7 @@ func exists(q qb.SelectQuery) qb.Condition {
 func Not(c qb.Condition) qb.Condition {
 	return useOverride(not, c)
 }
+
 func not(c qb.Condition) qb.Condition {
 	return func(ctx *qb.Context) string {
 		return `NOT (` + c(ctx) + `)`
@@ -166,6 +180,7 @@ func And(c ...qb.Condition) qb.Condition {
 
 	return useOverride(and, list...)
 }
+
 func and(c ...qb.Condition) qb.Condition {
 	return createLogicalCondition(`AND`, c...)
 }
@@ -179,6 +194,7 @@ func Or(c ...qb.Condition) qb.Condition {
 
 	return useOverride(or, list...)
 }
+
 func or(c ...qb.Condition) qb.Condition {
 	return createLogicalCondition(`OR`, c...)
 }

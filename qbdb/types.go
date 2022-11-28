@@ -2,30 +2,26 @@ package qbdb
 
 import (
 	"database/sql"
+	"errors"
 
-	"git.ultraware.nl/NiseVoid/qb"
+	"git.ultraware.nl/Ultraware/qb"
 )
 
 // Target is a target for a query, either a plain DB or a Tx
 type Target interface {
 	Render(qb.Query) (string, []interface{})
-
 	Query(qb.SelectQuery) (Rows, error)
 	RawQuery(string, ...interface{}) (Rows, error)
 	MustQuery(qb.SelectQuery) Rows
 	MustRawQuery(string, ...interface{}) Rows
-
 	QueryRow(qb.SelectQuery) Row
 	RawQueryRow(string, ...interface{}) Row
-
 	Exec(q qb.Query) (Result, error)
 	RawExec(string, ...interface{}) (Result, error)
 	MustExec(q qb.Query) Result
 	MustRawExec(string, ...interface{}) Result
-
 	Prepare(qb.Query) (*Stmt, error)
 	MustPrepare(qb.Query) *Stmt
-
 	Driver() qb.Driver
 	SetDebug(bool)
 }
@@ -133,10 +129,10 @@ type Row struct {
 }
 
 // MustScan returns true if there was a row.
-/// If an error occurs it will panic
+// If an error occurs it will panic
 func (r Row) MustScan(dest ...interface{}) bool {
 	err := r.Scan(dest...)
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		panic(err)
 	}
 	return err == nil
@@ -148,7 +144,7 @@ type Result struct {
 }
 
 // MustLastInsertId is the same as LastInsertId except if an error occurs returned it will panic
-func (r Result) MustLastInsertId() int64 { //nolint: stylecheck, golint
+func (r Result) MustLastInsertId() int64 { //nolint: stylecheck
 	id, err := r.LastInsertId()
 	if err != nil {
 		panic(err)

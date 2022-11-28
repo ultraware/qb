@@ -1,50 +1,64 @@
-workspace:
-  base: /root/go-projects/
-  path: src/git.ultraware.nl/NiseVoid/qb
+---
+kind: pipeline
+type: docker
+name: Linux
 
-pipeline:
-  setup:
+platform:
+  go: &go
     image: registry.ultraware.nl/ultraware/go-build:latest
-    pull: true
+    pull: always
+
+steps:
+  - name: setup
+    <<: *go
     commands:
       - make setup
-      - mv /go/src vendor/
 
-  test:
-    image: registry.ultraware.nl/ultraware/go-build:latest
-    pull: true
+  - name: setup sqlserver
+    <<: *go
+    commands:
+      - sleep 10
+
+      - go env -w "GOPRIVATE=git.ultraware.nl/*/*"
+      - go install git.ultraware.nl/Go/sqlcmd@latest
+
+      - sqlcmd internal/tests/scripts/sqlserver/create_database.sql
+
+      - export DATABASE_CONNECTION_STRING="$DATABASE_CONNECTION_STRING?database=qb_test"
+      - sqlcmd internal/tests/scripts/sqlserver/create_login.sql
+    environment:
+      DATABASE_CONNECTION_STRING: sqlserver://sa:P@ssw0rd@sqlserver
+  
+  - name: test
+    <<: *go
     commands:
       - make test
       - make lint
       - go test -bench=.
 
-  PostgreSQL:
-    image: registry.ultraware.nl/ultraware/go-build:latest
-    pull: true
-    environment:
-      - POSTGRES_TESTHOST=pgsql
+  - name: PostgresSQL
+    <<: *go
     commands:
       - make test_postgres
-
-  MSSQL:
-    image: registry.ultraware.nl/ultraware/go-build:latest
-    pull: true
     environment:
-      - MSSQL_TESTHOST=sqlserver
+      POSTGRES_TESTHOST: pgsql
+
+  - name: MSSQL
+    <<: *go
+    environment:
+      MSSQL_TESTHOST: sqlserver
     commands:
       - make test_mssql
 
-  MySQL:
-    image: registry.ultraware.nl/ultraware/go-build:latest
-    pull: true
+  - name: MySQL
+    <<: *go
     environment:
-      - MYSQL_TESTHOST=mariadb
+      MYSQL_TESTHOST: mariadb
     commands:
       - make test_mysql
 
-  total_coverage:
-    image: registry.ultraware.nl/ultraware/go-build:latest
-    pull: true
+  - name: Total coverage
+    <<: *go
     commands:
       - cat unit.out > total.out
       - tail -n +2 postgres.out >> total.out
@@ -53,36 +67,25 @@ pipeline:
       - go tool cover -func total.out | tail -1
 
 services:
-  pgsql:
+  - name: pgsql
     image: postgres:10.1-alpine
-    pull: true
+    pull: always
     environment:
-      - DB_HOST=postgres
-      - POSTGRES_USER=qb_test
-      - POSTGRES_DB=qb_test
+      DB_HOST: postgres
+      POSTGRES_USER: qb_test
+      POSTGRES_DB: qb_test
 
-  mariadb:
+  - name: mariadb
     image: mariadb:10.3
-    pull: true
+    pull: always
     environment:
-      - MYSQL_DATABASE=qb_test
-      - MYSQL_USER=qb_test
-      - MYSQL_PASSWORD=qb_test
-      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+      MYSQL_DATABASE: qb_test
+      MYSQL_USER: qb_test
+      MYSQL_PASSWORD: qb_test
+      MYSQL_ALLOW_EMPTY_PASSWORD: true
 
-  sqlserver:
-    image: microsoft/mssql-server-linux:latest
-    pull: true
+  - name: sqlserver
+    image: mcr.microsoft.com/mssql/server
     environment:
-      - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=P@ssw0rd
-    commands:
-      - echo "CREATE DATABASE qb_test;" > setup.sql
-      - echo "GO" >> setup.sql
-      - echo "USE qb_test;" >> setup.sql
-      - echo "GO" >> setup.sql
-      - echo "CREATE LOGIN qb_test WITH PASSWORD = 'qb_testA1';" >> setup.sql
-      - echo "CREATE USER qb_test FOR LOGIN qb_test;" >> setup.sql
-      - echo "EXEC sp_addrolemember 'db_owner', 'qb_test'" >> setup.sql
-      - (sleep 1s; /opt/mssql-tools/bin/sqlcmd -b -S localhost -U SA -P $MSSQL_SA_PASSWORD -i setup.sql) &
-      - /opt/mssql/bin/sqlservr --accept-eula
+      ACCEPT_EULA: Y
+      MSSQL_SA_PASSWORD: P@ssw0rd

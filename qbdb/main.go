@@ -1,4 +1,4 @@
-package qbdb // import "git.ultraware.nl/NiseVoid/qb/qbdb"
+package qbdb // import "git.ultraware.nl/Ultraware/qb/qbdb"
 
 import (
 	"database/sql/driver"
@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"git.ultraware.nl/NiseVoid/qb"
+	"git.ultraware.nl/Ultraware/qb"
 )
 
 func (db queryTarget) printType(v interface{}, c *int) (string, bool) {
@@ -18,6 +18,7 @@ func (db queryTarget) printType(v interface{}, c *int) (string, bool) {
 	if v == nil {
 		return `NULL`, false
 	}
+
 	switch t := reflect.ValueOf(v); t.Type().Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return strconv.FormatInt(t.Int(), 10), false
@@ -39,7 +40,7 @@ func (db queryTarget) Render(q qb.Query) (string, []interface{}) {
 }
 
 func (db queryTarget) ctes(ctes []*qb.CTE, done map[*qb.CTE]bool, b qb.SQLBuilder) []string {
-	var list []string // nolint: prealloc
+	var list []string
 
 	for _, v := range ctes {
 		if _, ok := done[v]; ok {

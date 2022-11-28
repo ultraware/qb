@@ -1,7 +1,7 @@
 package qf
 
 import (
-	"git.ultraware.nl/NiseVoid/qb"
+	"git.ultraware.nl/Ultraware/qb"
 )
 
 // CalculatedField is a field created by running functions on a TableField

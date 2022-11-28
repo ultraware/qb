@@ -2,7 +2,7 @@
 
 package model
 
-import "git.ultraware.nl/NiseVoid/qb"
+import "git.ultraware.nl/Ultraware/qb"
 
 ///// One /////
 var (

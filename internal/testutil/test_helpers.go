@@ -16,11 +16,11 @@ var (
 	Info = colored(35)
 	// Notice is used for less important info messages
 	Notice = colored(36)
-
 	// String is used when printing strings
 	String = colored(33)
 )
 
+//nolint:gocritic
 func colored(code int) func(v ...interface{}) string {
 	return func(v ...interface{}) string {
 		return fmt.Sprint(append([]interface{}{shell(code)}, append(v, shell(0))...)...)

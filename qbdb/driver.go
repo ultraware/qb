@@ -3,7 +3,7 @@ package qbdb
 import (
 	"strconv"
 
-	"git.ultraware.nl/NiseVoid/qb"
+	"git.ultraware.nl/Ultraware/qb"
 )
 
 // Driver is a default driver used for tests
@@ -38,7 +38,7 @@ func (d Driver) IgnoreConflictSQL(_ *qb.Table, _ []qb.Field) (string, []interfac
 }
 
 // LimitOffset implements qb.Driver
-func (d Driver) LimitOffset(sql qb.SQL, limit, offset int) { //nolint: dupl
+func (d Driver) LimitOffset(sql qb.SQL, limit, offset int) {
 	if limit > 0 {
 		sql.WriteLine(`LIMIT ` + strconv.Itoa(limit))
 	}

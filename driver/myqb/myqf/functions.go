@@ -1,8 +1,8 @@
-package myqf // import "git.ultraware.nl/NiseVoid/qb/driver/myqb/myqf"
+package myqf // import "git.ultraware.nl/Ultraware/qb/driver/myqb/myqf"
 
 import (
-	"git.ultraware.nl/NiseVoid/qb"
-	"git.ultraware.nl/NiseVoid/qb/qf"
+	"git.ultraware.nl/Ultraware/qb"
+	"git.ultraware.nl/Ultraware/qb/qf"
 )
 
 // Values is a mysql-specific version of qf.Excluded

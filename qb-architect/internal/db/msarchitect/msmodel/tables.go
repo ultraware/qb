@@ -2,7 +2,7 @@
 
 package msmodel
 
-import "git.ultraware.nl/NiseVoid/qb"
+import "git.ultraware.nl/Ultraware/qb"
 
 ///// Tables /////
 var (

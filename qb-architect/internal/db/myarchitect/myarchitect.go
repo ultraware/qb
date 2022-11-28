@@ -3,14 +3,14 @@ package myarchitect
 import (
 	"database/sql"
 
-	"git.ultraware.nl/NiseVoid/qb"
-	"git.ultraware.nl/NiseVoid/qb/driver/myqb"
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/internal/db"
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/internal/db/myarchitect/mymodel"
-	"git.ultraware.nl/NiseVoid/qb/qb-architect/internal/util"
-	"git.ultraware.nl/NiseVoid/qb/qbdb"
-	"git.ultraware.nl/NiseVoid/qb/qc"
-	"git.ultraware.nl/NiseVoid/qb/qf"
+	"git.ultraware.nl/Ultraware/qb"
+	"git.ultraware.nl/Ultraware/qb/driver/myqb"
+	"git.ultraware.nl/Ultraware/qb/qb-architect/internal/db"
+	"git.ultraware.nl/Ultraware/qb/qb-architect/internal/db/myarchitect/mymodel"
+	"git.ultraware.nl/Ultraware/qb/qb-architect/internal/util"
+	"git.ultraware.nl/Ultraware/qb/qbdb"
+	"git.ultraware.nl/Ultraware/qb/qc"
+	"git.ultraware.nl/Ultraware/qb/qf"
 
 	// mysql driver
 	_ "github.com/go-sql-driver/mysql"

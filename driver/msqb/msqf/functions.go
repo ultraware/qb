@@ -1,8 +1,8 @@
-package msqf // import "git.ultraware.nl/NiseVoid/qb/driver/msqb/msqf"
+package msqf // import "git.ultraware.nl/Ultraware/qb/driver/msqb/msqf"
 
 import (
-	"git.ultraware.nl/NiseVoid/qb"
-	"git.ultraware.nl/NiseVoid/qb/qf"
+	"git.ultraware.nl/Ultraware/qb"
+	"git.ultraware.nl/Ultraware/qb/qf"
 )
 
 // GetDate is a mssql-specific version of qf.Now

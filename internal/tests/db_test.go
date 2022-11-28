@@ -15,7 +15,7 @@ func initDatabase(driverName, connectionString string) *sql.DB {
 		panic(err)
 	}
 
-	dropQuery := `DROP TABLE one, "two $#!"`
+	dropQuery := `DROP TABLE IF EXISTS one, "two $#!"`
 	sql := createSQL
 	if driverName != `postgres` {
 		sql = strings.ReplaceAll(sql, `timestamp`, `datetime`)
@@ -25,7 +25,11 @@ func initDatabase(driverName, connectionString string) *sql.DB {
 		dropQuery = strings.ReplaceAll(dropQuery, `"`, "`")
 	}
 
-	_, _ = db.Exec(dropQuery)
+	_, err = db.Exec(dropQuery)
+	if err != nil {
+		panic(err)
+	}
+
 	_, err = db.Exec(sql)
 	if err != nil {
 		panic(err)

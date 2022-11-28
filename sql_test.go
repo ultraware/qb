@@ -3,7 +3,7 @@ package qb
 import (
 	"testing"
 
-	"git.ultraware.nl/NiseVoid/qb/internal/testutil"
+	"git.ultraware.nl/Ultraware/qb/internal/testutil"
 )
 
 func BenchmarkSQLWrite(b *testing.B) {
@@ -59,12 +59,16 @@ func testBuilder(t *testing.T, alias bool) (*SQLBuilder, func(bool, string)) {
 
 // Tables
 
-var testTable = &Table{Name: `tmp`}
-var testFieldA = &TableField{Name: `colA`, Parent: testTable}
-var testFieldB = &TableField{Name: `colB`, Parent: testTable}
+var (
+	testTable  = &Table{Name: `tmp`}
+	testFieldA = &TableField{Name: `colA`, Parent: testTable}
+	testFieldB = &TableField{Name: `colB`, Parent: testTable}
+)
 
-var testTable2 = &Table{Name: `tmp2`}
-var testFieldA2 = &TableField{Name: `colA2`, Parent: testTable2}
+var (
+	testTable2  = &Table{Name: `tmp2`}
+	testFieldA2 = &TableField{Name: `colA2`, Parent: testTable2}
+)
 
 func TestFrom(t *testing.T) {
 	info(t, `-- Testing without alias`)
