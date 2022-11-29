@@ -92,6 +92,10 @@ func runTests(t *testing.T) {
 	testExists(t)
 	testPrepare(t)
 	testSubQuery(t)
+	if driver == `pgqb.Driver` {
+		testInnerJoinLateral(t)
+	}
+
 	testCTE(t)
 	testUnionAll(t)
 	if driver == `myqb.Driver` {
@@ -99,6 +103,7 @@ func runTests(t *testing.T) {
 	} else {
 		testDeleteReturning(t)
 	}
+
 	testLeftJoin(t)
 }
 
@@ -469,6 +474,29 @@ func testLeftJoin(test *testing.T) {
 	assert.True(r.MustScan(&id, &oneid))
 	assert.Eq(1, id)
 	assert.Nil(oneid)
+}
+
+func testInnerJoinLateral(test *testing.T) {
+	assert := assert.New(test)
+
+	o, t := model.One(), model.Two()
+
+	var fa qb.Field
+	sq := t.Select(t.Comment).
+		Where(qc.Eq(t.OneID, o.ID)).
+		SubQuery(&fa).Lateral()
+
+	q := o.Select(o.ID, fa).InnerJoinLateral(sq, qc.Eq(1, 1))
+	r := db.QueryRow(q)
+
+	var (
+		id      int
+		comment string
+	)
+
+	assert.True(r.MustScan(&id, &comment))
+	assert.Eq(1, id)
+	assert.Eq(`Test comment v2`, comment)
 }
 
 func testRollback(test *testing.T) {

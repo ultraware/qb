@@ -17,7 +17,7 @@ steps:
   - name: setup sqlserver
     <<: *go
     commands:
-      - sleep 10
+      - sleep 15
 
       - go env -w "GOPRIVATE=git.ultraware.nl/*/*"
       - go install git.ultraware.nl/Go/sqlcmd@latest
@@ -69,7 +69,6 @@ steps:
 services:
   - name: pgsql
     image: postgres:10.1-alpine
-    pull: always
     environment:
       DB_HOST: postgres
       POSTGRES_USER: qb_test
@@ -77,7 +76,6 @@ services:
 
   - name: mariadb
     image: mariadb:10.3
-    pull: always
     environment:
       MYSQL_DATABASE: qb_test
       MYSQL_USER: qb_test

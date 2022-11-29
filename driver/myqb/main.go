@@ -69,6 +69,11 @@ func (d Driver) Returning(b qb.SQLBuilder, q qb.Query, f []qb.Field) (string, []
 	panic(`mysql does not support RETURNING`)
 }
 
+// LateralJoin implements qb.Driver
+func (d Driver) LateralJoin(c *qb.Context, s *qb.SubQuery) string {
+	panic(`mysql does not support lateral joins`)
+}
+
 var types = map[qb.DataType]string{
 	qb.Int:    `int`,
 	qb.String: `text`,

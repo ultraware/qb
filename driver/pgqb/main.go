@@ -95,6 +95,11 @@ func (d Driver) Returning(b qb.SQLBuilder, q qb.Query, f []qb.Field) (string, []
 	return s + `RETURNING ` + line + qb.NEWLINE, append(v, *b.Context.Values...)
 }
 
+// LateralJoin implements qb.Driver
+func (d Driver) LateralJoin(c *qb.Context, s *qb.SubQuery) string {
+	return `LATERAL ` + s.TableString(c)
+}
+
 var types = map[qb.DataType]string{
 	qb.Int:    `int`,
 	qb.String: `text`,

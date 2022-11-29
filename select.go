@@ -78,7 +78,6 @@ func (q *SelectBuilder) InnerJoin(f1, f2 Field, c ...Condition) *SelectBuilder {
 // CrossJoin adds a CROSS JOIN clause to the query
 func (q *SelectBuilder) CrossJoin(s Source) *SelectBuilder {
 	q.joins = append(q.joins, join{JoinCross, s, nil})
-
 	q.tables = append(q.tables, s)
 
 	return q
@@ -98,10 +97,45 @@ func (q *SelectBuilder) RightJoin(f1, f2 Field, c ...Condition) *SelectBuilder {
 // Only use this if you know what you are doing
 func (q *SelectBuilder) ManualJoin(t Join, s Source, c ...Condition) *SelectBuilder {
 	q.joins = append(q.joins, join{t, s, c})
-
 	q.tables = append(q.tables, s)
 
 	return q
+}
+
+// CrossJoinLateral adds an CORSS JOIN LATERAL clause to the query
+func (q *SelectBuilder) CrossJoinLateral(s LateralJoinSource) *SelectBuilder {
+	return q.ManualJoin(
+		JoinCross,
+		s.lateralJoinSource(),
+		nil,
+	)
+}
+
+// InnerJoinLateral adds an INNER JOIN LATERAL clause to the query
+func (q *SelectBuilder) InnerJoinLateral(s LateralJoinSource, condition Condition, conditions ...Condition) *SelectBuilder {
+	return q.ManualJoin(
+		JoinInner,
+		s.lateralJoinSource(),
+		append([]Condition{condition}, conditions...)...,
+	)
+}
+
+// LeftJoinLateral adds a LEFT JOIN LATERAL clause to the query
+func (q *SelectBuilder) LeftJoinLateral(s LateralJoinSource, condition Condition, conditions ...Condition) *SelectBuilder {
+	return q.ManualJoin(
+		JoinLeft,
+		s.lateralJoinSource(),
+		append([]Condition{condition}, conditions...)...,
+	)
+}
+
+// RightJoinLateral adds a RIGHT JOIN LATERAL clause to the query
+func (q *SelectBuilder) RightJoinLateral(s LateralJoinSource, condition Condition, conditions ...Condition) *SelectBuilder {
+	return q.ManualJoin(
+		JoinRight,
+		s.lateralJoinSource(),
+		append([]Condition{condition}, conditions...)...,
+	)
 }
 
 func (q *SelectBuilder) join(t Join, f1, f2 Field, c []Condition) *SelectBuilder {

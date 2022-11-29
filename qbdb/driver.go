@@ -52,6 +52,11 @@ func (d Driver) Returning(b qb.SQLBuilder, q qb.Query, f []qb.Field) (string, []
 	panic(`This should not be used`)
 }
 
+// LateralJoin implements qb.Driver
+func (d Driver) LateralJoin(_ *qb.Context, _ *qb.SubQuery) string {
+	panic(`This should not be used`)
+}
+
 var types = map[qb.DataType]string{
 	qb.Int:    `int`,
 	qb.String: `string`,

@@ -14,6 +14,7 @@ type Driver interface {
 	IgnoreConflictSQL(*Table, []Field) (string, []interface{})
 	LimitOffset(SQL, int, int)
 	Returning(SQLBuilder, Query, []Field) (string, []interface{})
+	LateralJoin(*Context, *SubQuery) string
 	TypeName(DataType) string
 	Override() OverrideMap
 }
@@ -37,6 +38,11 @@ type Alias interface {
 type Source interface {
 	TableString(*Context) string
 	aliasString() string
+}
+
+// LateralJoinSource represents a joinable lateral derived table or function
+type LateralJoinSource interface {
+	lateralJoinSource() Source
 }
 
 // Table represents a table in the database.
@@ -170,6 +176,11 @@ func (t *SubQuery) TableString(c *Context) string {
 	c.Add(v...)
 
 	return getSubQuerySQL(sql) + alias
+}
+
+// Lateral returns a LATERAL subquery
+func (t *SubQuery) Lateral() LateralSubQuery {
+	return LateralSubQuery{t}
 }
 
 func getSubQuerySQL(sql string) string {
@@ -326,4 +337,26 @@ func (c *Context) clone(alias Alias) *Context {
 func NewContext(d Driver, a Alias) *Context {
 	values, count, ctes := []interface{}{}, 0, []*CTE{}
 	return &Context{d, a, &values, make(map[*CTE]string), &count, &ctes}
+}
+
+// LateralSubQuery adds LATERAL keyword to the SubQuery
+type LateralSubQuery struct {
+	sq *SubQuery
+}
+
+func (ls LateralSubQuery) lateralJoinSource() Source {
+	return &lateralSubQueryJoin{ls.sq}
+}
+
+type lateralSubQueryJoin struct {
+	sq *SubQuery
+}
+
+// TableString implements Source
+func (t *lateralSubQueryJoin) TableString(c *Context) string {
+	return c.Driver.LateralJoin(c, t.sq)
+}
+
+func (t *lateralSubQueryJoin) aliasString() string {
+	return t.sq.aliasString()
 }

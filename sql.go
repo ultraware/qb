@@ -147,12 +147,16 @@ func (b *SQLBuilder) Join(j ...join) {
 	defer b.w.SubIndent()
 
 	for _, v := range j {
-		b.w.WriteString(string(v.Type) + ` JOIN ` + b.SourceToSQL(v.New))
+		b.w.WriteString(string(v.Type))
+		b.w.WriteString(` JOIN `)
+		b.w.WriteString(b.SourceToSQL(v.New))
+
 		if len(v.Conditions) > 0 {
 			b.w.WriteString(` ON (`)
 			b.Conditions(v.Conditions, false)
 			b.w.WriteString(`)`)
 		}
+
 		b.w.WriteLine(``)
 	}
 }
