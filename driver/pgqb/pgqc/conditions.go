@@ -1,8 +1,8 @@
-package pgqc // import "git.ultraware.nl/Ultraware/qb/driver/pgqb/pgqc"
+package pgqc // import "git.ultraware.nl/Ultraware/qb/v2/driver/pgqb/pgqc"
 
 import (
-	"git.ultraware.nl/Ultraware/qb"
-	"git.ultraware.nl/Ultraware/qb/qc"
+	"git.ultraware.nl/Ultraware/qb/v2"
+	"git.ultraware.nl/Ultraware/qb/v2/qc"
 )
 
 // ILike is a postgres-specific version of qc.Like

@@ -4,14 +4,14 @@ import (
 	"database/sql"
 	"strings"
 
-	"git.ultraware.nl/Ultraware/qb"
-	"git.ultraware.nl/Ultraware/qb/driver/pgqb"
-	"git.ultraware.nl/Ultraware/qb/qb-architect/internal/db"
-	"git.ultraware.nl/Ultraware/qb/qb-architect/internal/db/pgarchitect/pgmodel"
-	"git.ultraware.nl/Ultraware/qb/qb-architect/internal/util"
-	"git.ultraware.nl/Ultraware/qb/qbdb"
-	"git.ultraware.nl/Ultraware/qb/qc"
-	"git.ultraware.nl/Ultraware/qb/qf"
+	"git.ultraware.nl/Ultraware/qb/v2"
+	"git.ultraware.nl/Ultraware/qb/v2/driver/pgqb"
+	"git.ultraware.nl/Ultraware/qb/v2/qb-architect/internal/db"
+	"git.ultraware.nl/Ultraware/qb/v2/qb-architect/internal/db/pgarchitect/pgmodel"
+	"git.ultraware.nl/Ultraware/qb/v2/qb-architect/internal/util"
+	"git.ultraware.nl/Ultraware/qb/v2/qbdb"
+	"git.ultraware.nl/Ultraware/qb/v2/qc"
+	"git.ultraware.nl/Ultraware/qb/v2/qf"
 
 	// pgsql driver
 	_ "github.com/lib/pq"

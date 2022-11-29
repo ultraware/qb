@@ -1,7 +1,7 @@
 package qc
 
 import (
-	"git.ultraware.nl/Ultraware/qb"
+	"git.ultraware.nl/Ultraware/qb/v2"
 )
 
 // NewCondition returns a new Condition

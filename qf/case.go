@@ -3,7 +3,7 @@ package qf
 import (
 	"strings"
 
-	"git.ultraware.nl/Ultraware/qb"
+	"git.ultraware.nl/Ultraware/qb/v2"
 )
 
 type when struct {

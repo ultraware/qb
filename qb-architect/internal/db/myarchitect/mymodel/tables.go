@@ -2,7 +2,7 @@
 
 package mymodel
 
-import "git.ultraware.nl/Ultraware/qb"
+import "git.ultraware.nl/Ultraware/qb/v2"
 
 ///// Tables /////
 var (

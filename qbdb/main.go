@@ -1,4 +1,4 @@
-package qbdb // import "git.ultraware.nl/Ultraware/qb/qbdb"
+package qbdb // import "git.ultraware.nl/Ultraware/qb/v2/qbdb"
 
 import (
 	"database/sql/driver"
@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"git.ultraware.nl/Ultraware/qb"
+	"git.ultraware.nl/Ultraware/qb/v2"
 )
 
 func (db queryTarget) printType(v interface{}, c *int) (string, bool) {

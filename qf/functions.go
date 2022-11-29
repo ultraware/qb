@@ -1,6 +1,6 @@
-package qf // import "git.ultraware.nl/Ultraware/qb/qf"
+package qf // import "git.ultraware.nl/Ultraware/qb/v2/qf"
 
-import "git.ultraware.nl/Ultraware/qb"
+import "git.ultraware.nl/Ultraware/qb/v2"
 
 ///// General functions /////
 

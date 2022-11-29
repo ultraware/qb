@@ -3,9 +3,9 @@ package qf
 import (
 	"testing"
 
-	"git.ultraware.nl/Ultraware/qb"
-	"git.ultraware.nl/Ultraware/qb/internal/testutil"
-	"git.ultraware.nl/Ultraware/qb/qbdb"
+	"git.ultraware.nl/Ultraware/qb/v2"
+	"git.ultraware.nl/Ultraware/qb/v2/internal/testutil"
+	"git.ultraware.nl/Ultraware/qb/v2/qbdb"
 )
 
 func TestAll(t *testing.T) {

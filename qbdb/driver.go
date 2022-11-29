@@ -3,7 +3,7 @@ package qbdb
 import (
 	"strconv"
 
-	"git.ultraware.nl/Ultraware/qb"
+	"git.ultraware.nl/Ultraware/qb/v2"
 )
 
 // Driver is a default driver used for tests

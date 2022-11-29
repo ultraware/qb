@@ -1,10 +1,10 @@
-package qc // import "git.ultraware.nl/Ultraware/qb/qc"
+package qc // import "git.ultraware.nl/Ultraware/qb/v2/qc"
 
 import (
 	"reflect"
 	"strings"
 
-	"git.ultraware.nl/Ultraware/qb"
+	"git.ultraware.nl/Ultraware/qb/v2"
 )
 
 func createOperatorCondition(i1, i2 interface{}, operator string) qb.Condition {

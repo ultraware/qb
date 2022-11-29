@@ -1,14 +1,14 @@
-package msqb // import "git.ultraware.nl/Ultraware/qb/driver/msqb"
+package msqb // import "git.ultraware.nl/Ultraware/qb/v2/driver/msqb"
 
 import (
 	"database/sql"
 	"strconv"
 	"strings"
 
-	"git.ultraware.nl/Ultraware/qb"
-	"git.ultraware.nl/Ultraware/qb/driver/msqb/msqf"
-	"git.ultraware.nl/Ultraware/qb/qbdb"
-	"git.ultraware.nl/Ultraware/qb/qf"
+	"git.ultraware.nl/Ultraware/qb/v2"
+	"git.ultraware.nl/Ultraware/qb/v2/driver/msqb/msqf"
+	"git.ultraware.nl/Ultraware/qb/v2/qbdb"
+	"git.ultraware.nl/Ultraware/qb/v2/qf"
 )
 
 // Driver implements MSSQL-specific features

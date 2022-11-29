@@ -1,14 +1,14 @@
-package myqb // import "git.ultraware.nl/Ultraware/qb/driver/myqb"
+package myqb // import "git.ultraware.nl/Ultraware/qb/v2/driver/myqb"
 
 import (
 	"database/sql"
 	"strconv"
 	"strings"
 
-	"git.ultraware.nl/Ultraware/qb"
-	"git.ultraware.nl/Ultraware/qb/driver/myqb/myqf"
-	"git.ultraware.nl/Ultraware/qb/qbdb"
-	"git.ultraware.nl/Ultraware/qb/qf"
+	"git.ultraware.nl/Ultraware/qb/v2"
+	"git.ultraware.nl/Ultraware/qb/v2/driver/myqb/myqf"
+	"git.ultraware.nl/Ultraware/qb/v2/qbdb"
+	"git.ultraware.nl/Ultraware/qb/v2/qf"
 )
 
 // Driver implements PostgreSQL-specific features

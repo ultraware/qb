@@ -2,7 +2,7 @@
 
 package model
 
-import "git.ultraware.nl/Ultraware/qb"
+import "git.ultraware.nl/Ultraware/qb/v2"
 
 ///// One /////
 var (

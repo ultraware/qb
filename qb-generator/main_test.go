@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"git.fuyu.moe/Fuyu/assert"
-	"git.ultraware.nl/Ultraware/qb/internal/filter"
+	"git.ultraware.nl/Ultraware/qb/v2/internal/filter"
 )
 
 func expectCleanName(input, expected string) func(*testing.T) {
