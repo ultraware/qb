@@ -1,97 +1,33 @@
-# qb
+# qb-atlas
 
-qb is a library that allows you to build queries without using strings. This offers some unique advantages:
+qb-atlas will generate your qb code from your [atlas configuration](https://atlasgo.io).
 
-- When changing your database queries that refer to old fields or tables won't compile until you update them
-- You can't misspell keywords or fieldnames, this saves a lot of time and many bugs
-- You can use tab completion
-- You can easily port a query to a different database
-- The order of commands in your query does not matter, this makes building queries in parts or adding optional statements easier
-
-## Installation
-
-```bash
-go get git.ultraware.nl/NiseVoid/qb/...
-```
-
-## Quick start guide
-(Alternatively look at the [atlas quickstart guide](./qb-atlas/README.md))
-
-### 1. Create a db.json
-
-You can create a db.json manually or use qb-architect to generate it from your database
-
-`qb-architect` example:
-
-```bash
-qb-architect -dbms psql host=127.0.0.1 username=qb_test dbname=qb_test > db.json
-```
-
-`db.json` example:
-
-```json
-[
-	{
-		"name": "TableOne",
-		"alias": "one", // optional
-		"fields": [
-			{
-				"name": "Field1",
-				"data_type": "int",     // optional
-				"read_only": true       // optional
-			},
-			{
-				"name": "Field2",
-				"data_type": "varchar", // optional
-				"size": 50,             // optional
-			},
-			{ ... }
-		]
-	},
-	{
-		"name": "TableTwo",
-		"fields": [
-			{"name": "Field1"},
-			{"name": "Field2"},
-			{"name": "Field3"}
-		]
-	}
-]
-```
-
-### 2. Run qb-generator
-
-```bash
-qb-generator db.json tables.go
-```
-
-#### Recommendations
-
-- Don't commit qb-generator's generated code to your repo
-- Use a go generate command to run qb-generator
-
-### 3. Make a qbdb.DB
-
-```golang
-package main
-
-var db *qbdb.DB
-
-func main() {
-	database, err := sql.Open(driver, connectionString)
-	if err != nil {
-		panic(err)
-	}
-
-	db = autoqb.New(database)
+## Quickstart
+Write your atlas configuration:
+```hcl
+schema "public" {
+	charset = "utf-8"
 }
+
+table "users" {
+	schema = schema.public
+
+	column "id" {
+		type = serial
+	}
+
+...
 ```
 
-### 4. Write queries!
+generate your code for example in the models directory while the atlas files are in the schemas directory:
+```sh
+~ qb-atlas -o ./models/models.gen.go -pkg models -schema public ./schemas
+```
+
+
+## Write queries!
 
 You can now write queries, you can find examples below
-
-## Examples
 
 ### Select
 

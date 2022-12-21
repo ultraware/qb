@@ -7,11 +7,11 @@
 // Usage:
 // Use the application with the following command.
 //
-//	qb-atlas [options] <...file.hcl>
+//	qb-atlas [options] <... directory | file.hcl>
 //
 // Options:
 //
-//	-o --out	specifies where to write the output to, defaults to stdout
+//	-o	 	specifies where to write the output to, defaults to stdout
 //	--driver	specifies the database driver to read the atlas config with, defaults to postgres
 //	--pkg		specifies the package name on the generated code, defaults to main
 //	--schema	specifies which schema to use, defaults to the first
