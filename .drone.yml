@@ -17,7 +17,7 @@ steps:
   - name: setup sqlserver
     <<: *go
     commands:
-      - sleep 15
+      - sleep 30
 
       - go env -w "GOPRIVATE=git.ultraware.nl/*/*"
       - go install git.ultraware.nl/Go/sqlcmd@latest
@@ -83,7 +83,7 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: true
 
   - name: sqlserver
-    image: mcr.microsoft.com/mssql/server
+    image: mcr.microsoft.com/mssql/server:2019-latest
     environment:
       ACCEPT_EULA: Y
       MSSQL_SA_PASSWORD: P@ssw0rd

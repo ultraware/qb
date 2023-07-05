@@ -164,7 +164,7 @@ func (q *SelectBuilder) join(t Join, f1, f2 Field, c []Condition) *SelectBuilder
 
 // GroupBy adds a GROUP BY clause to the query
 func (q *SelectBuilder) GroupBy(f ...Field) *SelectBuilder {
-	q.group = f
+	q.group = append(q.group, f...)
 	return q
 }
 
@@ -176,7 +176,7 @@ func (q *SelectBuilder) Having(c ...Condition) *SelectBuilder {
 
 // OrderBy adds a ORDER BY clause to the query
 func (q *SelectBuilder) OrderBy(o ...FieldOrder) *SelectBuilder {
-	q.order = o
+	q.order = append(q.order, o...)
 	return q
 }
 
