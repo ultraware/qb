@@ -5,7 +5,7 @@ name: Linux
 
 platform:
   go: &go
-    image: registry.ultraware.nl/ultraware/go-build:latest
+    image: registry.ultraware.nl/ultraware/go-build:1.21
     pull: always
 
 steps:
@@ -28,12 +28,16 @@ steps:
       - sqlcmd internal/tests/scripts/sqlserver/create_login.sql
     environment:
       DATABASE_CONNECTION_STRING: sqlserver://sa:P@ssw0rd@sqlserver
-  
+
+  - name: lint
+    image: registry.ultraware.nl/proxy_cache/golangci/golangci-lint:v1.54-alpine
+    commands:
+      - golangci-lint run
+
   - name: test
     <<: *go
     commands:
       - make test
-      - make lint
       - go test -bench=.
 
   - name: PostgresSQL

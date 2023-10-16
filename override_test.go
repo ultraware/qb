@@ -1,11 +1,9 @@
 package qb
 
 import (
-	"reflect"
 	"testing"
 
 	"git.fuyu.moe/Fuyu/assert"
-	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
 var override = OverrideMap{}
@@ -37,11 +35,9 @@ func field2() Field {
 func TestOverrideField(t *testing.T) {
 	assert := assert.New(t)
 
-	val := reflect.ValueOf
-
-	assert.Cmp(val(TField()), val(field1()), cmpopts.IgnoreUnexported(reflect.Value{}))
+	assert.Cmp(TField().QueryString(nil), field1().QueryString(nil))
 
 	override.Add(TField, field2)
 
-	assert.Cmp(val(TField()), val(field2()), cmpopts.IgnoreUnexported(reflect.Value{}))
+	assert.Cmp(TField().QueryString(nil), field2().QueryString(nil))
 }
