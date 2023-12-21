@@ -107,7 +107,7 @@ func (q *SelectBuilder) CrossJoinLateral(s LateralJoinSource) *SelectBuilder {
 	return q.ManualJoin(
 		JoinCross,
 		s.lateralJoinSource(),
-		nil,
+		make([]Condition, 0)...,
 	)
 }
 
