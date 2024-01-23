@@ -1,6 +1,7 @@
 package qbdb // import "git.ultraware.nl/Ultraware/qb/v2/qbdb"
 
 import (
+	"context"
 	"database/sql/driver"
 	"fmt"
 	"reflect"
@@ -137,89 +138,132 @@ func (db queryTarget) log(s string, v []interface{}) {
 
 // Query executes the given SelectQuery on the database
 func (db queryTarget) Query(q qb.SelectQuery) (Rows, error) {
+	return db.QueryContext(context.Background(), q)
+}
+
+// QueryContext executes the given SelectQuery on the database
+func (db queryTarget) QueryContext(c context.Context, q qb.SelectQuery) (Rows, error) {
 	s, v := db.prepare(q)
-	r, err := db.RawQuery(s, v...)
+	r, err := db.RawQueryContext(c, s, v...)
 	return r, err
 }
 
 // MustQuery executes the given SelectQuery on the database
 // If an error occurs returned it will panic
 func (db queryTarget) MustQuery(q qb.SelectQuery) Rows {
-	r, err := db.Query(q)
-	if err != nil {
-		panic(err)
-	}
-	return r
+	return db.MustQueryContext(context.Background(), q)
+}
+
+// MustQueryContext executes the given SelectQuery on the database
+// If an error occurs returned it will panic
+func (db queryTarget) MustQueryContext(c context.Context, q qb.SelectQuery) Rows {
+	return mustRows(db.QueryContext(c, q))
 }
 
 // RawQuery executes the given raw query on the database
 func (db queryTarget) RawQuery(s string, v ...interface{}) (Rows, error) {
-	r, err := db.src.Query(s, v...)
+	return db.RawQueryContext(context.Background(), s, v)
+}
+
+// RawQueryContext executes the given raw query on the database
+func (db queryTarget) RawQueryContext(c context.Context, s string, v ...interface{}) (Rows, error) {
+	r, err := db.src.QueryContext(c, s, v...)
 	return Rows{r}, err
 }
 
 // MustRawQuery executes the given raw query on the database
 // If an error occurs returned it will panic
 func (db queryTarget) MustRawQuery(s string, v ...interface{}) Rows {
-	r, err := db.RawQuery(s, v)
-	if err != nil {
-		panic(err)
-	}
-	return r
+	return db.MustRawQueryContext(context.Background(), s, v...)
+}
+
+// MustRawQueryContext executes the given raw query on the database
+// If an error occurs returned it will panic
+func (db queryTarget) MustRawQueryContext(c context.Context, s string, v ...interface{}) Rows {
+	return mustRows(db.RawQueryContext(c, s, v...))
 }
 
 // QueryRow executes the given SelectQuery on the database, only returns one row
 func (db queryTarget) QueryRow(q qb.SelectQuery) Row {
+	return db.QueryRowContext(context.Background(), q)
+}
+
+// QueryRowContext executes the given SelectQuery on the database, only returns one row
+func (db queryTarget) QueryRowContext(c context.Context, q qb.SelectQuery) Row {
 	if sq, ok := q.(*qb.SelectBuilder); ok {
 		sq.Limit(1)
 	}
 
 	s, v := db.prepare(q)
-	return db.RawQueryRow(s, v...)
+	return db.RawQueryRowContext(c, s, v...)
 }
 
 // RawQueryRow executes the given raw query on the database, only returns one row
 func (db queryTarget) RawQueryRow(s string, v ...interface{}) Row {
-	return Row{db.src.QueryRow(s, v...)}
+	return db.RawQueryRowContext(context.Background(), s, v)
+}
+
+// RawQueryRowContext executes the given raw query on the database, only returns one row
+func (db queryTarget) RawQueryRowContext(c context.Context, s string, v ...interface{}) Row {
+	return Row{db.src.QueryRowContext(c, s, v...)}
 }
 
 // Exec executes the given query, returns only an error
 func (db queryTarget) Exec(q qb.Query) (Result, error) {
+	return db.ExecContext(context.Background(), q)
+}
+
+// ExecContext executes the given query, returns only an error
+func (db queryTarget) ExecContext(c context.Context, q qb.Query) (Result, error) {
 	s, v := db.prepare(q)
-	return db.RawExec(s, v...)
+	return db.RawExecContext(c, s, v...)
 }
 
 // MustExec executes the given query
 // If an error occurs returned it will panic
 func (db queryTarget) MustExec(q qb.Query) Result {
-	res, err := db.Exec(q)
-	if err != nil {
-		panic(err)
-	}
-	return res
+	return db.MustExecContext(context.Background(), q)
+}
+
+// MustExecContext executes the given query with context
+// If an error occurs returned it will panic
+func (db queryTarget) MustExecContext(c context.Context, q qb.Query) Result {
+	return mustResult(db.ExecContext(c, q))
 }
 
 // RawExec executes the given SQL with the given params directly on the database
 func (db queryTarget) RawExec(s string, v ...interface{}) (Result, error) {
-	r, err := db.src.Exec(s, v...)
+	return db.RawExecContext(context.Background(), s, v)
+}
+
+// RawExecContext executes the given SQL with the given params directly on the database
+func (db queryTarget) RawExecContext(c context.Context, s string, v ...interface{}) (Result, error) {
+	r, err := db.src.ExecContext(c, s, v...)
 	return Result{r}, err
 }
 
 // MustRawExec executes the given SQL with the given params directly on the database
 // If an error occurs returned it will panic
 func (db queryTarget) MustRawExec(s string, v ...interface{}) Result {
-	res, err := db.RawExec(s, v...)
-	if err != nil {
-		panic(err)
-	}
-	return res
+	return db.MustRawExecContext(context.Background(), s, v)
+}
+
+// MustRawExecContext executes the given SQL with the given params directly on the database
+// If an error occurs returned it will panic
+func (db queryTarget) MustRawExecContext(c context.Context, s string, v ...interface{}) Result {
+	return mustResult(db.RawExecContext(c, s, v...))
 }
 
 // Prepare prepares a query for efficient repeated executions
 func (db queryTarget) Prepare(q qb.Query) (*Stmt, error) {
+	return db.PrepareContext(context.Background(), q)
+}
+
+// PrepareContext prepares a query for efficient repeated executions
+func (db queryTarget) PrepareContext(c context.Context, q qb.Query) (*Stmt, error) {
 	s, v := db.prepare(q)
 
-	stmt, err := db.src.Prepare(s)
+	stmt, err := db.src.PrepareContext(c, s)
 	if err != nil {
 		return nil, err
 	}
@@ -230,9 +274,29 @@ func (db queryTarget) Prepare(q qb.Query) (*Stmt, error) {
 // MustPrepare prepares a query for efficient repeated executions
 // If an error occurs returned it will panic
 func (db queryTarget) MustPrepare(q qb.Query) *Stmt {
-	stmt, err := db.Prepare(q)
+	return db.MustPrepareContext(context.Background(), q)
+}
+
+// MustPrepareContext prepares a query for efficient repeated executions
+// If an error occurs returned it will panic
+func (db queryTarget) MustPrepareContext(ctx context.Context, q qb.Query) *Stmt {
+	stmt, err := db.PrepareContext(ctx, q)
 	if err != nil {
 		panic(err)
 	}
 	return stmt
+}
+
+func mustRows(r Rows, err error) Rows {
+	if err != nil {
+		panic(err)
+	}
+	return r
+}
+
+func mustResult(r Result, err error) Result {
+	if err != nil {
+		panic(err)
+	}
+	return r
 }

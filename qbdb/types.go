@@ -1,6 +1,7 @@
 package qbdb
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 
@@ -11,17 +12,28 @@ import (
 type Target interface {
 	Render(qb.Query) (string, []interface{})
 	Query(qb.SelectQuery) (Rows, error)
+	QueryContext(ctx context.Context, q qb.SelectQuery) (Rows, error)
 	RawQuery(string, ...interface{}) (Rows, error)
+	RawQueryContext(ctx context.Context, s string, v ...interface{}) (Rows, error)
 	MustQuery(qb.SelectQuery) Rows
 	MustRawQuery(string, ...interface{}) Rows
+	MustQueryContext(ctx context.Context, q qb.SelectQuery) Rows
+	MustRawQueryContext(ctx context.Context, s string, v ...interface{}) Rows
 	QueryRow(qb.SelectQuery) Row
+	QueryRowContext(ctx context.Context, q qb.SelectQuery) Row
 	RawQueryRow(string, ...interface{}) Row
 	Exec(q qb.Query) (Result, error)
+	ExecContext(ctx context.Context, q qb.Query) (Result, error)
 	RawExec(string, ...interface{}) (Result, error)
+	RawExecContext(ctx context.Context, s string, v ...interface{}) (Result, error)
 	MustExec(q qb.Query) Result
+	MustExecContext(ctx context.Context, q qb.Query) Result
 	MustRawExec(string, ...interface{}) Result
+	MustRawExecContext(ctx context.Context, s string, v ...interface{}) Result
 	Prepare(qb.Query) (*Stmt, error)
+	PrepareContext(ctx context.Context, q qb.Query) (*Stmt, error)
 	MustPrepare(qb.Query) *Stmt
+	MustPrepareContext(ctx context.Context, q qb.Query) *Stmt
 	Driver() qb.Driver
 	SetDebug(bool)
 }
@@ -63,6 +75,10 @@ type queryTarget struct {
 		Query(string, ...interface{}) (*sql.Rows, error)
 		QueryRow(string, ...interface{}) *sql.Row
 		Prepare(string) (*sql.Stmt, error)
+		ExecContext(context.Context, string, ...interface{}) (sql.Result, error)
+		QueryContext(context.Context, string, ...interface{}) (*sql.Rows, error)
+		QueryRowContext(context.Context, string, ...interface{}) *sql.Row
+		PrepareContext(context.Context, string) (*sql.Stmt, error)
 	}
 	driver qb.Driver
 	debug  bool
@@ -80,6 +96,7 @@ func (db *queryTarget) SetDebug(b bool) {
 type DB interface {
 	Target
 	Begin() (Tx, error)
+	BeginTx(ctx context.Context, opts *sql.TxOptions) (Tx, error)
 	MustBegin() Tx
 }
 
@@ -90,7 +107,12 @@ type db struct {
 
 // Begin starts a transaction
 func (db *db) Begin() (Tx, error) {
-	rawTx, err := db.DB.Begin()
+	return db.BeginTx(context.Background(), nil)
+}
+
+// BeginTx starts a transaction
+func (db *db) BeginTx(c context.Context, o *sql.TxOptions) (Tx, error) {
+	rawTx, err := db.DB.BeginTx(c, o)
 	return &tx{queryTarget{rawTx, db.queryTarget.driver, db.queryTarget.debug}, rawTx}, err
 }
 
