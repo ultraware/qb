@@ -162,7 +162,7 @@ func (db queryTarget) MustQueryContext(c context.Context, q qb.SelectQuery) Rows
 
 // RawQuery executes the given raw query on the database
 func (db queryTarget) RawQuery(s string, v ...interface{}) (Rows, error) {
-	return db.RawQueryContext(context.Background(), s, v)
+	return db.RawQueryContext(context.Background(), s, v...)
 }
 
 // RawQueryContext executes the given raw query on the database
@@ -200,7 +200,7 @@ func (db queryTarget) QueryRowContext(c context.Context, q qb.SelectQuery) Row {
 
 // RawQueryRow executes the given raw query on the database, only returns one row
 func (db queryTarget) RawQueryRow(s string, v ...interface{}) Row {
-	return db.RawQueryRowContext(context.Background(), s, v)
+	return db.RawQueryRowContext(context.Background(), s, v...)
 }
 
 // RawQueryRowContext executes the given raw query on the database, only returns one row
@@ -233,7 +233,7 @@ func (db queryTarget) MustExecContext(c context.Context, q qb.Query) Result {
 
 // RawExec executes the given SQL with the given params directly on the database
 func (db queryTarget) RawExec(s string, v ...interface{}) (Result, error) {
-	return db.RawExecContext(context.Background(), s, v)
+	return db.RawExecContext(context.Background(), s, v...)
 }
 
 // RawExecContext executes the given SQL with the given params directly on the database
@@ -245,7 +245,7 @@ func (db queryTarget) RawExecContext(c context.Context, s string, v ...interface
 // MustRawExec executes the given SQL with the given params directly on the database
 // If an error occurs returned it will panic
 func (db queryTarget) MustRawExec(s string, v ...interface{}) Result {
-	return db.MustRawExecContext(context.Background(), s, v)
+	return db.MustRawExecContext(context.Background(), s, v...)
 }
 
 // MustRawExecContext executes the given SQL with the given params directly on the database

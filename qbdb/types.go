@@ -22,6 +22,7 @@ type Target interface {
 	QueryRow(qb.SelectQuery) Row
 	QueryRowContext(ctx context.Context, q qb.SelectQuery) Row
 	RawQueryRow(string, ...interface{}) Row
+	RawQueryRowContext(ctx context.Context, s string, v ...interface{}) Row
 	Exec(q qb.Query) (Result, error)
 	ExecContext(ctx context.Context, q qb.Query) (Result, error)
 	RawExec(string, ...interface{}) (Result, error)
