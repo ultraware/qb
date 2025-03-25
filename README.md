@@ -23,7 +23,7 @@ You can create a db.json manually or use qb-architect to generate it from your d
 `qb-architect` example:
 
 ```bash
-qb-architect -dbms psql host=127.0.0.1 username=qb_test dbname=qb_test > db.json
+qb-architect -dbms psql host=127.0.0.1 username=qb_test dbname=qb_test search_path=schema1,schema2 > db.json
 ```
 
 `db.json` example:
