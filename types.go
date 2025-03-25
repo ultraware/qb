@@ -324,13 +324,13 @@ func (c *Context) Alias(src Source) string {
 }
 
 func (c *Context) clone(alias Alias) *Context {
-	new := *c
-	new.alias = alias
+	nc := *c
+	nc.alias = alias
 
 	var values []interface{}
-	new.Values = &values
+	nc.Values = &values
 
-	return &new
+	return &nc
 }
 
 // NewContext returns a new *Context

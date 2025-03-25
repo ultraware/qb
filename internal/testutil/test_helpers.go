@@ -20,7 +20,6 @@ var (
 	String = colored(33)
 )
 
-//nolint:gocritic
 func colored(code int) func(v ...interface{}) string {
 	return func(v ...interface{}) string {
 		return fmt.Sprint(append([]interface{}{shell(code)}, append(v, shell(0))...)...)

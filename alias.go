@@ -34,9 +34,9 @@ func (g *aliasGenerator) Get(src Source) string {
 		return v
 	}
 
-	new := g.new(src)
-	g.cache[src] = new
-	return new
+	nv := g.new(src)
+	g.cache[src] = nv
+	return nv
 }
 
 func (g *aliasGenerator) new(src Source) string {

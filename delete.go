@@ -12,6 +12,8 @@ type DeleteBuilder struct {
 }
 
 // SQL returns a query string and a list of values
+//
+
 func (q DeleteBuilder) SQL(b SQLBuilder) (string, []interface{}) {
 	drvPath := reflect.TypeOf(b.Context.Driver).PkgPath()
 	if strings.HasSuffix(drvPath, `myqb`) || strings.HasSuffix(drvPath, `msqb`) {

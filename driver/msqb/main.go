@@ -38,7 +38,7 @@ func (d Driver) EscapeCharacter() string {
 }
 
 // UpsertSQL implements qb.Driver
-func (d Driver) UpsertSQL(t *qb.Table, _ []qb.Field, q qb.Query) (string, []interface{}) {
+func (d Driver) UpsertSQL(_ *qb.Table, _ []qb.Field, _ qb.Query) (string, []interface{}) {
 	panic(`mssql does not support upsert`)
 }
 
@@ -96,7 +96,7 @@ func (d Driver) Returning(b qb.SQLBuilder, q qb.Query, f []qb.Field) (string, []
 }
 
 // LateralJoin implements qb.Driver
-func (d Driver) LateralJoin(c *qb.Context, s *qb.SubQuery) string {
+func (d Driver) LateralJoin(_ *qb.Context, _ *qb.SubQuery) string {
 	panic(`mssql does not support lateral joins`)
 }
 

@@ -20,8 +20,8 @@ func GetFuncFrame() string {
 type OverrideMap map[string]interface{}
 
 // Add adds an override to the map
-func (m OverrideMap) Add(target, new interface{}) {
-	rt, rn := reflect.TypeOf(target), reflect.TypeOf(new)
+func (m OverrideMap) Add(target, nv interface{}) {
+	rt, rn := reflect.TypeOf(target), reflect.TypeOf(nv)
 
 	if rt.Kind() != reflect.Func || rn.Kind() != reflect.Func {
 		panic(`Cannot use non-function arguments in OverrideMap.Add`)
@@ -35,7 +35,7 @@ func (m OverrideMap) Add(target, new interface{}) {
 		panic(`Arguments must be qb types`)
 	}
 
-	m[runtime.FuncForPC(reflect.ValueOf(target).Pointer()).Name()] = new
+	m[runtime.FuncForPC(reflect.ValueOf(target).Pointer()).Name()] = nv
 }
 
 func isQbType(rt reflect.Type) bool {

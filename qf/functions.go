@@ -67,19 +67,19 @@ func average(f qb.Field) qb.Field {
 
 // Min calculates the minimum value in this field
 func Min(f qb.Field) qb.Field {
-	return useOverride(min, f)
+	return useOverride(minFunc, f)
 }
 
-func min(f qb.Field) qb.Field {
+func minFunc(f qb.Field) qb.Field {
 	return NewCalculatedField(`min(`, f, `)`)
 }
 
 // Max calculates the maximum value in this field
 func Max(f qb.Field) qb.Field {
-	return useOverride(max, f)
+	return useOverride(maxFunc, f)
 }
 
-func max(f qb.Field) qb.Field {
+func maxFunc(f qb.Field) qb.Field {
 	return NewCalculatedField(`max(`, f, `)`)
 }
 

@@ -20,7 +20,7 @@ func (db queryTarget) printType(v interface{}, c *int) (string, bool) {
 		return `NULL`, false
 	}
 
-	switch t := reflect.ValueOf(v); t.Type().Kind() {
+	switch t := reflect.ValueOf(v); t.Type().Kind() { //nolint: exhaustive
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return strconv.FormatInt(t.Int(), 10), false
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
@@ -54,10 +54,10 @@ func (db queryTarget) ctes(ctes []*qb.CTE, done map[*qb.CTE]bool, b qb.SQLBuilde
 		newValues, newCTEs := []interface{}{}, []*qb.CTE{}
 		b.Context.Values, b.Context.CTEs = &newValues, &newCTEs
 
-		new := v.With(b)
+		newWith := v.With(b)
 
 		b.Context.Values = tmp
-		list = append(append(list, db.ctes(*b.Context.CTEs, done, b)...), new)
+		list = append(append(list, db.ctes(*b.Context.CTEs, done, b)...), newWith)
 
 		b.Context.Add(newValues...)
 	}
@@ -106,7 +106,7 @@ func (db queryTarget) prepareSQL(s string, v []interface{}) (string, []interface
 	c := 0
 	b := &strings.Builder{}
 
-	new := []interface{}{}
+	newValue := []interface{}{}
 	for _, chr := range s {
 		if chr != '?' {
 			if _, err := b.WriteRune(chr); err != nil {
@@ -117,7 +117,7 @@ func (db queryTarget) prepareSQL(s string, v []interface{}) (string, []interface
 
 		str, param := db.printType(v[vc], &c)
 		if param {
-			new = append(new, v[vc])
+			newValue = append(newValue, v[vc])
 		}
 		vc++
 
@@ -126,8 +126,8 @@ func (db queryTarget) prepareSQL(s string, v []interface{}) (string, []interface
 		}
 	}
 
-	db.log(b.String(), new)
-	return b.String(), new
+	db.log(b.String(), newValue)
+	return b.String(), newValue
 }
 
 func (db queryTarget) log(s string, v []interface{}) {

@@ -25,7 +25,7 @@ func (q ReturningBuilder) SQL(b SQLBuilder) (string, []interface{}) {
 	return q.getSQL(b, false)
 }
 
-func (q ReturningBuilder) getSQL(b SQLBuilder, aliasFields bool) (string, []interface{}) {
+func (q ReturningBuilder) getSQL(b SQLBuilder, _ bool) (string, []interface{}) {
 	s, v := b.Context.Driver.Returning(b, q.Query, q.fields)
 	return s, append(v, *b.Context.Values...)
 }
@@ -139,16 +139,16 @@ func (q *SelectBuilder) RightJoinLateral(s LateralJoinSource, condition Conditio
 }
 
 func (q *SelectBuilder) join(t Join, f1, f2 Field, c []Condition) *SelectBuilder {
-	var new Source
+	var newSource Source
 	exists := 0
 	for _, v := range q.tables {
 		if src := getParent(f1); src == v {
 			exists++
-			new = getParent(f2)
+			newSource = getParent(f2)
 		}
 		if src := getParent(f2); src == v {
 			exists++
-			new = getParent(f1)
+			newSource = getParent(f1)
 		}
 	}
 
@@ -159,7 +159,7 @@ func (q *SelectBuilder) join(t Join, f1, f2 Field, c []Condition) *SelectBuilder
 		panic(`Both tables already joined`)
 	}
 
-	return q.ManualJoin(t, new, append(c, eq(f1, f2))...)
+	return q.ManualJoin(t, newSource, append(c, eq(f1, f2))...)
 }
 
 // GroupBy adds a GROUP BY clause to the query

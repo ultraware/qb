@@ -42,7 +42,7 @@ func attrelid(schema, table string) qb.Field {
 	return qf.NewCalculatedField(qb.Value(schema+`.`+table), `::regclass`)
 }
 
-func any(f qb.Field) qb.Field {
+func castAny(f qb.Field) qb.Field {
 	return qf.NewCalculatedField(`ANY(`, f, `)`)
 }
 
@@ -51,7 +51,7 @@ func (d Driver) GetTables() []string {
 	it := pgmodel.Tables()
 
 	q := it.Select(it.TableSchema, it.TableName).
-		Where(qc.Eq(it.TableSchema, any(schemas()))).
+		Where(qc.Eq(it.TableSchema, castAny(schemas()))).
 		GroupBy(it.TableSchema, it.TableName)
 
 	rows, err := d.DB.Query(q)

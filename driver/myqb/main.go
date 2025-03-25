@@ -65,12 +65,12 @@ func (d Driver) LimitOffset(sql qb.SQL, limit, offset int) {
 }
 
 // Returning implements qb.Driver
-func (d Driver) Returning(b qb.SQLBuilder, q qb.Query, f []qb.Field) (string, []interface{}) {
+func (d Driver) Returning(_ qb.SQLBuilder, _ qb.Query, _ []qb.Field) (string, []interface{}) {
 	panic(`mysql does not support RETURNING`)
 }
 
 // LateralJoin implements qb.Driver
-func (d Driver) LateralJoin(c *qb.Context, s *qb.SubQuery) string {
+func (d Driver) LateralJoin(_ *qb.Context, _ *qb.SubQuery) string {
 	panic(`mysql does not support lateral joins`)
 }
 

@@ -57,7 +57,7 @@ func (d Driver) UpsertSQL(t *qb.Table, conflict []qb.Field, q qb.Query) (string,
 }
 
 // IgnoreConflictSQL implements qb.Driver
-func (d Driver) IgnoreConflictSQL(t *qb.Table, conflict []qb.Field) (string, []interface{}) {
+func (d Driver) IgnoreConflictSQL(_ *qb.Table, conflict []qb.Field) (string, []interface{}) {
 	c := qb.NewContext(d, qb.NoAlias())
 	sql := ``
 	for k, v := range conflict {

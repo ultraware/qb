@@ -167,7 +167,7 @@ type Result struct {
 }
 
 // MustLastInsertId is the same as LastInsertId except if an error occurs returned it will panic
-func (r Result) MustLastInsertId() int64 { //nolint: stylecheck
+func (r Result) MustLastInsertId() int64 { //nolint:revive,stylecheck
 	id, err := r.LastInsertId()
 	if err != nil {
 		panic(err)

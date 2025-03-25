@@ -5,7 +5,7 @@ name: Linux
 
 platform:
   go: &go
-    image: registry.ultraware.nl/ultraware/go-build:1.21
+    image: registry.ultraware.nl/ultraware/go-build:1.24
     pull: always
 
 steps:
@@ -30,7 +30,7 @@ steps:
       DATABASE_CONNECTION_STRING: sqlserver://sa:P@ssw0rd@sqlserver
 
   - name: lint
-    image: registry.ultraware.nl/proxy_cache/golangci/golangci-lint:v1.54-alpine
+    image: registry.ultraware.nl/proxy_cache/golangci/golangci-lint:v1.62.2-alpine
     commands:
       - golangci-lint run
 
@@ -72,14 +72,15 @@ steps:
 
 services:
   - name: pgsql
-    image: postgres:10.1-alpine
+    image: postgres:15-alpine
     environment:
       DB_HOST: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
       POSTGRES_USER: qb_test
       POSTGRES_DB: qb_test
 
   - name: mariadb
-    image: mariadb:10.3
+    image: mariadb:11
     environment:
       MYSQL_DATABASE: qb_test
       MYSQL_USER: qb_test
@@ -87,7 +88,7 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: true
 
   - name: sqlserver
-    image: mcr.microsoft.com/mssql/server:2019-latest
+    image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       ACCEPT_EULA: Y
       MSSQL_SA_PASSWORD: P@ssw0rd

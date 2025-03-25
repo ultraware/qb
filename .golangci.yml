@@ -1,62 +1,47 @@
 run:
-  deadline: 10m
-  build-tags:
-    # empty list
-  skip-dirs:
-    - "qb-architect/internal/db/msarchitect/msmodel"
-    - "qb-architect/internal/db/myarchitect/mymodel"
-    - "qb-architect/internal/db/pgarchitect/pgmodel"
-  skip-files:
-    # empty list
+  build-tags: []
 
 output:
-  format: colored-line-number
-  print-issued-lines: false
+  print-issued-lines: true
   print-linter-name: true
 
 linters:
   disable-all: true
   enable:
     - bodyclose
-    - deadcode
-    - dupl
     - errcheck
     - errorlint
+    - exhaustive
     - funlen
     - goconst
     - gocritic
     - gocyclo
-    - goerr113
+    - err113
     - gofumpt
     - goimports
     - gosimple
     - govet
     - ineffassign
     - lll
-    - misspell
     - nakedret
     - nolintlint
     - prealloc
-    - exportloopref
+    - revive
     - staticcheck
-    - structcheck
     - stylecheck
     - typecheck
     - unconvert
     - unparam
     - unused
-    - varcheck
     - whitespace
 
 linters-settings:
-  gocyclo:
-    min-complexity: 10
-
   govet:
-    check-shadowing: true
+    enable:
+      - shadow
 
-  dupl:
-    threshold: 50
+  gocyclo:
+    min-complexity: 15
 
   lll:
     line-length: 150
@@ -65,18 +50,29 @@ linters-settings:
   nakedret:
     max-func-lines: 10
 
+  funlen:
+    lines: 120
+    statements: 60
+
 issues:
-  exclude:
-    # empty list
+  exclude: []
   exclude-rules:
     - linters:
-      - stylecheck
+        - stylecheck
       text: "ST1000:"
     - path: _test.go
       linters:
         - lll
         - funlen
         - dupl
+    - linters:
+        - revive
+      text: "package-comments|exported"
+    - linters:
+        - errcheck
+      source: "defer .*Rollback()"
+    - linters:
+        - errcheck
+      source: "defer .*Close()"
   exclude-use-default: false
-  max-per-linter: 0
   max-same-issues: 0

@@ -10,7 +10,7 @@ import (
 type Driver struct{}
 
 // ValueString returns the placeholder for prepare values
-func (d Driver) ValueString(c int) string {
+func (d Driver) ValueString(_ int) string {
 	return `@@`
 }
 
@@ -48,7 +48,7 @@ func (d Driver) LimitOffset(sql qb.SQL, limit, offset int) {
 }
 
 // Returning implements qb.Driver
-func (d Driver) Returning(b qb.SQLBuilder, q qb.Query, f []qb.Field) (string, []interface{}) {
+func (d Driver) Returning(_ qb.SQLBuilder, _ qb.Query, _ []qb.Field) (string, []interface{}) {
 	panic(`This should not be used`)
 }
 
