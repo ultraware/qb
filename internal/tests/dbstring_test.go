@@ -40,4 +40,9 @@ CREATE TABLE "two $#!" (
 	Comment varchar(100) NOT NULL,
 	ModifiedAt timestamp,
 	PRIMARY KEY (OneID, Number)
+);
+
+CREATE TABLE three (
+	OneID int REFERENCES one(ID),
+	Field3 int
 );`

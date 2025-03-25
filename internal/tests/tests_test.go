@@ -64,9 +64,9 @@ func startTests(t *testing.T, d *sql.DB) {
 
 func runTests(t *testing.T) {
 	if driver == `msqb.Driver` {
-		testUpsertSeperate(t)
+		testUpsertSeparate(t)
 		testInsert(t)
-		testUpsertSeperate(t)
+		testUpsertSeparate(t)
 	} else {
 		testUpsert(t)
 		testInsert(t)
@@ -94,6 +94,7 @@ func runTests(t *testing.T) {
 	testSubQuery(t)
 	if driver == `pgqb.Driver` {
 		testInnerJoinLateral(t)
+		testLateralJoinAlias(t)
 	}
 
 	testCTE(t)
@@ -124,7 +125,7 @@ func testUpsert(test *testing.T) {
 	assert.True(res.MustRowsAffected() >= 2)
 }
 
-func testUpsertSeperate(test *testing.T) {
+func testUpsertSeparate(test *testing.T) {
 	o := model.One()
 
 	iq := o.Insert(o.ID, o.Name).
@@ -497,6 +498,72 @@ func testInnerJoinLateral(test *testing.T) {
 	assert.True(r.MustScan(&id, &comment))
 	assert.Eq(1, id)
 	assert.Eq(`Test comment v2`, comment)
+}
+
+func testLateralJoinAlias(t *testing.T) {
+	o, t2, t3 := model.One(), model.Two(), model.Three()
+	// force auto aliasing
+	o.GetTable().Alias = ``
+	t2.GetTable().Alias = ``
+	t3.GetTable().Alias = ``
+
+	// create test data temporary
+	tx := db.MustBegin()
+	defer tx.Rollback()
+	i := o.Insert(o.ID, o.Name).Values(3, `Test 3`)
+	tx.MustExec(i)
+	i = t2.Insert(t2.OneID, t2.Number, t2.Comment).Values(3, 3*3, `Test comment 3`)
+	tx.MustExec(i)
+	i = t3.Insert(t3.OneID, t3.Field3).Values(3, 3*3*3)
+	tx.MustExec(i)
+
+	t.Run(`tables with same alias "t"`, func(t *testing.T) {
+		assert := assert.New(t)
+
+		var fa qb.Field
+		sq := t2.Select(t2.Comment).
+			Where(qc.Eq(t2.OneID, t3.OneID)).
+			SubQuery(&fa).Lateral()
+		// lateral subquery must use global alias generator, otherwise this error will occur:
+		// panic: pq: missing FROM-clause entry for table "t2"
+		q := t3.Select(t3.Field3, fa).InnerJoinLateral(sq, qc.Eq(1, 1))
+		r := tx.QueryRow(q)
+
+		var field int
+		var comment string
+		assert.True(r.MustScan(&field, &comment))
+		assert.Eq(3*3*3, field)
+		assert.Eq(`Test comment 3`, comment)
+	})
+
+	t.Run(`lateral subqueries must be able to use each other fields`, func(t *testing.T) {
+		assert := assert.New(t)
+
+		var fa, fa2 qb.Field
+		sq := t2.Select(t2.Comment).
+			Where(qc.Eq(t2.OneID, t3.OneID)).
+			SubQuery(&fa).Lateral()
+		sq2 := t2.Select(t2.Comment).
+			Where(
+				qc.Eq(fa, ``),
+				qc.Eq(t2.OneID, 1),
+			).
+			SubQuery(&fa2).Lateral()
+		// lateral subquery must use global alias generator, otherwise this error will occur:
+		// panic: pq: missing FROM-clause entry for table "sq"
+		q := t3.Select(t3.Field3, fa, fa2).
+			InnerJoinLateral(sq, qc.Eq(1, 1)).
+			LeftJoinLateral(sq2, qc.Eq(1, 1))
+		r := tx.QueryRow(q)
+
+		var field int
+		var comment string
+		var comment2 *string
+		assert.True(r.MustScan(&field, &comment, &comment2))
+		assert.Eq(3*3*3, field)
+		assert.Eq(`Test comment 3`, comment)
+		assert.Nil(comment2)
+	})
 }
 
 func testRollback(test *testing.T) {

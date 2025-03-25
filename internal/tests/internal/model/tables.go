@@ -112,3 +112,53 @@ func Two() *TwoType {
 		&table,
 	}
 }
+
+///// Three /////
+var (
+	qbThreeTable = qb.Table{Name: `three`}
+
+	qbThreeFOneID  = qb.TableField{Parent: &qbThreeTable, Name: `OneID`, Type: qb.Int, Size: 32}
+	qbThreeFField3 = qb.TableField{Parent: &qbThreeTable, Name: `Field3`, Type: qb.Int, Size: 32}
+)
+
+// ThreeType represents the table "Three"
+type ThreeType struct {
+	OneID  qb.Field
+	Field3 qb.Field
+	table  *qb.Table
+}
+
+// GetTable returns an object with info about the table
+func (t *ThreeType) GetTable() *qb.Table {
+	return t.table
+}
+
+// Select starts a SELECT query
+func (t *ThreeType) Select(f ...qb.Field) *qb.SelectBuilder {
+	return t.table.Select(f)
+}
+
+// Delete creates a DELETE query
+func (t *ThreeType) Delete(c1 qb.Condition, c ...qb.Condition) qb.Query {
+	return t.table.Delete(c1, c...)
+}
+
+// Update starts an UPDATE query
+func (t *ThreeType) Update() *qb.UpdateBuilder {
+	return t.table.Update()
+}
+
+// Insert starts an INSERT query
+func (t *ThreeType) Insert(f ...qb.Field) *qb.InsertBuilder {
+	return t.table.Insert(f)
+}
+
+// Three returns a new ThreeType
+func Three() *ThreeType {
+	table := qbThreeTable
+	return &ThreeType{
+		qbThreeFOneID.Copy(&table),
+		qbThreeFField3.Copy(&table),
+		&table,
+	}
+}

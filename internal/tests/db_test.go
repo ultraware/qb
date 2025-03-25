@@ -15,7 +15,7 @@ func initDatabase(driverName, connectionString string) *sql.DB {
 		panic(err)
 	}
 
-	dropQuery := `DROP TABLE IF EXISTS one, "two $#!"`
+	dropQuery := `DROP TABLE IF EXISTS one, "two $#!", three`
 	sql := createSQL
 	if driverName != `postgres` {
 		sql = strings.ReplaceAll(sql, `timestamp`, `datetime`)

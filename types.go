@@ -166,34 +166,34 @@ func assignFields(dest *[]Field, parent Source, q SelectQuery, fields []*Field) 
 }
 
 // TableString implements Source
-func (t *SubQuery) TableString(c *Context) string {
-	alias := c.Alias(t)
+func (s *SubQuery) TableString(c *Context) string {
+	alias := c.Alias(s)
 	if len(alias) > 0 {
 		alias = ` ` + alias
 	}
 
-	sql, v := t.query.getSQL(SQLBuilder{Context: c.clone(AliasGenerator())}, true)
+	sql, v := s.query.getSQL(SQLBuilder{Context: c.clone(c.alias)}, true)
 	c.Add(v...)
 
 	return getSubQuerySQL(sql) + alias
 }
 
 // Lateral returns a LATERAL subquery
-func (t *SubQuery) Lateral() LateralSubQuery {
-	return LateralSubQuery{t}
+func (s *SubQuery) Lateral() LateralSubQuery {
+	return LateralSubQuery{s}
 }
 
 func getSubQuerySQL(sql string) string {
 	return `(` + NEWLINE + INDENT + strings.ReplaceAll(strings.TrimSuffix(sql, "\n"), "\n", "\n"+INDENT) + NEWLINE + `)`
 }
 
-func (t *SubQuery) aliasString() string {
+func (s *SubQuery) aliasString() string {
 	return `sq`
 }
 
 // Select starts a SELECT query
-func (t *SubQuery) Select(f ...Field) *SelectBuilder {
-	return NewSelectBuilder(f, t)
+func (s *SubQuery) Select(f ...Field) *SelectBuilder {
+	return NewSelectBuilder(f, s)
 }
 
 ///

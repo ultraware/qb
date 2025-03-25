@@ -16,5 +16,12 @@
 			{"name": "Comment", "data_type": "varchar", "size": 100},
 			{"name": "ModifiedAt", "null": true, "data_type": "timestamp"}
 		]
+	},
+	{
+		"name": "three",
+		"fields": [
+			{"name": "OneID", "data_type": "int"},
+			{"name": "Field3", "data_type": "int"}
+		]
 	}
 ]
