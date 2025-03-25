@@ -155,12 +155,12 @@ func assignFields(dest *[]Field, parent Source, q SelectQuery, fields []*Field) 
 		panic(`Field count in CTE/SubQuery doesn't match`)
 	}
 
-	for k := range q.Fields() {
-		f := &TableField{Name: `f` + strconv.Itoa(k), Parent: parent}
-		*dest = append(*dest, f)
+	for k, f := range q.Fields() {
+		f2 := &TableField{Name: getFieldName(f) + strconv.Itoa(k), Parent: parent}
+		*dest = append(*dest, f2)
 
 		if fields != nil {
-			*fields[k] = f
+			*fields[k] = f2
 		}
 	}
 }
@@ -203,6 +203,14 @@ func (s *SubQuery) Select(f ...Field) *SelectBuilder {
 // Field represents a field in a query
 type Field interface {
 	QueryString(*Context) string
+}
+
+func getFieldName(f Field) string {
+	name := `f`
+	if tf, ok := f.(*TableField); ok && tf.Name != `` {
+		name = tf.Name
+	}
+	return name
 }
 
 // TableField represents a field in a table.

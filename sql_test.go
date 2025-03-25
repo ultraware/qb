@@ -152,7 +152,7 @@ func TestSelect(t *testing.T) {
 	check(true, `SELECT colA, colB`)
 
 	b.Select(true, f1, f2)
-	check(true, `SELECT colA f0, colB f1`)
+	check(true, `SELECT colA colA0, colB colB1`)
 
 	info(t, `-- Testing with alias`)
 	b, check = testBuilder(t, true)
@@ -161,7 +161,7 @@ func TestSelect(t *testing.T) {
 	check(true, `SELECT t.colA, t.colB`)
 
 	b.Select(true, f1, f2)
-	check(true, `SELECT t.colA f0, t.colB f1`)
+	check(true, `SELECT t.colA colA0, t.colB colB1`)
 }
 
 func TestSet(t *testing.T) {

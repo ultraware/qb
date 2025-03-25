@@ -91,7 +91,7 @@ func (b *SQLBuilder) List(f []Field, withAlias bool) string {
 		}
 		s += b.FieldToSQL(v)
 		if withAlias {
-			s += ` f` + strconv.Itoa(k)
+			s += ` ` + getFieldName(v) + strconv.Itoa(k)
 		}
 	}
 

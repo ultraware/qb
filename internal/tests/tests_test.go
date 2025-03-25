@@ -482,22 +482,37 @@ func testInnerJoinLateral(test *testing.T) {
 
 	o, t := model.One(), model.Two()
 
-	var fa qb.Field
-	sq := t.Select(t.Comment).
+	var fa, fb qb.Field
+	sq := t.Select(t.Comment, qf.NewCalculatedField("2")).
 		Where(qc.Eq(t.OneID, o.ID)).
-		SubQuery(&fa).Lateral()
+		SubQuery(&fa, &fb).Lateral()
 
-	q := o.Select(o.ID, fa).InnerJoinLateral(sq, qc.Eq(1, 1))
+	db.SetDebug(true)
+	q := o.Select(o.ID, fa, fb).InnerJoinLateral(sq, qc.Eq(1, 1))
 	r := db.QueryRow(q)
 
 	var (
 		id      int
 		comment string
+		number  int
 	)
-
-	assert.True(r.MustScan(&id, &comment))
+	assert.True(r.MustScan(&id, &comment, &number))
 	assert.Eq(1, id)
 	assert.Eq(`Test comment v2`, comment)
+	assert.Eq(2, number)
+
+	// test result sql (with proper field naming) of subquery
+	b := qb.NewSQLBuilder(db.Driver())
+	s, _ := q.SQL(b)
+	assert.Eq(`SELECT o.ID, sq2.Comment0, sq2.f1
+FROM one AS o
+	INNER JOIN LATERAL (
+		SELECT tw.Comment Comment0, 2 f1
+		FROM "two $#!" AS tw
+		WHERE tw.OneID = o.ID
+	) sq2 ON (? = ?)
+LIMIT 1
+`, s)
 }
 
 func testLateralJoinAlias(t *testing.T) {
