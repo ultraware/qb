@@ -2,38 +2,11 @@ package qbdb // import "git.ultraware.nl/Ultraware/qb/v2/qbdb"
 
 import (
 	"context"
-	"database/sql/driver"
 	"fmt"
-	"reflect"
-	"strconv"
 	"strings"
 
 	"git.ultraware.nl/Ultraware/qb/v2"
 )
-
-func (db queryTarget) printType(v interface{}, c *int) (string, bool) {
-	if _, ok := v.(driver.Valuer); ok {
-		(*c)++
-		return db.driver.ValueString(*c), true
-	}
-	if v == nil {
-		return `NULL`, false
-	}
-
-	switch t := reflect.ValueOf(v); t.Type().Kind() { //nolint: exhaustive
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return strconv.FormatInt(t.Int(), 10), false
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return strconv.FormatUint(t.Uint(), 10), false
-	case reflect.Float32, reflect.Float64:
-		return strconv.FormatFloat(t.Float(), 'g', -1, 64), false
-	case reflect.Bool:
-		return db.driver.BoolString(t.Bool()), false
-	default:
-		(*c)++
-		return db.driver.ValueString(*c), true
-	}
-}
 
 // Render returns the generated SQL and values without executing the query
 func (db queryTarget) Render(q qb.Query) (string, []interface{}) {
@@ -102,7 +75,6 @@ func (db queryTarget) prepare(q qb.Query) (string, []interface{}) {
 }
 
 func (db queryTarget) prepareSQL(s string, v []interface{}) (string, []interface{}) {
-	vc := 0
 	c := 0
 	b := &strings.Builder{}
 
@@ -115,13 +87,9 @@ func (db queryTarget) prepareSQL(s string, v []interface{}) (string, []interface
 			continue
 		}
 
-		str, param := db.printType(v[vc], &c)
-		if param {
-			newValue = append(newValue, v[vc])
-		}
-		vc++
-
-		if _, err := b.WriteString(str); err != nil {
+		newValue = append(newValue, v[c])
+		c++
+		if _, err := b.WriteString(db.driver.ValueString(c)); err != nil {
 			panic(err)
 		}
 	}

@@ -15,24 +15,6 @@ func (v Valuer) Value() (driver.Value, error) {
 	return v + 1, nil
 }
 
-func TestPrint(t *testing.T) {
-	tests := map[interface{}]string{
-		2:         `2`,
-		uint(3):   `3`,
-		4.8766:    `4.8766`,
-		true:      `t`,
-		`abc`:     `@@`,
-		nil:       `NULL`,
-		Valuer(5): `@@`,
-	}
-
-	c := 0
-	for k, v := range tests {
-		out, _ := database.printType(k, &c)
-		testutil.Compare(t, v, out)
-	}
-}
-
 func TestPrepareSQL(t *testing.T) {
 	test := `SELECT a + ?, ? FROM tbl WHERE id = ?`
 	testIn := [][]interface{}{
@@ -40,8 +22,8 @@ func TestPrepareSQL(t *testing.T) {
 		{3, nil, 123},
 	}
 	testOut := []string{
-		`SELECT a + @@, t FROM tbl WHERE id = 1`,
-		`SELECT a + 3, NULL FROM tbl WHERE id = 123`,
+		`SELECT a + @@, @@ FROM tbl WHERE id = @@`,
+		`SELECT a + @@, @@ FROM tbl WHERE id = @@`,
 	}
 
 	for k, v := range testIn {

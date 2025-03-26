@@ -37,7 +37,8 @@ func TestEndToEnd(t *testing.T) {
 	case `mssql`:
 		db = initMssql()
 	default:
-		t.Skip(`Missing TYPE`)
+		t.Error(`Missing TYPE`)
+		t.FailNow()
 	}
 
 	startTests(t, db)
@@ -106,6 +107,8 @@ func runTests(t *testing.T) {
 	}
 
 	testLeftJoin(t)
+
+	testNilArg(t)
 }
 
 func testUpsert(test *testing.T) {
@@ -267,6 +270,30 @@ func testSelect(test *testing.T) {
 	assert.Eq(1, number)
 	assert.Eq(`Test comment v2`, comment)
 	assert.Nil(modified)
+}
+
+func testNilArg(test *testing.T) {
+	assert := assert.New(test)
+
+	defer func() {
+		assert.Nil(recover(), `test failed, expected no panic`)
+	}()
+
+	o := model.One()
+
+	q := o.Select(o.ID, o.Name).
+		Where(
+			qc.Eq(o.ID, nil),
+		)
+
+	r := db.QueryRow(q)
+
+	var (
+		id   int
+		name string
+	)
+
+	r.MustScan(&id, &name)
 }
 
 func testSelectOffset(test *testing.T) {
