@@ -1,0 +1,102 @@
+name: CI
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+
+env:
+  GO_VERSION: stable
+
+jobs:
+  golangci-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.62.2
+
+  tests:
+    needs: golangci-lint
+    runs-on: ubuntu-latest
+
+    services:
+      pgsql:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_USER: qb_test
+          POSTGRES_DB: qb_test
+        options: >-
+          --health-cmd="pg_isready -U qb_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        ports:
+          - 5432:5432
+
+      mariadb:
+        image: mariadb:11
+        env:
+          MYSQL_DATABASE: qb_test
+          MYSQL_USER: qb_test
+          MYSQL_PASSWORD: qb_test
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        ports:
+          - 3306:3306
+
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: P@ssw0rd
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -U sa -P 'P@ssw0rd' -Q 'SELECT 1' -C"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+          --health-start-period=20s
+        ports:
+          - 1433:1433
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Prepare MSSQL database
+        run: |
+            cat internal/tests/scripts/sqlserver/create_database.sql | docker exec -i $(docker ps -alq) /opt/mssql-tools18/bin/sqlcmd -U sa -P 'P@ssw0rd' -C
+            cat internal/tests/scripts/sqlserver/create_login.sql | docker exec -i $(docker ps -alq) /opt/mssql-tools18/bin/sqlcmd -U sa -P 'P@ssw0rd' -C -d qb_test
+
+      - name: Run unit tests
+        run: make test
+
+      - name: Run PostgresSQL tests
+        run: make test_postgres
+
+      - name: Run MSSQL tests
+        run: make test_mssql
+
+      - name: Run MySQL tests
+        run: make test_mysql
+
+      - name: Total coverage
+        run: |
+          cat unit.out > total.out
+          tail -n +2 postgres.out >> total.out
+          tail -n +2 mysql.out >> total.out
+          tail -n +2 mssql.out >> total.out
+          go tool cover -func total.out | tail -1
