@@ -14,7 +14,7 @@ import (
 	"git.ultraware.nl/Ultraware/qb/v2/qf"
 
 	// mssql driver
-	_ "github.com/denisenkom/go-mssqldb"
+	_ "github.com/microsoft/go-mssqldb" // database driver for Microsoft MSSQL
 )
 
 // Driver implements db.Driver

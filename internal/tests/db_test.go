@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"strings"
 
-	_ "github.com/denisenkom/go-mssqldb" // database driver
-	_ "github.com/go-sql-driver/mysql"   // database driver
-	_ "github.com/lib/pq"                // database driver
+	_ "github.com/go-sql-driver/mysql"  // database driver
+	_ "github.com/lib/pq"               // database driver
+	_ "github.com/microsoft/go-mssqldb" // database driver for Microsoft MSSQL
 )
 
 func initDatabase(driverName, connectionString string) *sql.DB {

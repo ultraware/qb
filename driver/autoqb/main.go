@@ -18,7 +18,7 @@ func New(db *sql.DB) qbdb.DB {
 		return pgqb.New(db)
 	case `github.com/go-sql-driver/mysql`, `github.com/ziutek/mymysql/godrv`:
 		return myqb.New(db)
-	case `github.com/denisenkom/go-mssqldb`:
+	case `github.com/denisenkom/go-mssqldb`, `github.com/microsoft/go-mssqldb`:
 		return msqb.New(db)
 	}
 	panic(`Unknown database driver`)
