@@ -4,7 +4,7 @@ go 1.23.0
 
 require (
 	git.fuyu.moe/Fuyu/assert v0.2.1
-	github.com/go-sql-driver/mysql v1.9.2
+	github.com/go-sql-driver/mysql v1.9.3
 	github.com/lib/pq v1.10.9
 	github.com/microsoft/go-mssqldb v1.8.2
 )
