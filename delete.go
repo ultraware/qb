@@ -1,10 +1,5 @@
 package qb
 
-import (
-	"reflect"
-	"strings"
-)
-
 // DeleteBuilder builds a DELETE query
 type DeleteBuilder struct {
 	table *Table
@@ -15,8 +10,8 @@ type DeleteBuilder struct {
 //
 
 func (q DeleteBuilder) SQL(b SQLBuilder) (string, []interface{}) {
-	drvPath := reflect.TypeOf(b.Context.Driver).PkgPath()
-	if strings.HasSuffix(drvPath, `myqb`) || strings.HasSuffix(drvPath, `msqb`) {
+	dbtype := b.Context.Driver.DBType()
+	if dbtype == DriverMysql || dbtype == DriverMssql {
 		b.w.WriteLine(`DELETE ` + q.table.aliasString())
 		b.w.WriteLine(`FROM ` + b.SourceToSQL(q.table))
 	} else {

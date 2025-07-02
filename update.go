@@ -2,7 +2,6 @@ package qb
 
 import (
 	"reflect"
-	"strings"
 )
 
 type set struct {
@@ -43,7 +42,7 @@ func (q *UpdateBuilder) Where(c ...Condition) *UpdateBuilder {
 
 // SQL returns a query string and a list of values
 func (q *UpdateBuilder) SQL(b SQLBuilder) (string, []interface{}) {
-	if reflect.TypeOf(b.Context.alias) != reflect.TypeOf(NoAlias()) && strings.HasSuffix(reflect.TypeOf(b.Context.Driver).PkgPath(), `msqb`) {
+	if reflect.TypeOf(b.Context.alias) != reflect.TypeOf(NoAlias()) && b.Context.Driver.DBType() == DriverMssql {
 		b.w.WriteLine(`UPDATE ` + q.t.aliasString())
 		b.Set(q.set)
 		b.w.WriteLine(`FROM ` + b.SourceToSQL(q.t))

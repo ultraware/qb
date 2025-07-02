@@ -4,9 +4,7 @@ import (
 	"database/sql"
 	"strings"
 
-	_ "github.com/go-sql-driver/mysql"  // database driver
-	_ "github.com/lib/pq"               // database driver
-	_ "github.com/microsoft/go-mssqldb" // database driver for Microsoft MSSQL
+	"git.ultraware.nl/Ultraware/qb/v2/driver/autoqb"
 )
 
 func initDatabase(driverName, connectionString string) *sql.DB {
@@ -17,10 +15,11 @@ func initDatabase(driverName, connectionString string) *sql.DB {
 
 	dropQuery := `DROP TABLE IF EXISTS one, "two $#!", three`
 	sql := createSQL
-	if driverName != `postgres` {
+
+	switch {
+	case autoqb.IsPostgres(db):
 		sql = strings.ReplaceAll(sql, `timestamp`, `datetime`)
-	}
-	if driverName == `mysql` {
+	case autoqb.IsMysql(db):
 		sql = strings.ReplaceAll(sql, `"`, "`")
 		dropQuery = strings.ReplaceAll(dropQuery, `"`, "`")
 	}
@@ -40,6 +39,10 @@ func initDatabase(driverName, connectionString string) *sql.DB {
 
 func initPostgres() *sql.DB {
 	return initDatabase(`postgres`, getPostgresDBString())
+}
+
+func initPostgresX() *sql.DB {
+	return initDatabase(`pgx`, getPostgresDBString())
 }
 
 func initMysql() *sql.DB {

@@ -18,6 +18,7 @@ test_all: test_postgres test_mysql test_mssql
 .PHONY: test_postgres
 test_postgres:
 	@TYPE=postgres go test -cover -coverprofile postgres.out -coverpkg ./... ./internal/tests -v
+	@TYPE=postgresX go test -cover -coverprofile postgresX.out -coverpkg ./... ./internal/tests -v
 
 .PHONY: test_mysql
 test_mysql:
