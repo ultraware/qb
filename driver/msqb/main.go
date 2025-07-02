@@ -19,6 +19,10 @@ func New(db *sql.DB) qbdb.DB {
 	return qbdb.New(Driver{}, db)
 }
 
+func (d Driver) DBType() qb.DBType {
+	return qb.DriverMssql
+}
+
 // ValueString returns a the SQL for a parameter value
 func (d Driver) ValueString(i int) string {
 	return `@p` + strconv.Itoa(i)

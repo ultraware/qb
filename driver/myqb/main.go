@@ -20,6 +20,10 @@ func New(db *sql.DB) qbdb.DB {
 	return qbdb.New(Driver{}, db)
 }
 
+func (d Driver) DBType() qb.DBType {
+	return qb.DriverMysql
+}
+
 // ValueString returns a the SQL for a parameter value
 func (d Driver) ValueString(_ int) string {
 	return `?`

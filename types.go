@@ -5,7 +5,18 @@ import (
 	"strings"
 )
 
-// Driver implements databse-specific features
+type DBType int
+
+const (
+	// DriverPostgres is the PostgreSQL driver
+	DriverPostgres DBType = iota
+	// DriverMysql is the MySQL driver
+	DriverMysql
+	// DriverMssql is the Microsoft SQL Server driver
+	DriverMssql
+)
+
+// Driver implements database-specific features
 type Driver interface {
 	ValueString(int) string
 	BoolString(bool) string
@@ -17,6 +28,8 @@ type Driver interface {
 	LateralJoin(*Context, *SubQuery) string
 	TypeName(DataType) string
 	Override() OverrideMap
+
+	DBType() DBType
 }
 
 // Query generates SQL

@@ -9,6 +9,10 @@ import (
 // Driver is a default driver used for tests
 type Driver struct{}
 
+func (d Driver) DBType() qb.DBType {
+	return qb.DriverPostgres
+}
+
 // ValueString returns the placeholder for prepare values
 func (d Driver) ValueString(_ int) string {
 	return `@@`

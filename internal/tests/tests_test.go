@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
-	"reflect"
 	"testing"
 	"time"
 
@@ -20,7 +19,7 @@ import (
 
 var (
 	db     qbdb.DB
-	driver string
+	driver qb.DBType
 )
 
 func TestEndToEnd(t *testing.T) {
@@ -32,6 +31,8 @@ func TestEndToEnd(t *testing.T) {
 	switch os.Getenv(`TYPE`) {
 	case `postgres`:
 		db = initPostgres()
+	case `postgresX`:
+		db = initPostgresX()
 	case `mysql`:
 		db = initMysql()
 	case `mssql`:
@@ -46,7 +47,7 @@ func TestEndToEnd(t *testing.T) {
 
 func startTests(t *testing.T, d *sql.DB) {
 	db = autoqb.New(d)
-	driver = reflect.TypeOf(db.Driver()).String()
+	driver = db.Driver().DBType()
 
 	if testing.Verbose() {
 		db.SetDebug(true)
@@ -64,7 +65,7 @@ func startTests(t *testing.T, d *sql.DB) {
 }
 
 func runTests(t *testing.T) {
-	if driver == `msqb.Driver` {
+	if driver == qb.DriverMssql {
 		testUpsertSeparate(t)
 		testInsert(t)
 		testUpsertSeparate(t)
@@ -73,11 +74,11 @@ func runTests(t *testing.T) {
 		testInsert(t)
 		testUpsert(t)
 	}
-	if driver == `pgqb.Driver` {
+	if driver == qb.DriverPostgres {
 		testIgnoreConflicts(t)
 	}
 
-	if driver == `myqb.Driver` {
+	if driver == qb.DriverMysql {
 		testUpdate(t)
 	} else {
 		testUpdateReturning(t)
@@ -93,14 +94,14 @@ func runTests(t *testing.T) {
 	testExists(t)
 	testPrepare(t)
 	testSubQuery(t)
-	if driver == `pgqb.Driver` {
+	if driver == qb.DriverPostgres {
 		testInnerJoinLateral(t)
 		testLateralJoinAlias(t)
 	}
 
 	testCTE(t)
 	testUnionAll(t)
-	if driver == `myqb.Driver` {
+	if driver == qb.DriverMysql {
 		testDelete(t)
 	} else {
 		testDeleteReturning(t)
