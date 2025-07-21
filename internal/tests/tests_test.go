@@ -67,10 +67,12 @@ func runTests(t *testing.T) {
 	if driver == `msqb.Driver` {
 		testUpsertSeparate(t)
 		testInsert(t)
+		testInsertSubQuery(t)
 		testUpsertSeparate(t)
 	} else {
 		testUpsert(t)
 		testInsert(t)
+		testInsertSubQuery(t)
 		testUpsert(t)
 	}
 	if driver == `pgqb.Driver` {
@@ -169,6 +171,26 @@ func testInsert(test *testing.T) {
 
 	q := t.Insert(t.OneID, t.Number, t.Comment).
 		Values(1, 1, `Test comment`).
+		Values(1, 2, `Test comment 2`)
+
+	res := tx.MustExec(q)
+
+	assert := assert.New(test)
+	assert.Eq(int64(2), res.MustRowsAffected())
+
+	tx.MustCommit()
+}
+
+func testInsertSubQuery(test *testing.T) {
+	o := model.One()
+	sq := o.Select(o.ID, qb.Value(1), qb.Value(`Test comment sq`))
+
+	t := model.Two()
+
+	tx := db.MustBegin()
+
+	q := t.Insert(t.OneID, t.Number, t.Comment).
+		SubQuery(sq).
 		Values(1, 2, `Test comment 2`)
 
 	res := tx.MustExec(q)

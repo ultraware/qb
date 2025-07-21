@@ -39,6 +39,16 @@ func (q *InsertBuilder) Values(values ...interface{}) *InsertBuilder {
 	return q
 }
 
+// SubQuery add values from a subquery to the insert query.
+func (q *InsertBuilder) SubQuery(v SelectQuery) *InsertBuilder {
+	if len(v.Fields()) != len(q.fields) {
+		panic(`Number of values has to match the number of fields`)
+	}
+
+	q.values = append(q.values, []Field{MakeField(v)})
+	return q
+}
+
 // Upsert turns the INSERT query into an upsert query, only usable if your driver supports it
 func (q *InsertBuilder) Upsert(query Query, conflict ...Field) *InsertBuilder {
 	if q.ignoreConflict {
