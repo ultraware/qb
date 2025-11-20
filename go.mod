@@ -1,6 +1,6 @@
 module git.ultraware.nl/Ultraware/qb/v2
 
-go 1.23.0
+go 1.24.0
 
 require (
 	git.fuyu.moe/Fuyu/assert v0.2.1
@@ -15,6 +15,6 @@ require (
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	golang.org/x/crypto v0.36.0 // indirect
-	golang.org/x/text v0.23.0 // indirect
+	golang.org/x/crypto v0.45.0 // indirect
+	golang.org/x/text v0.31.0 // indirect
 )
