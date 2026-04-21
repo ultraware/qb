@@ -1,4 +1,4 @@
-package util
+package util //nolint: revive
 
 // PanicOnErr panics if err is not nil
 func PanicOnErr(err interface{}) {

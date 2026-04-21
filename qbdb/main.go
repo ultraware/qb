@@ -1,11 +1,11 @@
-package qbdb // import "git.ultraware.nl/Ultraware/qb/v2/qbdb"
+package qbdb // import "github.com/Ultraware/qb/v3/qbdb"
 
 import (
 	"context"
 	"fmt"
 	"strings"
 
-	"git.ultraware.nl/Ultraware/qb/v2"
+	"github.com/Ultraware/qb/v3"
 )
 
 // Render returns the generated SQL and values without executing the query

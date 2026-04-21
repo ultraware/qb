@@ -9,13 +9,13 @@ import (
 	"time"
 
 	"git.fuyu.moe/Fuyu/assert"
-	"git.ultraware.nl/Ultraware/qb/v2"
-	"git.ultraware.nl/Ultraware/qb/v2/driver/autoqb"
-	"git.ultraware.nl/Ultraware/qb/v2/internal/tests/internal/model"
-	"git.ultraware.nl/Ultraware/qb/v2/internal/testutil"
-	"git.ultraware.nl/Ultraware/qb/v2/qbdb"
-	"git.ultraware.nl/Ultraware/qb/v2/qc"
-	"git.ultraware.nl/Ultraware/qb/v2/qf"
+	"github.com/Ultraware/qb/v3"
+	"github.com/Ultraware/qb/v3/driver/autoqb"
+	"github.com/Ultraware/qb/v3/internal/tests/internal/model"
+	"github.com/Ultraware/qb/v3/internal/testutil"
+	"github.com/Ultraware/qb/v3/qbdb"
+	"github.com/Ultraware/qb/v3/qc"
+	"github.com/Ultraware/qb/v3/qf"
 )
 
 var (

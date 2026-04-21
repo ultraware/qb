@@ -1,4 +1,4 @@
-package main // import "git.ultraware.nl/Ultraware/qb/v2/qb-architect"
+package main // import "github.com/Ultraware/qb/v3/qb-architect"
 
 import (
 	"encoding/json"
@@ -9,11 +9,11 @@ import (
 	"sort"
 	"strings"
 
-	"git.ultraware.nl/Ultraware/qb/v2/internal/filter"
-	"git.ultraware.nl/Ultraware/qb/v2/qb-architect/internal/db"
-	"git.ultraware.nl/Ultraware/qb/v2/qb-architect/internal/db/msarchitect"
-	"git.ultraware.nl/Ultraware/qb/v2/qb-architect/internal/db/myarchitect"
-	"git.ultraware.nl/Ultraware/qb/v2/qb-architect/internal/db/pgarchitect"
+	"github.com/Ultraware/qb/v3/internal/filter"
+	"github.com/Ultraware/qb/v3/qb-architect/internal/db"
+	"github.com/Ultraware/qb/v3/qb-architect/internal/db/msarchitect"
+	"github.com/Ultraware/qb/v3/qb-architect/internal/db/myarchitect"
+	"github.com/Ultraware/qb/v3/qb-architect/internal/db/pgarchitect"
 )
 
 var (

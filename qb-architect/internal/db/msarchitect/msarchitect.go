@@ -4,14 +4,14 @@ import (
 	"database/sql"
 	"strings"
 
-	"git.ultraware.nl/Ultraware/qb/v2"
-	"git.ultraware.nl/Ultraware/qb/v2/driver/msqb"
-	"git.ultraware.nl/Ultraware/qb/v2/qb-architect/internal/db"
-	"git.ultraware.nl/Ultraware/qb/v2/qb-architect/internal/db/msarchitect/msmodel"
-	"git.ultraware.nl/Ultraware/qb/v2/qb-architect/internal/util"
-	"git.ultraware.nl/Ultraware/qb/v2/qbdb"
-	"git.ultraware.nl/Ultraware/qb/v2/qc"
-	"git.ultraware.nl/Ultraware/qb/v2/qf"
+	"github.com/Ultraware/qb/v3"
+	"github.com/Ultraware/qb/v3/driver/msqb"
+	"github.com/Ultraware/qb/v3/qb-architect/internal/db"
+	"github.com/Ultraware/qb/v3/qb-architect/internal/db/msarchitect/msmodel"
+	"github.com/Ultraware/qb/v3/qb-architect/internal/util"
+	"github.com/Ultraware/qb/v3/qbdb"
+	"github.com/Ultraware/qb/v3/qc"
+	"github.com/Ultraware/qb/v3/qf"
 
 	// mssql driver
 	_ "github.com/microsoft/go-mssqldb" // database driver for Microsoft MSSQL

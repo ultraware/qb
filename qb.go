@@ -1,1 +1,1 @@
-package qb // import "git.ultraware.nl/Ultraware/qb/v2"
+package qb // import "github.com/Ultraware/qb/v3"

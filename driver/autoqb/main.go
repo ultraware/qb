@@ -1,14 +1,14 @@
-package autoqb // import "git.ultraware.nl/Ultraware/qb/v2/driver/autoqb"
+package autoqb // import "github.com/Ultraware/qb/v3/driver/autoqb"
 
 import (
 	"database/sql"
 	"reflect"
 	"strings"
 
-	"git.ultraware.nl/Ultraware/qb/v2/driver/msqb"
-	"git.ultraware.nl/Ultraware/qb/v2/driver/myqb"
-	"git.ultraware.nl/Ultraware/qb/v2/driver/pgqb"
-	"git.ultraware.nl/Ultraware/qb/v2/qbdb"
+	"github.com/Ultraware/qb/v3/driver/msqb"
+	"github.com/Ultraware/qb/v3/driver/myqb"
+	"github.com/Ultraware/qb/v3/driver/pgqb"
+	"github.com/Ultraware/qb/v3/qbdb"
 )
 
 // New automatically selects a qb driver
