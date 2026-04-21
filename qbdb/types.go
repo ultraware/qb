@@ -114,7 +114,7 @@ func (db *db) Begin() (Tx, error) {
 // BeginTx starts a transaction
 func (db *db) BeginTx(c context.Context, o *sql.TxOptions) (Tx, error) {
 	rawTx, err := db.DB.BeginTx(c, o)
-	return &tx{queryTarget{rawTx, db.queryTarget.driver, db.queryTarget.debug}, rawTx}, err
+	return &tx{queryTarget{rawTx, db.driver, db.debug}, rawTx}, err
 }
 
 // MustBegin is the same as Begin, but it panics if an error occurred

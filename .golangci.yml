@@ -1,14 +1,9 @@
-run:
-  build-tags: []
-
-output:
-  print-issued-lines: true
-  print-linter-name: true
-
+version: "2"
 linters:
-  disable-all: true
+  default: none
   enable:
     - bodyclose
+    - err113
     - errcheck
     - errorlint
     - exhaustive
@@ -16,10 +11,6 @@ linters:
     - goconst
     - gocritic
     - gocyclo
-    - err113
-    - gofumpt
-    - goimports
-    - gosimple
     - govet
     - ineffassign
     - lll
@@ -28,51 +19,57 @@ linters:
     - prealloc
     - revive
     - staticcheck
-    - stylecheck
-    - typecheck
     - unconvert
     - unparam
     - unused
     - whitespace
-
-linters-settings:
-  govet:
-    enable:
-      - shadow
-
-  gocyclo:
-    min-complexity: 15
-
-  lll:
-    line-length: 150
-    tab-width: 4
-
-  nakedret:
-    max-func-lines: 10
-
-  funlen:
-    lines: 120
-    statements: 60
-
+  settings:
+    funlen:
+      lines: 120
+      statements: 60
+    gocyclo:
+      min-complexity: 15
+    govet:
+      enable:
+        - shadow
+    lll:
+      line-length: 150
+      tab-width: 4
+    nakedret:
+      max-func-lines: 10
+  exclusions:
+    generated: lax
+    rules:
+      - linters:
+          - staticcheck
+        text: 'ST1000:'
+      - linters:
+          - dupl
+          - funlen
+          - lll
+        path: _test.go
+      - linters:
+          - revive
+        text: package-comments|exported
+      - linters:
+          - errcheck
+        source: defer .*Rollback()
+      - linters:
+          - errcheck
+        source: defer .*Close()
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
 issues:
-  exclude: []
-  exclude-rules:
-    - linters:
-        - stylecheck
-      text: "ST1000:"
-    - path: _test.go
-      linters:
-        - lll
-        - funlen
-        - dupl
-    - linters:
-        - revive
-      text: "package-comments|exported"
-    - linters:
-        - errcheck
-      source: "defer .*Rollback()"
-    - linters:
-        - errcheck
-      source: "defer .*Close()"
-  exclude-use-default: false
   max-same-issues: 0
+formatters:
+  enable:
+    - gofumpt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

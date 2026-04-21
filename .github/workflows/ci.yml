@@ -15,16 +15,16 @@ jobs:
         with:
           go-version: stable
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v9
         with:
-          version: v1.62.2
+          version: v2.10.1
 
   tests:
     needs: golangci-lint
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: [ 'oldstable', 'stable' ]
+        go-version: ["oldstable", "stable"]
 
     services:
       pgsql:
@@ -78,8 +78,8 @@ jobs:
 
       - name: Prepare MSSQL database
         run: |
-            cat internal/tests/scripts/sqlserver/create_database.sql | docker exec -i $(docker ps -alq) /opt/mssql-tools18/bin/sqlcmd -U sa -P 'P@ssw0rd' -C
-            cat internal/tests/scripts/sqlserver/create_login.sql | docker exec -i $(docker ps -alq) /opt/mssql-tools18/bin/sqlcmd -U sa -P 'P@ssw0rd' -C -d qb_test
+          cat internal/tests/scripts/sqlserver/create_database.sql | docker exec -i $(docker ps -alq) /opt/mssql-tools18/bin/sqlcmd -U sa -P 'P@ssw0rd' -C
+          cat internal/tests/scripts/sqlserver/create_login.sql | docker exec -i $(docker ps -alq) /opt/mssql-tools18/bin/sqlcmd -U sa -P 'P@ssw0rd' -C -d qb_test
 
       - name: Run unit tests
         run: make test
