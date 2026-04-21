@@ -1,16 +1,16 @@
-package pgqb // import "git.ultraware.nl/Ultraware/qb/v2/driver/pgqb"
+package pgqb // import "github.com/Ultraware/qb/v3/driver/pgqb"
 
 import (
 	"database/sql"
 	"strconv"
 	"strings"
 
-	"git.ultraware.nl/Ultraware/qb/v2"
-	"git.ultraware.nl/Ultraware/qb/v2/driver/pgqb/pgqc"
-	"git.ultraware.nl/Ultraware/qb/v2/driver/pgqb/pgqf"
-	"git.ultraware.nl/Ultraware/qb/v2/qbdb"
-	"git.ultraware.nl/Ultraware/qb/v2/qc"
-	"git.ultraware.nl/Ultraware/qb/v2/qf"
+	"github.com/Ultraware/qb/v3"
+	"github.com/Ultraware/qb/v3/driver/pgqb/pgqc"
+	"github.com/Ultraware/qb/v3/driver/pgqb/pgqf"
+	"github.com/Ultraware/qb/v3/qbdb"
+	"github.com/Ultraware/qb/v3/qc"
+	"github.com/Ultraware/qb/v3/qf"
 )
 
 // Driver implements PostgreSQL-specific features

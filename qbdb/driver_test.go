@@ -4,7 +4,7 @@ import (
 	"database/sql/driver"
 	"testing"
 
-	"git.ultraware.nl/Ultraware/qb/v2/internal/testutil"
+	"github.com/Ultraware/qb/v3/internal/testutil"
 )
 
 var database = New(Driver{}, nil).(*db)

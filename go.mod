@@ -1,4 +1,4 @@
-module git.ultraware.nl/Ultraware/qb/v2
+module github.com/Ultraware/qb/v3
 
 go 1.23.0
 

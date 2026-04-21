@@ -11,7 +11,7 @@ qb is a library that allows you to build queries without using strings. This off
 ## Installation
 
 ```bash
-go get git.ultraware.nl/Ultraware/qb/v2/...
+go get github.com/Ultraware/qb/v3/...
 ```
 
 ## Quick start guide

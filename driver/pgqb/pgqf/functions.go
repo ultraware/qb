@@ -1,8 +1,8 @@
-package pgqf // import "git.ultraware.nl/Ultraware/qb/v2/driver/pgqb/pgqf"
+package pgqf // import "github.com/Ultraware/qb/v3/driver/pgqb/pgqf"
 
 import (
-	"git.ultraware.nl/Ultraware/qb/v2"
-	"git.ultraware.nl/Ultraware/qb/v2/qf"
+	"github.com/Ultraware/qb/v3"
+	"github.com/Ultraware/qb/v3/qf"
 )
 
 // Excluded is a postgres-specific version of qf.Excluded

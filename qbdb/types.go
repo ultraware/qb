@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"git.ultraware.nl/Ultraware/qb/v2"
+	"github.com/Ultraware/qb/v3"
 )
 
 // Target is a target for a query, either a plain DB or a Tx

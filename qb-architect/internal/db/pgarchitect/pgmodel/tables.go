@@ -2,7 +2,7 @@
 
 package pgmodel
 
-import "git.ultraware.nl/Ultraware/qb/v2"
+import "github.com/Ultraware/qb/v3"
 
 ///// PgAttribute /////
 var (

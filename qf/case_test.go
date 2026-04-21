@@ -3,8 +3,8 @@ package qf
 import (
 	"testing"
 
-	"git.ultraware.nl/Ultraware/qb/v2"
-	"git.ultraware.nl/Ultraware/qb/v2/internal/testutil"
+	"github.com/Ultraware/qb/v3"
+	"github.com/Ultraware/qb/v3/internal/testutil"
 )
 
 var (
